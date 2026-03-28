@@ -83,6 +83,8 @@
 <script>
     const _db = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
 
+    let cachedBossList = []; // เก็บข้อมูลจาก DB ครั้งสุดท้าย
+
 function createFadeBar(level, mapNumber, channel) {
     return `
         <div class="fade-container">
@@ -96,6 +98,12 @@ function createFadeBar(level, mapNumber, channel) {
 
 async function showTable() {
     const { data: list } = await _db.from('BossList').select('*');
+    cachedBossList = list || [];
+    renderTable();
+}
+
+function renderTable() {
+    const list = cachedBossList;
     const now = new Date();
 
     // 🔥 sort ใหม่ตามที่ต้องการ
@@ -156,7 +164,14 @@ html += `
     <!-- 🔥 คอลัมน์ Boss (แสดงเฉพาะตอนเกิด) -->
     <td style="text-align:center;">
         ${i.BossOn 
-            ? `<span class="boss-icon boss-active">💀</span>` 
+            ? `
+            <div>
+                <span class="boss-icon boss-active">💀</span>
+                <div style="font-size:12px; margin-top:4px;">
+                    ${getCountdown(i.BossStartTime)}
+                </div>
+            </div>
+            `
             : ''
         }
     </td>
@@ -313,7 +328,8 @@ async function processCommand() {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'BossList' }, () => showTable())
         .subscribe();
 
-    setInterval(showTable, 30000);
+    setInterval(showTable, 5000); // fetch จาก DB ทุก 5 วินาที
+    setInterval(renderTable, 1000); // ส่วนนับถอยหลังในหน้าจอทุกวินาที
     showTable();
 
     document.getElementById("cmd").addEventListener("keypress", function(event) {
@@ -356,20 +372,12 @@ async function setFade(mapNumber, channel, fadeLevel) {
 
 
 async function setBossOn(mapNumber, channel) {
-    const map = parseInt(mapNumber, 10);
-    const ch = parseInt(channel, 10);
-
-    const { data: old, error } = await _db
+    const { data: old } = await _db
         .from('BossList')
         .select('*')
-        .eq('MapNumber', map)
-        .eq('Channel', ch)
+        .eq('MapNumber', mapNumber)
+        .eq('Channel', channel)
         .maybeSingle();
-
-    if (error) {
-        console.error('setBossOn error', error);
-        return;
-    }
 
     if (!old) return;
 
@@ -377,12 +385,14 @@ async function setBossOn(mapNumber, channel) {
         .update({
             BossOn: true,
             Fade: 4,
-            TimeMer: new Date() // รีเซ็ตเวลาเป็นตอนเกิดจริง
+            BossStartTime: new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T') // 🔥 ใช้ field ใหม่
         })
         .eq('id', old.id);
 
     showTable();
 }
+
+
 
 function parseMapInput(input) {
     let map = null;
@@ -401,6 +411,28 @@ function parseMapInput(input) {
         ch
     };
 }
+
+
+function getCountdown(startTime) {
+    if (!startTime) return "";
+
+    const start = new Date(startTime);
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const now = new Date();
+
+    const diff = end - now;
+
+    if (diff <= 0) return "00:00";
+
+    const m = String(Math.floor(diff / 60000)).padStart(2, '0');
+    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+
+    return `${m}:${s}`;
+}
+
+
+
+
 </script>
 </body>
 </html>
