@@ -68,52 +68,59 @@
         `;
     }
 
-    async function showTable() {
-        const { data: list } = await _db.from('BossList').select('*').order('TimeMer', { ascending: true });
-        const now = new Date();
+async function showTable() {
+    const { data: list } = await _db.from('BossList').select('*');
+    const now = new Date();
 
-        let html = '<table><thead><tr><th>MapNumber</th><th>เวลาที่ปรากฏ</th><th>สถานะ</th></tr></thead><tbody>';
-
-        for (let h = 0; h < 24; h++) {
-            const items = list.filter(i => {
-                const localTime = new Date(i.TimeMer);
-                const hour = new Date(localTime.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })).getHours();
-                return hour === h;
-            });
-
-            if (items.length > 0) {
-                html += `<tr><td colspan="3" class="hour-row hour-slot">⏰ ช่วงเวลา ${h}:00 - ${h+1}:00 น.</td></tr>`;
-
-                items.forEach(i => {
-                    const bossTime = new Date(i.TimeMer);
-
-                    // ✅ แปลงเป็นเวลาไทยตรงนี้
-                    const thaiTime = new Date(
-                        bossTime.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
-                    );
-
-                    const isArrived = bossTime <= new Date() || i.Fade > 0;
-                    const rowClass = isArrived ? 'row-active' : 'row-waiting';
-
-                    const timeStr = bossTime.toLocaleTimeString('th-TH', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                        timeZone: 'Asia/Bangkok'
-                    });
-
-                    html += `
-                        <tr class="${rowClass}">
-                            <td><strong>${i.MapNumber}</strong></td>
-                            <td>${timeStr} น. ${isArrived ? '🔥' : '⏳'}</td>
-                            <td>${createFadeBar(i.Fade)}</td>
-                        </tr>`;
-                });
-            }
+    // 🔥 sort ใหม่ตามที่ต้องการ
+    list.sort((a, b) => {
+        // ถ้าทั้งคู่มี Fade → เรียง 4 → 1
+        if (a.Fade > 0 && b.Fade > 0) {
+            return b.Fade - a.Fade;
         }
 
-        document.getElementById('tableContent').innerHTML = html + '</tbody></table>';
-    }
+        // a มี Fade → มาก่อน
+        if (a.Fade > 0) return -1;
+
+        // b มี Fade → มาก่อน
+        if (b.Fade > 0) return 1;
+
+        // ไม่มี Fade → เรียงตามเวลา
+        return new Date(a.TimeMer) - new Date(b.TimeMer);
+    });
+
+    let html = '<table><thead><tr><th>MapNumber</th><th>เวลาที่ปรากฏ</th><th>สถานะ</th></tr></thead><tbody>';
+
+    list.forEach(i => {
+        const bossTime = new Date(i.TimeMer);
+
+        // 🔥 logic สถานะ (แก้แล้ว)
+        const isArrived = bossTime <= now || i.Fade > 0;
+
+        const rowClass = isArrived ? 'row-active' : 'row-waiting';
+
+        const timeStr = bossTime.toLocaleTimeString('th-TH', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        let statusIcon = '⏳';
+        if (i.Fade > 0 || bossTime <= now) {
+            statusIcon = '🔥';
+        }
+
+        html += `
+            <tr class="${rowClass}">
+                <td><strong>${i.MapNumber}</strong></td>
+                <td>${timeStr} น. ${statusIcon}</td>
+                <td>${createFadeBar(i.Fade)}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById('tableContent').innerHTML = html + '</tbody></table>';
+}
 
 async function processCommand() {
     const input = document.getElementById('cmd').value.trim();
