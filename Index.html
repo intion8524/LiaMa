@@ -66,7 +66,7 @@
 <div class="container">
     <h2>🎮 BossList Live Tracker</h2>
     <label> รูปแบบคำสั่ง </label><br>
-    <label>  1) 80.1+10 = บอสแมพ 80 CH 1 จะเกิดอีก 10 นาที </label><br>
+    <label>  1) 80.1 ,  80-1  = 80 CH 1</label><br>
     <label>  2) 80.1+1.20 = บอสแมพ 80 CH 1 จะเกิดอีก 1 ชั่วโมง 20 นาที </label><br>
     <label>  3) 80.1/2  = บอสแมพ 80 CH 1 เกิดแล้ว เฟดที่ 2 </label>
 
@@ -161,7 +161,7 @@ html += `
     </td>
 
     <!-- Map -->
-    <td><strong>${i.MapNumber}</strong></td>
+    <td><strong>${i.MapNumber} CH ${i.Channel}</strong></td>
 
     <!-- เวลา -->
     <td>${timeStr} น. ${statusIcon}</td>
@@ -200,20 +200,28 @@ async function processCommand() {
     const input = document.getElementById('cmd').value.trim();
     if (!input) return;
 
-    let mapNum = "", val = "";
+    let rawMap = "", val = "";
     const isPlus = input.includes('+');
     const isSlash = input.includes('/');
 
-    if (isPlus) [mapNum, val] = input.split('+');
-    else if (isSlash) [mapNum, val] = input.split('/');
+    if (isPlus) [rawMap, val] = input.split('+');
+    else if (isSlash) [rawMap, val] = input.split('/');
     else return;
 
-    mapNum = mapNum.trim();
+    // 🔥 parse map + channel
+    const { map, ch } = parseMapInput(rawMap.trim());
 
+    if (!map || isNaN(map)) {
+        alert("รูปแบบไม่ถูกต้อง");
+        return;
+    }
+
+    // 🔍 หา record เดิม
     const { data: old, error } = await _db
         .from('BossList')
         .select('*')
-        .eq('MapNumber', mapNum)
+        .eq('MapNumber', map)
+        .eq('Channel', ch)
         .maybeSingle();
 
     if (error) {
@@ -221,53 +229,65 @@ async function processCommand() {
         return;
     }
 
+    // =========================
     // ✅ เคส +
+    // =========================
     if (isPlus) {
+        const newTime = calcTime(val);
+
         if (old) {
             // update
             await _db.from('BossList')
                 .update({
-                    TimeMer: calcTime(val),
-                    Fade: 0
+                    TimeMer: newTime,
+                    Fade: 0,
+                    BossOn: false
                 })
                 .eq('id', old.id);
         } else {
             // insert
             await _db.from('BossList')
                 .insert([{
-                    MapNumber: mapNum,
-                    TimeMer: calcTime(val),
-                    Fade: 0
+                    MapNumber: map,
+                    Channel: ch,
+                    TimeMer: newTime,
+                    Fade: 0,
+                    BossOn: false
                 }]);
         }
     }
 
+    // =========================
     // ✅ เคส /
+    // =========================
     if (isSlash) {
+        const fadeVal = parseInt(val);
+
         if (old) {
-            // update fade
+            // update fade + reset boss
             await _db.from('BossList')
                 .update({
-                    Fade: parseInt(val)
+                    Fade: fadeVal,
+                    BossOn: false
                 })
                 .eq('id', old.id);
         } else {
-            // 🔥 ไม่มีข้อมูล → ต้อง insert ใหม่
+            // insert ใหม่
             await _db.from('BossList')
                 .insert([{
-                    MapNumber: mapNum,
-                    TimeMer: new Date().toLocaleString('sv-SE', {
-        timeZone: 'Asia/Bangkok'
-    }).replace(' ', 'T'),
-                    Fade: parseInt(val)
+                    MapNumber: map,
+                    Channel: ch,
+                    TimeMer: new Date(), // 🔥 เวลาไทย
+                    Fade: fadeVal,
+                    BossOn: false
                 }]);
         }
     }
 
+    // 🔄 reset input + refresh
     document.getElementById('cmd').value = "";
     showTable();
 }
-
 
  function calcTime(v) {
     const d = new Date();
@@ -341,6 +361,24 @@ async function setBossOn(mapNumber) {
         .eq('id', old.id);
 
     showTable();
+}
+
+function parseMapInput(input) {
+    let map = null;
+    let ch = 1;
+
+    if (input.includes('.') || input.includes('-')) {
+        const parts = input.split(/[.-]/);
+        map = parseInt(parts[0]);
+        ch = parseInt(parts[1] || 1);
+    } else {
+        map = parseInt(input);
+    }
+
+    return {
+        map,
+        ch
+    };
 }
 </script>
 </body>
