@@ -82,13 +82,13 @@
 <script>
     const _db = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
 
-function createFadeBar(level, mapNumber) {
+function createFadeBar(level, mapNumber, channel) {
     return `
         <div class="fade-container">
-            <div class="fade-box f1 ${level >= 1 ? 'active' : ''}" onclick="setFade('${mapNumber}', 1)"></div>
-            <div class="fade-box f2 ${level >= 2 ? 'active' : ''}" onclick="setFade('${mapNumber}', 2)"></div>
-            <div class="fade-box f3 ${level >= 3 ? 'active' : ''}" onclick="setFade('${mapNumber}', 3)"></div>
-            <div class="fade-box f4 ${level >= 4 ? 'active' : ''}" onclick="setFade('${mapNumber}', 4)"></div>
+            <div class="fade-box f1 ${level >= 1 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 1)"></div>
+            <div class="fade-box f2 ${level >= 2 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 2)"></div>
+            <div class="fade-box f3 ${level >= 3 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 3)"></div>
+            <div class="fade-box f4 ${level >= 4 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 4)"></div>
         </div>
     `;
 }
@@ -168,12 +168,12 @@ html += `
 
     <!-- Fade -->
     <td>
-        ${createFadeBar(i.Fade, i.MapNumber)}
+        ${createFadeBar(i.Fade, i.MapNumber, i.Channel)}
     </td>
 
     <!-- 🔥 ปุ่ม Action -->
     <td style="text-align:center;">
-        <button onclick="setBossOn('${i.MapNumber}')"
+        <button onclick="setBossOn('${i.MapNumber}', '${i.Channel}')"
             style="
                 padding:6px 12px;
                 border:none;
@@ -321,21 +321,30 @@ async function processCommand() {
     });
 
 
-    async function setFade(mapNumber, fadeLevel) {
-    const { data: old } = await _db
+async function setFade(mapNumber, channel, fadeLevel) {
+    const map = parseInt(mapNumber, 10);
+    const ch = parseInt(channel, 10);
+
+    const { data: old, error } = await _db
         .from('BossList')
         .select('*')
-        .eq('MapNumber', mapNumber)
+        .eq('MapNumber', map)
+        .eq('Channel', ch)
         .maybeSingle();
+
+    if (error) {
+        console.error('setFade error', error);
+        return;
+    }
 
     if (!old) return;
 
     await _db.from('BossList')
-    .update({ 
-        Fade: fadeLevel,
-        BossOn: false // 🔥 reset บอสทันที
-    })
-    .eq('id', old.id);
+        .update({ 
+            Fade: fadeLevel,
+            BossOn: false // 🔥 reset บอสทันที
+        })
+        .eq('id', old.id);
 
     showTable(); // รีเฟรช
 }
@@ -343,12 +352,21 @@ async function processCommand() {
 
 
 
-async function setBossOn(mapNumber) {
-    const { data: old } = await _db
+async function setBossOn(mapNumber, channel) {
+    const map = parseInt(mapNumber, 10);
+    const ch = parseInt(channel, 10);
+
+    const { data: old, error } = await _db
         .from('BossList')
         .select('*')
-        .eq('MapNumber', mapNumber)
+        .eq('MapNumber', map)
+        .eq('Channel', ch)
         .maybeSingle();
+
+    if (error) {
+        console.error('setBossOn error', error);
+        return;
+    }
 
     if (!old) return;
 
