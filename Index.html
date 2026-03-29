@@ -50,9 +50,39 @@
     animation: bossGlow 1s infinite alternate;
 }
 
+.command-guide {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 5px solid #24b47e;
+}
+
+.command-guide h3 {
+    margin-top: 0;
+    color: #24b47e;
+    font-size: 18px;
+}
+
+.command-guide ul {
+    list-style: none;
+    padding: 0;
+}
+
+.command-guide li {
+    margin-bottom: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    line-height: 1.5;
+}
+
+.command-guide li:last-child {
+    border-bottom: none;
+    font-style: italic;
+    color: #666;
+}
+
 .modal-overlay {
-    position: fixed;
-    inset: 0;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
@@ -96,9 +126,18 @@
 
 <div class="container">
     <h2>🎮 BossList Live Tracker</h2>
-    <label> รูปแบบคำสั่ง </label><br>
-    <label>  1) 80.1 ,  80-1  = 80 CH 1</label><br>
-    
+    <div class="command-guide">
+        <h3>รูปแบบคำสั่งที่รองรับ:</h3>
+        <ul>
+            <li>1) 80.1 หรือ 80-1 = ตั้งเวลาบอสแมพ 80 ช่อง 1 (เวลาปัจจุบัน + 0 นาที)</li>
+            <li>2) 80.1+1.20 = ตั้งเวลาบอสแมพ 80 ช่อง 1 ที่ เวลาปัจจุบัน + 1 ชั่วโมง 20 นาที</li>
+            <li>3) 80.1+10 = ตั้งเวลาบอสแมพ 80 ช่อง 1 ที่ เวลาปัจจุบัน + 10 นาที</li>
+            <li>4) 80.1/2 = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 2 (พร้อมรอเฟดต่อ)</li>
+            <li>5) 80.1on = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 4 และ Boss ON ทันที (เริ่มนับถอยหลัง 30 นาที)</li>
+            <li>หมายเหตุ: เลขหลังจุดหรือขีดกลางคือช่อง (channel) ถ้าไม่ใส่จะเป็นช่อง 1 โดยอัตโนมัติ</li>
+        </ul>
+    </div>
+
     <!-- Modal สำหรับแจ้งบอสตาย -->
     <div id="deadModal" class="modal-overlay" style="display:none;">
         <div class="modal-content">
@@ -123,9 +162,7 @@
             </div>
         </div>
     </div>
-    <label>  2) 80.1+1.20 = บวกเวลา 1 ชั่วโมง 20 นาที จากเวลาปัจจุบัน </label><br>
-    <label>  3) 80.1+10 = บวกเวลา 10 นาที จากเวลาปัจจุบัน </label><br>
-    <label>  4) 80.1/2  = บอสแมพ 80 CH 1 เกิดแล้ว เฟดที่ 2 </label>
+
 
     <div class="input-group">
         <input type="text" id="cmd" placeholder="พิมพ์คำสั่ง">
@@ -303,6 +340,62 @@ html += `
 async function processCommand() {
     const input = document.getElementById('cmd').value.trim();
     if (!input) return;
+
+    // 🔥 เคสพิเศษ: ถ้ามี 'on' แสดงว่า boss เกิดแล้ว
+    if (input.toLowerCase().includes('on')) {
+        // ลบ 'on' ออกแล้ว parse map
+        const cleanInput = input.toLowerCase().replace('on', '').trim();
+        const { map, ch } = parseMapInput(cleanInput);
+
+        if (!map || isNaN(map)) {
+            alert("รูปแบบไม่ถูกต้อง");
+            return;
+        }
+
+        // 🔍 หา record เดิม
+        const { data: old, error } = await _db
+            .from('BossList')
+            .select('*')
+            .eq('MapNumber', map)
+            .eq('Channel', ch)
+            .maybeSingle();
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        const nowTime = new Date().toLocaleString('sv-SE', {
+            timeZone: 'Asia/Bangkok'
+        }).replace(' ', 'T');
+
+        if (old) {
+            // update
+            await _db.from('BossList')
+                .update({
+                    BossOn: true,
+                    Fade: 4,
+                    BossStartTime: nowTime
+                })
+                .eq('id', old.id);
+        } else {
+            // insert ใหม่
+            await _db.from('BossList')
+                .insert([{
+                    MapNumber: map,
+                    Channel: ch,
+                    TimeMer: nowTime, // ตั้งเวลาปัจจุบัน
+                    Fade: 4,
+                    BossOn: true,
+                    BossStartTime: nowTime
+                }]);
+        }
+
+        // 🔄 reset input + refresh
+        document.getElementById('cmd').value = "";
+        showTable();
+        return;
+    }
 
     let rawMap = "", val = "";
     const isPlus = input.includes('+');
