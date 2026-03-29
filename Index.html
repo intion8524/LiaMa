@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <title>BossList Dashboard Pro</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-color: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #f8f9fa; }
         .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
         /* สไตล์ช่อง Input */
         .input-group { display: flex; gap: 10px; margin-bottom: 25px; }
-        input { flex: 1; padding: 15px; border: 2px solid #eee; border-radius: 10px; font-size: 16px; outline: none; transition: 0.3s; }
+        input { flex: 1; padding: 15px; border: 2px solid #eee; border-radius: 10px; font-size: 16px; outline: none; transition: 0.3s; box-sizing: border-box; }
         input:focus { border-color: #24b47e; }
+        .modal-content input { width: 100%; box-sizing: border-box; }
         button { padding: 15px 30px; background: #24b47e; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
         /* สไตล์ตาราง */
@@ -26,12 +27,12 @@
         .row-active { opacity: 1; filter: none; font-weight: 500; background-color: #ffffff; border: 1px solid #24b47e !important; }
 
         /* สไตล์หลอด Fade 4 ช่อง */
-        .fade-container { display: flex; gap: 4px; justify-content: center; width: 120px; margin: auto; }
-        .fade-box { width: 25px; height: 12px; border-radius: 3px; background-color: #e0e0e0; transition: 0.3s; }
-        .f1.active { background-color: #4caf50; box-shadow: 0 0 8px #4caf50; } /* เขียว */
-        .f2.active { background-color: #ffeb3b; box-shadow: 0 0 8px #ffeb3b; } /* เหลือง */
-        .f3.active { background-color: #ff9800; box-shadow: 0 0 8px #ff9800; } /* ส้ม */
-        .f4.active { background-color: #f44336; box-shadow: 0 0 8px #f44336; } /* แดง */
+        .fade-container { display: flex; gap: 5px; justify-content: center; width: auto; margin: auto; }
+        .fade-box { width: 35px; height: 20px; border-radius: 5px; background-color: #e0e0e0; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; }
+        .f1.active { background-color: #4caf50; box-shadow: 0 0 8px #4caf50; color: white; } /* เขียว */
+        .f2.active { background-color: #ffeb3b; box-shadow: 0 0 8px #ffeb3b; color: black; } /* เหลือง */
+        .f3.active { background-color: #ff9800; box-shadow: 0 0 8px #ff9800; color: white; } /* ส้ม */
+        .f4.active { background-color: #f44336; box-shadow: 0 0 8px #f44336; color: white; } /* แดง */
 
         .hour-slot { background: none !important; text-align: left !important; color: #1a73e8; font-weight: bold; font-size: 1.1em; padding-top: 20px !important; }
     .fade-box {
@@ -47,6 +48,36 @@
 .boss-active {
     color: #f44336;
     animation: bossGlow 1s infinite alternate;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    width: 330px;
+    max-width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.modal-content p {
+    margin: 0 0 8px;
+    font-size: 14px;
 }
 
 @keyframes bossGlow {
@@ -67,6 +98,31 @@
     <h2>🎮 BossList Live Tracker</h2>
     <label> รูปแบบคำสั่ง </label><br>
     <label>  1) 80.1 ,  80-1  = 80 CH 1</label><br>
+    
+    <!-- Modal สำหรับแจ้งบอสตาย -->
+    <div id="deadModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3>บอสตายแล้ว</h3>
+            <p>กรุณาใส่เวลารอบอสใหม่ (1.20 ชั่วโมง หรือ 10 นาที ):</p>
+            <input id="deadModalInput" type="text" placeholder="1.20 หรือ 10" style="width: 100%; padding: 8px; margin: 10px 0;" onkeydown="if (event.key === 'Enter') confirmBossDead();" />
+            <div style="text-align: right; margin-top: 10px;">
+                <button onclick="closeDeadModal()" style="margin-right: 8px;">ยกเลิก</button>
+                <button onclick="confirmBossDead()" style="background:#2196f3;color:#fff;">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal สำหรับลบบอส -->
+    <div id="deleteModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3>ลบบอส</h3>
+            <p>คุณแน่ใจหรือไม่ที่จะลบข้อมูลบอสตัวนี้?</p>
+            <div style="text-align: right; margin-top: 10px;">
+                <button onclick="closeDeleteModal()" style="margin-right: 8px;">ยกเลิก</button>
+                <button onclick="confirmDeleteBoss()" style="background:#e53935;color:#fff;">ลบ</button>
+            </div>
+        </div>
+    </div>
     <label>  2) 80.1+1.20 = บวกเวลา 1 ชั่วโมง 20 นาที จากเวลาปัจจุบัน </label><br>
     <label>  3) 80.1+10 = บวกเวลา 10 นาที จากเวลาปัจจุบัน </label><br>
     <label>  4) 80.1/2  = บอสแมพ 80 CH 1 เกิดแล้ว เฟดที่ 2 </label>
@@ -88,10 +144,10 @@
 function createFadeBar(level, mapNumber, channel) {
     return `
         <div class="fade-container">
-            <div class="fade-box f1 ${level >= 1 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 1)"></div>
-            <div class="fade-box f2 ${level >= 2 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 2)"></div>
-            <div class="fade-box f3 ${level >= 3 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 3)"></div>
-            <div class="fade-box f4 ${level >= 4 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 4)"></div>
+            <div class="fade-box f1 ${level >= 1 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 1)">1</div>
+            <div class="fade-box f2 ${level >= 2 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 2)">2</div>
+            <div class="fade-box f3 ${level >= 3 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 3)">3</div>
+            <div class="fade-box f4 ${level >= 4 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 4)">4</div>
         </div>
     `;
 }
@@ -125,14 +181,16 @@ function renderTable() {
 
     //let html = '<table><thead><tr><th>MapNumber</th><th>เวลาที่ปรากฏ</th><th>สถานะ</th></tr></thead><tbody>';
     let html = `
+    <div style="overflow-x: auto;">
     <table>
     <thead>
     <tr>
         <th>Boss</th>
         <th>MapNumber</th>
-        <th>เวลาที่ปรากฏ</th>
-        <th>Fade</th>
+        <th>เวลา / สถานะ</th>
         <th>BossOn</th>
+        <th>บอสตายแล้ว</th>
+        <th>Delete</th>
     </tr>
     </thead>
     <tbody>
@@ -179,27 +237,57 @@ html += `
     <!-- Map -->
     <td><strong>${i.MapNumber} CH ${i.Channel}</strong></td>
 
-    <!-- เวลา -->
-    <td>${timeStr} น. ${statusIcon}</td>
-
     <!-- Fade -->
     <td>
+        <div style="font-size:12px; margin-bottom:4px; text-align:center;">${timeStr} น. ${statusIcon}</div>
         ${createFadeBar(i.Fade, i.MapNumber, i.Channel)}
     </td>
 
     <!-- 🔥 ปุ่ม Action -->
     <td style="text-align:center;">
-        <button onclick="setBossOn('${i.MapNumber}', '${i.Channel}')"
+        <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')"
             style="
                 padding:6px 12px;
                 border:none;
                 border-radius:8px;
-                background:${i.BossOn ? '#9e9e9e' : '#f44336'};
+                background:${i.BossOn ? '#f44336' : '#9e9e9e'};
                 color:white;
                 cursor:pointer;
                 font-weight:bold;
             ">
-            ${i.BossOn ? 'On' : '✔'}
+            ${i.BossOn ? 'ON' : 'OFF'}
+        </button>
+    </td>
+
+    <!-- 🔥 ปุ่มบอสตายแล้ว -->
+    <td style="text-align:center;">
+        <button onclick="markBossDead('${i.MapNumber}', '${i.Channel}')"
+            style="
+                padding:6px 10px;
+                border:none;
+                border-radius:8px;
+                background:#2196f3;
+                color:white;
+                cursor:pointer;
+                font-weight:bold;
+            ">
+            บอสตายแล้ว
+        </button>
+    </td>
+
+    <!-- 🗑️ ปุ่มลบ -->
+    <td style="text-align:center;">
+        <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')"
+            style="
+                padding:6px 10px;
+                border:none;
+                border-radius:8px;
+                background:#e53935;
+                color:white;
+                cursor:pointer;
+                font-weight:bold;
+            ">
+            Delete
         </button>
     </td>
 
@@ -328,7 +416,7 @@ async function processCommand() {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'BossList' }, () => showTable())
         .subscribe();
 
-    setInterval(showTable, 5000); // fetch จาก DB ทุก 5 วินาที
+    setInterval(showTable, 30000); // fetch จาก DB ทุก 5 วินาที
     setInterval(renderTable, 1000); // ส่วนนับถอยหลังในหน้าจอทุกวินาที
     showTable();
 
@@ -371,28 +459,163 @@ async function setFade(mapNumber, channel, fadeLevel) {
 
 
 
-async function setBossOn(mapNumber, channel) {
-    const { data: old } = await _db
+async function toggleBossOn(mapNumber, channel) {
+    const map = parseInt(mapNumber, 10);
+    const ch = parseInt(channel, 10);
+
+    const { data: old, error } = await _db
         .from('BossList')
         .select('*')
-        .eq('MapNumber', mapNumber)
-        .eq('Channel', channel)
+        .eq('MapNumber', map)
+        .eq('Channel', ch)
         .maybeSingle();
+
+    if (error) {
+        console.error('toggleBossOn error', error);
+        return;
+    }
 
     if (!old) return;
 
+    const newBossOn = !old.BossOn;
+
+    // ถ้า OFF -> เปิดขึ้น (ตั้งเวลาสตาร์ทใหม่)
+    // ถ้า ON -> ปิด, เคลียร์เฉพาะ BossOn กับ BossStartTime
     await _db.from('BossList')
         .update({
-            BossOn: true,
-            Fade: 4,
-            BossStartTime: new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T') // 🔥 ใช้ field ใหม่
+            BossOn: newBossOn,
+            BossStartTime: newBossOn ? new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T') : null,
+            Fade: newBossOn ? 4 : old.Fade
         })
         .eq('id', old.id);
 
     showTable();
 }
 
+let pendingDeadMap = null;
+let pendingDeadChannel = null;
 
+let pendingDeleteMap = null;
+let pendingDeleteChannel = null;
+
+async function markBossDead(mapNumber, channel) {
+    const map = parseInt(mapNumber, 10);
+    const ch = parseInt(channel, 10);
+
+    // เก็บสถานะไว้ก่อน แล้วเปิด modal
+    pendingDeadMap = map;
+    pendingDeadChannel = ch;
+
+    document.getElementById('deadModalInput').value = '';
+    document.getElementById('deadModal').style.display = 'flex';
+}
+
+function closeDeadModal() {
+    pendingDeadMap = null;
+    pendingDeadChannel = null;
+    document.getElementById('deadModal').style.display = 'none';
+}
+
+async function confirmBossDead() {
+    const inputValue = document.getElementById('deadModalInput').value.trim();
+    if (!inputValue) {
+        alert('กรุณากรอกเวลา');
+        return;
+    }
+
+    let newTime;
+    try {
+        newTime = calcTime(inputValue);
+        if (!newTime) throw new Error('invalid');
+    } catch (err) {
+        alert('รูปแบบเวลาไม่ถูกต้อง');
+        return;
+    }
+
+    if (pendingDeadMap === null || pendingDeadChannel === null) {
+        closeDeadModal();
+        return;
+    }
+
+    const { data: old, error } = await _db
+        .from('BossList')
+        .select('*')
+        .eq('MapNumber', pendingDeadMap)
+        .eq('Channel', pendingDeadChannel)
+        .maybeSingle();
+
+    if (error) {
+        console.error('markBossDead error', error);
+        closeDeadModal();
+        return;
+    }
+
+    if (!old) {
+        closeDeadModal();
+        return;
+    }
+
+    await _db.from('BossList')
+        .update({
+            TimeMer: newTime,
+            BossOn: false,
+            BossStartTime: null,
+            Fade: 0
+        })
+        .eq('id', old.id);
+
+    closeDeadModal();
+    showTable();
+}
+
+async function deleteBoss(mapNumber, channel) {
+    const map = parseInt(mapNumber, 10);
+    const ch = parseInt(channel, 10);
+
+    // เก็บสถานะไว้ก่อน แล้วเปิด modal
+    pendingDeleteMap = map;
+    pendingDeleteChannel = ch;
+
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    pendingDeleteMap = null;
+    pendingDeleteChannel = null;
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+async function confirmDeleteBoss() {
+    if (pendingDeleteMap === null || pendingDeleteChannel === null) {
+        closeDeleteModal();
+        return;
+    }
+
+    const { data: old, error } = await _db
+        .from('BossList')
+        .select('*')
+        .eq('MapNumber', pendingDeleteMap)
+        .eq('Channel', pendingDeleteChannel)
+        .maybeSingle();
+
+    if (error) {
+        console.error('deleteBoss error', error);
+        closeDeleteModal();
+        return;
+    }
+
+    if (!old) {
+        closeDeleteModal();
+        return;
+    }
+
+    await _db.from('BossList')
+        .delete()
+        .eq('id', old.id);
+
+    closeDeleteModal();
+    showTable();
+}
 
 function parseMapInput(input) {
     let map = null;
