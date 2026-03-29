@@ -192,6 +192,8 @@
 
     let cachedBossList = []; // เก็บข้อมูลจาก DB ครั้งสุดท้าย
 
+    const getNowBangkok = () => new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
+
 function createFadeBar(level, mapNumber, channel) {
     return `
         <div class="fade-container">
@@ -219,7 +221,7 @@ async function showTable() {
 
 function renderTable() {
     const list = cachedBossList;
-    const now = new Date();
+    const now = getNowBangkok();
 
     // 🔥 sort ใหม่ตามที่ต้องการ
     list.sort((a, b) => {
@@ -757,7 +759,7 @@ function getCountdown(startTime) {
 
     const start = new Date(startTime);
     const end = new Date(start.getTime() + 30 * 60 * 1000);
-    const now = new Date();
+    const now = getNowBangkok();
 
     const diff = end - now;
 
@@ -774,7 +776,7 @@ function updateTimers() {
         const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
         if (timerEl) {
             const bossTime = new Date(i.TimeMer);
-            const now = new Date();
+            const now = getNowBangkok();
             const diffMs = now - bossTime;
             const diffMin = Math.floor(diffMs / 60000);
             const diffSec = Math.floor((diffMs % 60000) / 1000);
