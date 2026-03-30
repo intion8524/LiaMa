@@ -225,9 +225,13 @@ function renderTable() {
 
     // 🔥 sort ใหม่ตามที่ต้องการ
     list.sort((a, b) => {
-        // ถ้าทั้งคู่มี Fade → เรียง 4 → 1
+        // ถ้าทั้งคู่มี Fade → ถ้า Fade เดียวกัน เรียง lv จากมากไปน้อย ถ้าไม่ เรียง 4 → 1
         if (a.Fade > 0 && b.Fade > 0) {
-            return b.Fade - a.Fade;
+            if (a.Fade === b.Fade) {
+                return parseInt(b.MapNumber) - parseInt(a.MapNumber);
+            } else {
+                return b.Fade - a.Fade;
+            }
         }
 
         // a มี Fade → มาก่อน
