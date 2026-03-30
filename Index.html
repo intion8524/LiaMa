@@ -296,7 +296,7 @@ html += `
     </td>
 
     <!-- Map -->
-    <td><strong>${i.MapNumber} CH ${i.Channel}</strong></td>
+    <td><strong>${i.MapNumber} - ${i.Channel}</strong></td>
 
     <!-- Fade -->
     <td>
@@ -534,8 +534,17 @@ async function processCommand() {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'BossList' }, () => showTable())
         .subscribe();
 
-    setInterval(showTable, 30000); // fetch จาก DB ทุก 5 วินาที
-    setInterval(renderTable, 1000); // ส่วนนับถอยหลังในหน้าจอทุกวินาที
+    let intervalCounter = 0;
+    setInterval(() => {
+        updateTimers();
+        renderTable();
+        intervalCounter++;
+        if (intervalCounter >= 30) {
+            showTable();
+            intervalCounter = 0;
+        }
+    }, 1000);
+
     showTable();
 
     document.getElementById("cmd").addEventListener("keypress", function(event) {
