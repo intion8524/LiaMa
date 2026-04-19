@@ -134,6 +134,20 @@
     margin-bottom: 4px;
     transition: opacity 1s;
 }
+
+/* FLIP animation สำหรับเลื่อนแถวสมูท */
+tbody tr {
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+tbody tr.row-entering {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+tbody tr.row-removing {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
     </style>
 </head>
 <body>
@@ -225,7 +239,6 @@ function renderTable() {
 
     // 🔥 sort ใหม่ตามที่ต้องการ
     list.sort((a, b) => {
-        // ถ้าทั้งคู่มี Fade → ถ้า Fade เดียวกัน เรียง lv จากมากไปน้อย ถ้าไม่ เรียง 4 → 1
         if (a.Fade > 0 && b.Fade > 0) {
             if (a.Fade === b.Fade) {
                 return parseInt(b.MapNumber) - parseInt(a.MapNumber);
@@ -233,137 +246,164 @@ function renderTable() {
                 return b.Fade - a.Fade;
             }
         }
-
-        // a มี Fade → มาก่อน
         if (a.Fade > 0) return -1;
-
-        // b มี Fade → มาก่อน
         if (b.Fade > 0) return 1;
-
-        // ไม่มี Fade → เรียงตามเวลา
         return new Date(a.TimeMer) - new Date(b.TimeMer);
     });
 
-    //let html = '<table><thead><tr><th>MapNumber</th><th>เวลาที่ปรากฏ</th><th>สถานะ</th></tr></thead><tbody>';
-    let html = `
-    <div style="overflow-x: auto;">
-    <table>
-    <thead>
-    <tr>
-        <th>Boss</th>
-        <th>MapNumber</th>
-        <th>เวลา / สถานะ</th>
-        <th>BossOn</th>
-        <th>บอสตายแล้ว</th>
-        <th>Delete</th>
-    </tr>
-    </thead>
-    <tbody>
-    `;
+    const tbody = document.querySelector('#tableContent tbody');
+    const newOrderIds = list.map(i => `row-${i.MapNumber}-${i.Channel}`);
 
+    // ถ้ายังไม่มีตาราง → สร้างใหม่ทั้งหมด (ครั้งแรก)
+    if (!tbody) {
+        let html = `
+        <div style="overflow-x: auto;">
+        <table>
+        <thead>
+        <tr>
+            <th>Boss</th>
+            <th>MapNumber</th>
+            <th>เวลา / สถานะ</th>
+            <th>BossOn</th>
+            <th>บอสตายแล้ว</th>
+            <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        `;
+        list.forEach(i => { html += buildRowHTML(i, now); });
+        document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
+        return;
+    }
+
+    // === FLIP Animation ===
+
+    // 1) FIRST: จำตำแหน่งเดิมของแต่ละแถว
+    const oldPositions = {};
+    tbody.querySelectorAll('tr[id]').forEach(tr => {
+        oldPositions[tr.id] = tr.getBoundingClientRect();
+    });
+
+    // 2) สร้าง map ของ id ที่มีอยู่แล้ว
+    const existingIds = new Set(Object.keys(oldPositions));
+    const newIds = new Set(newOrderIds);
+
+    // 3) ลบแถวที่ไม่อยู่ใน list ใหม่ (fade-out)
+    existingIds.forEach(id => {
+        if (!newIds.has(id)) {
+            const tr = document.getElementById(id);
+            if (tr) {
+                tr.classList.add('row-removing');
+                tr.addEventListener('transitionend', () => tr.remove(), { once: true });
+            }
+        }
+    });
+
+    // 4) อัปเดตเนื้อหาแถวที่มีอยู่ + เพิ่มแถวใหม่
     list.forEach(i => {
-        const bossTime = new Date(i.TimeMer);
+        const rowId = `row-${i.MapNumber}-${i.Channel}`;
+        let tr = document.getElementById(rowId);
 
-        // 🔥 logic สถานะ (แก้แล้ว)
-        const isArrived = bossTime <= now || i.Fade > 0 || i.BossOn;
+        if (tr) {
+            // อัปเดตเนื้อหา in-place
+            tr.outerHTML = buildRowHTML(i, now);
+        } else {
+            // สร้างแถวใหม่
+            const temp = document.createElement('tbody');
+            temp.innerHTML = buildRowHTML(i, now);
+            const newTr = temp.firstElementChild;
+            newTr.classList.add('row-entering');
+            tbody.appendChild(newTr);
+            // trigger reflow แล้วเอา class ออกเพื่อ animate เข้า
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    newTr.classList.remove('row-entering');
+                });
+            });
+        }
+    });
 
-        const rowClass = isArrived ? 'row-active' : 'row-waiting';
+    // 5) จัดลำดับแถวตาม sort ใหม่
+    newOrderIds.forEach(id => {
+        const tr = document.getElementById(id);
+        if (tr) tbody.appendChild(tr);
+    });
 
-        const timeStr = bossTime.toLocaleTimeString('th-TH', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
+    // 6) LAST + INVERT + PLAY: animate แถวไปตำแหน่งใหม่
+    newOrderIds.forEach(id => {
+        const tr = document.getElementById(id);
+        if (!tr || !oldPositions[id]) return;
+
+        const newRect = tr.getBoundingClientRect();
+        const deltaY = oldPositions[id].top - newRect.top;
+
+        if (Math.abs(deltaY) < 1) return; // ไม่ขยับ ไม่ต้อง animate
+
+        // INVERT: ย้ายกลับไปตำแหน่งเดิม
+        tr.style.transition = 'none';
+        tr.style.transform = `translateY(${deltaY}px)`;
+
+        // PLAY: animate ไปตำแหน่งใหม่
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                tr.style.transition = 'transform 0.4s ease';
+                tr.style.transform = '';
+                tr.addEventListener('transitionend', () => {
+                    tr.style.transition = '';
+                }, { once: true });
+            });
         });
+    });
+}
 
-        let statusIcon = '⏳';
-        if (i.BossOn) statusIcon = '💀'; // บอสเกิดแล้ว
-        else if (i.Fade > 0 || bossTime <= now) statusIcon = '🔥';
+function buildRowHTML(i, now) {
+    const bossTime = new Date(i.TimeMer);
+    const isArrived = bossTime <= now || i.Fade > 0 || i.BossOn;
+    const rowClass = isArrived ? 'row-active' : 'row-waiting';
+    const timeStr = bossTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
 
+    let statusIcon = '⏳';
+    if (i.BossOn) statusIcon = '💀';
+    else if (i.Fade > 0 || bossTime <= now) statusIcon = '🔥';
 
-
-html += `
-<tr class="${rowClass}">
-
-    <!-- 🔥 คอลัมน์ Boss (แสดงเฉพาะตอนเกิด) -->
+    return `
+<tr class="${rowClass}" id="row-${i.MapNumber}-${i.Channel}">
     <td style="text-align:center;">
-        ${i.BossOn 
-            ? `
-            <div>
+        ${i.BossOn
+            ? `<div>
                 <span class="boss-icon boss-active">💀</span>
-                <div style="font-size:12px; margin-top:4px;">
+                <div id="countdown-${i.MapNumber}-${i.Channel}" style="font-size:12px; margin-top:4px;">
                     ${getCountdown(i.BossStartTime)}
                 </div>
-            </div>
-            `
+            </div>`
             : ''
         }
     </td>
-
-    <!-- Map -->
     <td><strong>${i.MapNumber} - ${i.Channel}</strong></td>
-
-    <!-- Fade -->
     <td>
         ${isArrived ? `<div class="timer" id="timer-${i.MapNumber}-${i.Channel}">0:00 นาที</div>` : ''}
         <div style="font-size:12px; margin-bottom:4px; text-align:center;">${timeStr} น. ${statusIcon}</div>
         ${createFadeBar(i.Fade, i.MapNumber, i.Channel)}
     </td>
-
-    <!-- 🔥 ปุ่ม Action -->
     <td style="text-align:center;">
         <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')"
-            style="
-                padding:6px 12px;
-                border:none;
-                border-radius:8px;
-                background:${i.BossOn ? '#f44336' : '#9e9e9e'};
-                color:white;
-                cursor:pointer;
-                font-weight:bold;
-            ">
+            style="padding:6px 12px;border:none;border-radius:8px;background:${i.BossOn ? '#f44336' : '#9e9e9e'};color:white;cursor:pointer;font-weight:bold;">
             ${i.BossOn ? 'ON' : 'OFF'}
         </button>
     </td>
-
-    <!-- 🔥 ปุ่มบอสตายแล้ว -->
     <td style="text-align:center;">
         <button onclick="markBossDead('${i.MapNumber}', '${i.Channel}')"
-            style="
-                padding:6px 10px;
-                border:none;
-                border-radius:8px;
-                background:#2196f3;
-                color:white;
-                cursor:pointer;
-                font-weight:bold;
-            ">
+            style="padding:6px 10px;border:none;border-radius:8px;background:#2196f3;color:white;cursor:pointer;font-weight:bold;">
             บอสตายแล้ว
         </button>
     </td>
-
-    <!-- 🗑️ ปุ่มลบ -->
     <td style="text-align:center;">
         <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')"
-            style="
-                padding:6px 10px;
-                border:none;
-                border-radius:8px;
-                background:#e53935;
-                color:white;
-                cursor:pointer;
-                font-weight:bold;
-            ">
+            style="padding:6px 10px;border:none;border-radius:8px;background:#e53935;color:white;cursor:pointer;font-weight:bold;">
             Delete
         </button>
     </td>
-
-</tr>
-`;
-
-
-    });
-
-    document.getElementById('tableContent').innerHTML = html + '</tbody></table>';
+</tr>`;
 }
 
 async function processCommand() {
@@ -541,7 +581,6 @@ async function processCommand() {
     let intervalCounter = 0;
     setInterval(() => {
         updateTimers();
-        renderTable();
         intervalCounter++;
         if (intervalCounter >= 30) {
             showTable();
@@ -785,27 +824,34 @@ function getCountdown(startTime) {
 }
 
 function updateTimers() {
+    const now = getNowBangkok();
     cachedBossList.forEach(i => {
+        // อัปเดต timer นับเวลาหลังบอสเกิด
         const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
         if (timerEl) {
             const bossTime = new Date(i.TimeMer);
-            const now = getNowBangkok();
             const diffMs = now - bossTime;
             const diffMin = Math.floor(diffMs / 60000);
             const diffSec = Math.floor((diffMs % 60000) / 1000);
             timerEl.textContent = `${diffMin}:${String(diffSec).padStart(2, '0')} นาที`;
-            if (i.Fade == 4) {
-                timerEl.style.opacity = 0;
-            } else {
-                timerEl.style.opacity = 1;
-            }
+            timerEl.style.opacity = i.Fade == 4 ? 0 : 1;
+        }
+
+        // อัปเดต countdown ของ BossOn (30 นาที)
+        const countdownEl = document.getElementById(`countdown-${i.MapNumber}-${i.Channel}`);
+        if (countdownEl && i.BossOn) {
+            countdownEl.textContent = getCountdown(i.BossStartTime);
+        }
+
+        // อัปเดตสถานะแถว active/waiting แบบ in-place
+        const rowEl = document.getElementById(`row-${i.MapNumber}-${i.Channel}`);
+        if (rowEl) {
+            const bossTime = new Date(i.TimeMer);
+            const isArrived = bossTime <= now || i.Fade > 0 || i.BossOn;
+            rowEl.className = isArrived ? 'row-active' : 'row-waiting';
         }
     });
 }
-
-setInterval(updateTimers, 1000);
-
-showTable();
 
 
 
