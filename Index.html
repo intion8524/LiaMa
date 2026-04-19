@@ -5,30 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BossList Dashboard Pro</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #f8f9fa; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #f0f2f5; }
+        .container { max-width: 900px; margin: auto; background: rgba(255,255,255,0.97); padding: 25px; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); backdrop-filter: blur(10px); }
+        h2 { margin-top: 0; color: #1a1a2e; font-size: 1.4em; letter-spacing: -0.5px; }
         
         /* สไตล์ช่อง Input */
         .input-group { display: flex; gap: 10px; margin-bottom: 25px; }
-        input { flex: 1; padding: 15px; border: 2px solid #eee; border-radius: 10px; font-size: 16px; outline: none; transition: 0.3s; box-sizing: border-box; }
-        input:focus { border-color: #24b47e; }
+        input { flex: 1; padding: 14px 16px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; box-sizing: border-box; background: #fafafa; }
+        input:focus { border-color: #24b47e; background: #fff; box-shadow: 0 0 0 3px rgba(36,180,126,0.1); }
         .modal-content input { width: 100%; box-sizing: border-box; }
-        button { padding: 15px 30px; background: #24b47e; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        button { padding: 14px 28px; background: linear-gradient(135deg, #24b47e, #1a9c6b); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 8px rgba(36,180,126,0.3); }
+        button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(36,180,126,0.4); }
+        button:active { transform: translateY(0); }
 
         /* สไตล์ตาราง */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        th { padding: 15px; color: #666; text-align: center; }
-        td { padding: 15px; background: white; text-align: center; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
-        td:first-child { border-left: 1px solid #eee; border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
-        td:last-child { border-right: 1px solid #eee; border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+        th { padding: 12px 15px; color: #999; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        td { padding: 14px 12px; background: white; text-align: center; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+        td:first-child { border-left: 1px solid #f0f0f0; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        td:last-child { border-right: 1px solid #f0f0f0; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
         /* แถวสีเทา (ยังไม่ถึงเวลา) */
-        .row-waiting { opacity: 0.5; filter: grayscale(100%); background-color: #fcfcfc; }
+        .row-waiting { opacity: 0.55; filter: grayscale(60%); }
+        .row-waiting td { background: #fafafa; }
         /* แถวสีเข้ม (ถึงเวลาแล้ว) */
-        .row-active { opacity: 1; filter: none; font-weight: 500; background-color: #ffffff; border: 1px solid #24b47e !important; }
+        .row-active td { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+        .row-active td:first-child { border-left: 3px solid #24b47e; }
 
         /* สไตล์ Fade Progress Bar */
-        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #e8e8e8; border-radius: 16px; overflow: hidden; height: 38px; }
+        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #e8e8e8; border-radius: 16px; overflow: hidden; height: 38px; border: 2px solid #ddd; }
+        .row-active .fade-container { border-color: #ff9800; box-shadow: 0 0 0 1px rgba(255,152,0,0.15); }
         .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #bbb; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.3); }
         .fade-box:last-child { border-right: none; }
         .fade-box.active { color: white; }
@@ -86,20 +92,33 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal-content {
     background: #fff;
-    border-radius: 12px;
-    padding: 18px;
-    width: 330px;
+    border-radius: 16px;
+    padding: 24px;
+    width: 340px;
     max-width: 90%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: modalSlideIn 0.25s ease;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(20px) scale(0.97); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .modal-content h3 {
@@ -126,12 +145,38 @@
 
 .timer {
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 700;
     color: #24b47e;
     text-align: center;
-    margin-bottom: 4px;
-    transition: opacity 1s;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-variant-numeric: tabular-nums;
 }
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #bbb;
+    font-size: 15px;
+}
+.empty-state span { font-size: 40px; display: block; margin-bottom: 10px; }
+
+/* ปุ่มจอกว้าง */
+.btn-action {
+    padding: 7px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 20px;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+.btn-action:hover { background: #f5f5f5; border-color: #ccc; transform: translateY(-1px); }
+.btn-action.btn-on { border-color: #f44336; color: #f44336; }
+.btn-action.btn-dead { border-color: #2196f3; color: #2196f3; }
+.btn-action.btn-delete { border-color: #e53935; color: #e53935; }
 
 /* FLIP animation สำหรับเลื่อนแถวสมูท */
 tbody tr {
@@ -342,7 +387,11 @@ function renderTable() {
         </thead>
         <tbody>
         `;
-        list.forEach(i => { html += buildRowHTML(i, now); });
+        if (list.length === 0) {
+            html += `<tr><td colspan="5"><div class="empty-state"><span>🎮</span>ยังไม่มีบอส — พิมพ์คำสั่งด้านบนเพื่อเริ่มต้น</div></td></tr>`;
+        } else {
+            list.forEach(i => { html += buildRowHTML(i, now); });
+        }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
         return;
     }
@@ -455,21 +504,18 @@ function buildRowHTML(i, now) {
         </div>
     </td>
     <td class="col-bosson" style="text-align:center;">
-        <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')"
-            style="padding:6px 12px;border:none;border-radius:8px;background:${i.BossOn ? '#f44336' : '#9e9e9e'};color:white;cursor:pointer;font-weight:bold;">
-            ${i.BossOn ? 'ON' : 'OFF'}
+        <button class="btn-action ${i.BossOn ? 'btn-on' : ''}" onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">
+            ${i.BossOn ? '⚔️ ON' : '💤 OFF'}
         </button>
     </td>
     <td class="col-dead" style="text-align:center;">
-        <button onclick="markBossDead('${i.MapNumber}', '${i.Channel}')"
-            style="padding:6px 10px;border:none;border-radius:8px;background:#2196f3;color:white;cursor:pointer;font-weight:bold;">
-            บอสตายแล้ว
+        <button class="btn-action btn-dead" onclick="markBossDead('${i.MapNumber}', '${i.Channel}')">
+            ☠️ ตาย
         </button>
     </td>
     <td class="col-delete" style="text-align:center;">
-        <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')"
-            style="padding:6px 10px;border:none;border-radius:8px;background:#e53935;color:white;cursor:pointer;font-weight:bold;">
-            Delete
+        <button class="btn-action btn-delete" onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')">
+            🗑️ ลบ
         </button>
     </td>
 </tr>`;
@@ -671,28 +717,19 @@ async function setFade(mapNumber, channel, fadeLevel) {
     const map = parseInt(mapNumber, 10);
     const ch = parseInt(channel, 10);
 
-    const { data: old, error } = await _db
-        .from('BossList')
-        .select('*')
-        .eq('MapNumber', map)
-        .eq('Channel', ch)
-        .maybeSingle();
+    // Optimistic: อัปเดต cache + render ทันที
+    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
+    if (!item) return;
 
-    if (error) {
-        console.error('setFade error', error);
-        return;
-    }
+    item.Fade = fadeLevel;
+    item.BossOn = false;
+    renderTable();
 
-    if (!old) return;
-
+    // ส่ง DB ทีหลัง (ไม่ต้อง query ก่อน)
     await _db.from('BossList')
-        .update({ 
-            Fade: fadeLevel,
-            BossOn: false // 🔥 reset บอสทันที
-        })
-        .eq('id', old.id);
-
-    showTable(); // รีเฟรช
+        .update({ Fade: fadeLevel, BossOn: false })
+        .eq('MapNumber', map)
+        .eq('Channel', ch);
 }
 
 
@@ -702,33 +739,27 @@ async function toggleBossOn(mapNumber, channel) {
     const map = parseInt(mapNumber, 10);
     const ch = parseInt(channel, 10);
 
-    const { data: old, error } = await _db
-        .from('BossList')
-        .select('*')
-        .eq('MapNumber', map)
-        .eq('Channel', ch)
-        .maybeSingle();
+    // Optimistic: อัปเดต cache + render ทันที
+    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
+    if (!item) return;
 
-    if (error) {
-        console.error('toggleBossOn error', error);
-        return;
-    }
+    const newBossOn = !item.BossOn;
+    const nowTime = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
 
-    if (!old) return;
+    item.BossOn = newBossOn;
+    item.BossStartTime = newBossOn ? nowTime : null;
+    item.Fade = newBossOn ? 4 : item.Fade;
+    renderTable();
 
-    const newBossOn = !old.BossOn;
-
-    // ถ้า OFF -> เปิดขึ้น (ตั้งเวลาสตาร์ทใหม่)
-    // ถ้า ON -> ปิด, เคลียร์เฉพาะ BossOn กับ BossStartTime
+    // ส่ง DB ทีหลัง
     await _db.from('BossList')
         .update({
             BossOn: newBossOn,
-            BossStartTime: newBossOn ? new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T') : null,
-            Fade: newBossOn ? 4 : old.Fade
+            BossStartTime: newBossOn ? nowTime : null,
+            Fade: newBossOn ? 4 : item.Fade
         })
-        .eq('id', old.id);
-
-    showTable();
+        .eq('MapNumber', map)
+        .eq('Channel', ch);
 }
 
 let pendingDeadMap = null;
@@ -776,35 +807,25 @@ async function confirmBossDead() {
         return;
     }
 
-    const { data: old, error } = await _db
-        .from('BossList')
-        .select('*')
-        .eq('MapNumber', pendingDeadMap)
-        .eq('Channel', pendingDeadChannel)
-        .maybeSingle();
+    const map = pendingDeadMap;
+    const ch = pendingDeadChannel;
 
-    if (error) {
-        console.error('markBossDead error', error);
-        closeDeadModal();
-        return;
+    // Optimistic: อัปเดต cache + render ทันที
+    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
+    if (item) {
+        item.TimeMer = newTime;
+        item.BossOn = false;
+        item.BossStartTime = null;
+        item.Fade = 0;
     }
-
-    if (!old) {
-        closeDeadModal();
-        return;
-    }
-
-    await _db.from('BossList')
-        .update({
-            TimeMer: newTime,
-            BossOn: false,
-            BossStartTime: null,
-            Fade: 0
-        })
-        .eq('id', old.id);
-
     closeDeadModal();
-    showTable();
+    renderTable();
+
+    // ส่ง DB ทีหลัง
+    await _db.from('BossList')
+        .update({ TimeMer: newTime, BossOn: false, BossStartTime: null, Fade: 0 })
+        .eq('MapNumber', map)
+        .eq('Channel', ch);
 }
 
 async function deleteBoss(mapNumber, channel) {
@@ -830,30 +851,19 @@ async function confirmDeleteBoss() {
         return;
     }
 
-    const { data: old, error } = await _db
-        .from('BossList')
-        .select('*')
-        .eq('MapNumber', pendingDeleteMap)
-        .eq('Channel', pendingDeleteChannel)
-        .maybeSingle();
+    const map = pendingDeleteMap;
+    const ch = pendingDeleteChannel;
 
-    if (error) {
-        console.error('deleteBoss error', error);
-        closeDeleteModal();
-        return;
-    }
+    // Optimistic: ลบจาก cache + render ทันที
+    cachedBossList = cachedBossList.filter(i => !(i.MapNumber == map && i.Channel == ch));
+    closeDeleteModal();
+    renderTable();
 
-    if (!old) {
-        closeDeleteModal();
-        return;
-    }
-
+    // ส่ง DB ทีหลัง
     await _db.from('BossList')
         .delete()
-        .eq('id', old.id);
-
-    closeDeleteModal();
-    showTable();
+        .eq('MapNumber', map)
+        .eq('Channel', ch);
 }
 
 function parseMapInput(input) {
