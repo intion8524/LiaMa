@@ -27,14 +27,15 @@
         /* แถวสีเข้ม (ถึงเวลาแล้ว) */
         .row-active { opacity: 1; filter: none; font-weight: 500; background-color: #ffffff; border: 1px solid #24b47e !important; }
 
-        /* สไตล์หลอด Fade 4 ช่อง */
-        .fade-container { display: flex; gap: 4px; justify-content: center; width: auto; margin: auto; }
-        .fade-box { width: 35px; height: 20px; border-radius: 10px; background-color: #e8e8e8; transition: background-color 0.3s, box-shadow 0.3s; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #bbb; cursor: pointer; }
+        /* สไตล์ Fade Progress Bar */
+        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #e8e8e8; border-radius: 16px; overflow: hidden; height: 38px; }
+        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #bbb; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.3); }
+        .fade-box:last-child { border-right: none; }
         .fade-box.active { color: white; }
-        .f1.active { background-color: #a5d6a7; color: #2e7d32; } /* เขียวอ่อน */
-        .f2.active { background-color: #66bb6a; } /* เขียวกลาง */
-        .f3.active { background-color: #43a047; } /* เขียวเข้ม */
-        .f4.active { background-color: #2e7d32; box-shadow: 0 0 6px rgba(46,125,50,0.4); } /* เขียวเข้มสุด */
+        .f1.active { background-color: #ffe0b2; color: #e65100; }
+        .f2.active { background-color: #ffb74d; color: #fff; }
+        .f3.active { background-color: #ff9800; color: #fff; }
+        .f4.active { background-color: #e65100; color: #fff; }
 
         .hour-slot { background: none !important; text-align: left !important; color: #1a73e8; font-weight: bold; font-size: 1.1em; padding-top: 20px !important; }
     .boss-icon {
@@ -166,8 +167,8 @@ tbody tr.row-removing {
     th.col-bosson, th.col-dead, th.col-delete,
     td.col-bosson, td.col-dead, td.col-delete { display: none; }
 
-    .fade-box { width: 28px; height: 18px; font-size: 12px; }
-    .fade-container { gap: 3px; }
+    .fade-container { width: 85%; max-width: 240px; height: 34px; }
+    .fade-box { font-size: 13px; }
 
     .boss-icon { font-size: 22px; }
     .timer { font-size: 12px; }
@@ -188,7 +189,8 @@ tbody tr.row-removing {
     .container { padding: 8px; }
     th { padding: 4px 2px; font-size: 11px; }
     td { padding: 6px 2px; font-size: 11px; }
-    .fade-box { width: 24px; height: 16px; font-size: 11px; }
+    .fade-container { width: 80%; max-width: 200px; height: 30px; }
+    .fade-box { font-size: 12px; }
     .map-number { font-size: 18px; }
     .map-timer { font-size: 13px; }
 }
@@ -196,21 +198,27 @@ tbody tr.row-removing {
 /* Action bar ในแถว — ซ่อนตอนจอกว้าง */
 .row-action-bar {
     display: none;
-    gap: 5px;
+    gap: 6px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid #eee;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
 }
 .row-action-bar button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 6px;
-    color: white;
+    padding: 5px 12px;
+    border: 1.5px solid #ddd;
+    border-radius: 20px;
+    background: white;
+    color: #555;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 12px;
+    font-weight: 500;
+    font-size: 13px;
+    transition: background 0.2s, border-color 0.2s;
+}
+.row-action-bar button:hover {
+    background: #f5f5f5;
+    border-color: #bbb;
 }
     </style>
 </head>
@@ -441,9 +449,9 @@ function buildRowHTML(i, now) {
         <div class="time-display" style="font-size:12px; margin-bottom:4px; text-align:center;">${timeStr} น. ${statusIcon}</div>
         ${createFadeBar(i.Fade, i.MapNumber, i.Channel)}
         <div class="row-action-bar">
-            <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')" style="background:${i.BossOn ? '#f44336' : '#9e9e9e'};">${i.BossOn ? '⚔️' : '💤'}</button>
-            <button onclick="markBossDead('${i.MapNumber}', '${i.Channel}')" style="background:#2196f3;">☠️</button>
-            <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')" style="background:#e53935;">🗑️</button>
+            <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">${i.BossOn ? '⚔️ ON' : '💤 OFF'}</button>
+            <button onclick="markBossDead('${i.MapNumber}', '${i.Channel}')">☠️ ตาย</button>
+            <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')">🗑️ ลบ</button>
         </div>
     </td>
     <td class="col-bosson" style="text-align:center;">
