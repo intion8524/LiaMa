@@ -784,6 +784,7 @@ async function markBossDead(mapNumber, channel) {
 
     document.getElementById('deadModalInput').value = '';
     document.getElementById('deadModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('deadModalInput').focus(), 100);
 }
 
 function closeDeadModal() {
