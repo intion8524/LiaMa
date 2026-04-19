@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BossList Dashboard Pro</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #f8f9fa; }
@@ -148,6 +149,64 @@ tbody tr.row-removing {
     transform: translateX(30px);
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
+
+/* === Responsive === */
+@media (max-width: 700px) {
+    body { padding: 8px; }
+    .container { padding: 12px; border-radius: 10px; }
+    h2 { font-size: 1.2em; }
+
+    .command-guide { display: none; }
+
+    .input-group { gap: 6px; margin-bottom: 15px; }
+    .input-group input { padding: 10px; font-size: 14px; }
+    .input-group button { padding: 10px 16px; font-size: 14px; }
+
+    table { border-spacing: 0 5px; }
+    th { padding: 6px 4px; font-size: 12px; }
+    td { padding: 8px 4px; font-size: 12px; }
+
+    /* ซ่อน 3 คอลัมน์ปุ่มแยก */
+    th.col-bosson, th.col-dead, th.col-delete,
+    td.col-bosson, td.col-dead, td.col-delete { display: none; }
+
+    .fade-box { width: 28px; height: 18px; font-size: 12px; }
+    .fade-container { gap: 3px; }
+
+    .boss-icon { font-size: 22px; }
+    .timer { font-size: 12px; }
+
+    /* แสดงปุ่ม action bar ในแถว */
+    .row-action-bar { display: flex !important; }
+}
+
+/* จอแคบมาก */
+@media (max-width: 450px) {
+    .container { padding: 8px; }
+    th { padding: 4px 2px; font-size: 11px; }
+    td { padding: 6px 2px; font-size: 11px; }
+    .fade-box { width: 24px; height: 16px; font-size: 11px; }
+}
+
+/* Action bar ในแถว — ซ่อนตอนจอกว้าง */
+.row-action-bar {
+    display: none;
+    gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #eee;
+}
+.row-action-bar button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+}
     </style>
 </head>
 <body>
@@ -261,12 +320,11 @@ function renderTable() {
         <table>
         <thead>
         <tr>
-            <th>Boss</th>
             <th>MapNumber</th>
             <th>เวลา / สถานะ</th>
-            <th>BossOn</th>
-            <th>บอสตายแล้ว</th>
-            <th>Delete</th>
+            <th class="col-bosson">BossOn</th>
+            <th class="col-dead">บอสตายแล้ว</th>
+            <th class="col-delete">Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -369,35 +427,33 @@ function buildRowHTML(i, now) {
     return `
 <tr class="${rowClass}" id="row-${i.MapNumber}-${i.Channel}">
     <td style="text-align:center;">
-        ${i.BossOn
-            ? `<div>
-                <span class="boss-icon boss-active">💀</span>
-                <div id="countdown-${i.MapNumber}-${i.Channel}" style="font-size:12px; margin-top:4px;">
-                    ${getCountdown(i.BossStartTime)}
-                </div>
-            </div>`
-            : ''
-        }
+        ${i.BossOn ? `<span class="boss-icon boss-active">💀</span>` : ''}
+        <div><strong>${i.MapNumber} - ${i.Channel}</strong></div>
+        ${(isArrived && i.Fade < 4) ? `<div class="timer" id="timer-${i.MapNumber}-${i.Channel}">0:00 นาที</div>` : ''}
+        ${(i.BossOn) ? `<div id="countdown-${i.MapNumber}-${i.Channel}" style="font-size:12px; color:#f44336; font-weight:bold;">${getCountdown(i.BossStartTime)}</div>` : ''}
     </td>
-    <td><strong>${i.MapNumber} - ${i.Channel}</strong></td>
     <td>
-        ${isArrived ? `<div class="timer" id="timer-${i.MapNumber}-${i.Channel}">0:00 นาที</div>` : ''}
         <div style="font-size:12px; margin-bottom:4px; text-align:center;">${timeStr} น. ${statusIcon}</div>
         ${createFadeBar(i.Fade, i.MapNumber, i.Channel)}
+        <div class="row-action-bar">
+            <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')" style="background:${i.BossOn ? '#f44336' : '#9e9e9e'};">${i.BossOn ? 'ON' : 'OFF'}</button>
+            <button onclick="markBossDead('${i.MapNumber}', '${i.Channel}')" style="background:#2196f3;">ตาย</button>
+            <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')" style="background:#e53935;">ลบ</button>
+        </div>
     </td>
-    <td style="text-align:center;">
+    <td class="col-bosson" style="text-align:center;">
         <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')"
             style="padding:6px 12px;border:none;border-radius:8px;background:${i.BossOn ? '#f44336' : '#9e9e9e'};color:white;cursor:pointer;font-weight:bold;">
             ${i.BossOn ? 'ON' : 'OFF'}
         </button>
     </td>
-    <td style="text-align:center;">
+    <td class="col-dead" style="text-align:center;">
         <button onclick="markBossDead('${i.MapNumber}', '${i.Channel}')"
             style="padding:6px 10px;border:none;border-radius:8px;background:#2196f3;color:white;cursor:pointer;font-weight:bold;">
             บอสตายแล้ว
         </button>
     </td>
-    <td style="text-align:center;">
+    <td class="col-delete" style="text-align:center;">
         <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')"
             style="padding:6px 10px;border:none;border-radius:8px;background:#e53935;color:white;cursor:pointer;font-weight:bold;">
             Delete
@@ -826,15 +882,16 @@ function getCountdown(startTime) {
 function updateTimers() {
     const now = getNowBangkok();
     cachedBossList.forEach(i => {
-        // อัปเดต timer นับเวลาหลังบอสเกิด
-        const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
-        if (timerEl) {
-            const bossTime = new Date(i.TimeMer);
-            const diffMs = now - bossTime;
-            const diffMin = Math.floor(diffMs / 60000);
-            const diffSec = Math.floor((diffMs % 60000) / 1000);
-            timerEl.textContent = `${diffMin}:${String(diffSec).padStart(2, '0')} นาที`;
-            timerEl.style.opacity = i.Fade == 4 ? 0 : 1;
+        // อัปเดต timer นับเวลาหลังบอสเกิด (ไม่นับถ้า fade 4)
+        if (i.Fade < 4) {
+            const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
+            if (timerEl) {
+                const bossTime = new Date(i.TimeMer);
+                const diffMs = now - bossTime;
+                const diffMin = Math.floor(diffMs / 60000);
+                const diffSec = Math.floor((diffMs % 60000) / 1000);
+                timerEl.textContent = `${diffMin}:${String(diffSec).padStart(2, '0')} นาที`;
+            }
         }
 
         // อัปเดต countdown ของ BossOn (30 นาที)
