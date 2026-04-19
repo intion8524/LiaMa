@@ -283,37 +283,36 @@ tbody tr.row-removing {
         </ul>
     </div>
 
-    <!-- Modal สำหรับแจ้งบอสตาย -->
-    <div id="deadModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content">
-            <h3>บอสตายแล้ว</h3>
-            <p>กรุณาใส่เวลารอบอสใหม่ (1.20 ชั่วโมง หรือ 10 นาที ):</p>
-            <input id="deadModalInput" type="text" placeholder="1.20 หรือ 10" style="width: 100%; padding: 8px; margin: 10px 0;" onkeydown="if (event.key === 'Enter') confirmBossDead();" />
-            <div style="text-align: right; margin-top: 10px;">
-                <button onclick="closeDeadModal()" style="margin-right: 8px;">ยกเลิก</button>
-                <button onclick="confirmBossDead()" style="background:#2196f3;color:#fff;">บันทึก</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal สำหรับลบบอส -->
-    <div id="deleteModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content">
-            <h3>ลบบอส</h3>
-            <p>คุณแน่ใจหรือไม่ที่จะลบข้อมูลบอสตัวนี้?</p>
-            <div style="text-align: right; margin-top: 10px;">
-                <button onclick="closeDeleteModal()" style="margin-right: 8px;">ยกเลิก</button>
-                <button onclick="confirmDeleteBoss()" style="background:#e53935;color:#fff;">ลบ</button>
-            </div>
-        </div>
-    </div>
-
-
     <div class="input-group">
         <input type="text" id="cmd" placeholder="พิมพ์คำสั่ง">
         <button onclick="processCommand()">บันทึก</button>
     </div>
     <div id="tableContent"></div>
+</div>
+
+<!-- Modal สำหรับแจ้งบอสตาย (อยู่นอก container เพื่อให้ fixed position ทำงานถูกต้อง) -->
+<div id="deadModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <h3>บอสตายแล้ว</h3>
+        <p>กรุณาใส่เวลารอบอสใหม่ (1.20 ชั่วโมง หรือ 10 นาที ):</p>
+        <input id="deadModalInput" type="text" placeholder="1.20 หรือ 10" style="width: 100%; padding: 8px; margin: 10px 0;" onkeydown="if (event.key === 'Enter') confirmBossDead();" />
+        <div style="text-align: right; margin-top: 10px;">
+            <button onclick="closeDeadModal()" style="margin-right: 8px;">ยกเลิก</button>
+            <button onclick="confirmBossDead()" style="background:#2196f3;color:#fff;">บันทึก</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal สำหรับลบบอส -->
+<div id="deleteModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <h3>ลบบอส</h3>
+        <p>คุณแน่ใจหรือไม่ที่จะลบข้อมูลบอสตัวนี้?</p>
+        <div style="text-align: right; margin-top: 10px;">
+            <button onclick="closeDeleteModal()" style="margin-right: 8px;">ยกเลิก</button>
+            <button onclick="confirmDeleteBoss()" style="background:#e53935;color:#fff;">ลบ</button>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
