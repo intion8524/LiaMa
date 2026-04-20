@@ -524,6 +524,16 @@ async function processCommand() {
     const input = document.getElementById('cmd').value.trim();
     if (!input) return;
 
+    // 🧹 เคส clear: ลบข้อมูลทั้งหมด
+    if (input.toLowerCase() === 'clear') {
+        if (!confirm('ลบบอสทั้งหมด?')) return;
+        cachedBossList = [];
+        renderTable();
+        document.getElementById('cmd').value = "";
+        await _db.from('BossList').delete().neq('id', 0);
+        return;
+    }
+
     // 🔥 เคสพิเศษ: ถ้ามี 'on' แสดงว่า boss เกิดแล้ว
     if (input.toLowerCase().includes('on')) {
         // ลบ 'on' ออกแล้ว parse map
