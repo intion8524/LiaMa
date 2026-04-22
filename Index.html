@@ -153,6 +153,33 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* Group divider */
+.group-divider td {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 16px 8px 4px !important;
+    text-align: left !important;
+}
+.group-divider-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #24b47e;
+}
+.group-divider-label::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(to right, #24b47e, transparent);
+    border-radius: 2px;
+}
+
 .empty-state {
     text-align: center;
     padding: 40px 20px;
@@ -270,7 +297,19 @@ tbody tr.row-removing {
 <body>
 
 <div class="container">
-    <h2>🎮 BossList Live Tracker</h2>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+        <h2 style="margin:0;">🎮 BossList Live Tracker</h2>
+        <div id="sortToggle" onclick="toggleSortMode()" style="
+            display:flex; align-items:center; gap:6px;
+            padding:7px 14px; border-radius:20px; cursor:pointer;
+            border:1.5px solid #24b47e; color:#24b47e;
+            font-size:13px; font-weight:600; user-select:none;
+            transition:all 0.2s;
+        ">
+            <span id="sortIcon">📋</span>
+            <span id="sortLabel">แบ่งตาม EP</span>
+        </div>
+    </div>
     <div class="command-guide">
         <h3>รูปแบบคำสั่งที่รองรับ:</h3>
         <ul>
@@ -322,6 +361,44 @@ tbody tr.row-removing {
 
     let cachedBossList = []; // เก็บข้อมูลจาก DB ครั้งสุดท้าย
 
+    // ===== ตั้งค่ากลุ่ม Map =====
+    const MAP_GROUPS = [
+        { name: 'EP 10', min: 80,  max: 84  },
+        { name: 'EP 11', min: 85,  max: 89  },
+        { name: 'EP 12', min: 90,  max: 93  },
+        { name: 'EP 13', min: 95,  max: 103 },
+        { name: 'EP 14', min: 105, max: 113 },
+        { name: 'EP 15', min: 115, max: 123 },
+        // เพิ่มกลุ่มใหม่ตรงนี้: { name: 'EP 16', min: 125, max: 130 },
+    ];
+
+    function getGroupName(mapNumber) {
+        const g = MAP_GROUPS.find(g => mapNumber >= g.min && mapNumber <= g.max);
+        return g ? g.name : 'อื่น ๆ';
+    }
+
+    // โหมดการเรียง: 'ep' = แบ่งตาม EP, 'fade' = เรียงตาม Fade (เดิม)
+    let sortMode = 'ep';
+
+    function toggleSortMode() {
+        sortMode = sortMode === 'ep' ? 'fade' : 'ep';
+        const icon = document.getElementById('sortIcon');
+        const label = document.getElementById('sortLabel');
+        const btn = document.getElementById('sortToggle');
+        if (sortMode === 'ep') {
+            icon.textContent = '📋';
+            label.textContent = 'แบ่งตาม EP';
+            btn.style.borderColor = '#24b47e';
+            btn.style.color = '#24b47e';
+        } else {
+            icon.textContent = '🔥';
+            label.textContent = 'เรียงตาม Fade';
+            btn.style.borderColor = '#ff9800';
+            btn.style.color = '#ff9800';
+        }
+        renderTable();
+    }
+
     const getNowBangkok = () => new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
 
 function createFadeBar(level, mapNumber, channel) {
@@ -353,19 +430,34 @@ function renderTable() {
     const list = cachedBossList;
     const now = getNowBangkok();
 
-    // 🔥 sort ใหม่ตามที่ต้องการ
-    list.sort((a, b) => {
-        if (a.Fade > 0 && b.Fade > 0) {
-            if (a.Fade === b.Fade) {
-                return parseInt(b.MapNumber) - parseInt(a.MapNumber);
-            } else {
+    // 🔥 sort ตาม sortMode
+    if (sortMode === 'ep') {
+        // แบ่งตาม EP → ภายในกลุ่มเรียง Fade มากไปน้อย → เวลา
+        list.sort((a, b) => {
+            const groupA = MAP_GROUPS.findIndex(g => a.MapNumber >= g.min && a.MapNumber <= g.max);
+            const groupB = MAP_GROUPS.findIndex(g => b.MapNumber >= g.min && b.MapNumber <= g.max);
+            const gi = (groupA === -1 ? 999 : groupA) - (groupB === -1 ? 999 : groupB);
+            if (gi !== 0) return gi;
+            if (a.Fade > 0 && b.Fade > 0) {
+                if (a.Fade === b.Fade) return parseInt(b.MapNumber) - parseInt(a.MapNumber);
                 return b.Fade - a.Fade;
             }
-        }
-        if (a.Fade > 0) return -1;
-        if (b.Fade > 0) return 1;
-        return new Date(a.TimeMer) - new Date(b.TimeMer);
-    });
+            if (a.Fade > 0) return -1;
+            if (b.Fade > 0) return 1;
+            return new Date(a.TimeMer) - new Date(b.TimeMer);
+        });
+    } else {
+        // เรียงตาม Fade มากไปน้อย → เวลา (โหมดเดิม)
+        list.sort((a, b) => {
+            if (a.Fade > 0 && b.Fade > 0) {
+                if (a.Fade === b.Fade) return parseInt(b.MapNumber) - parseInt(a.MapNumber);
+                return b.Fade - a.Fade;
+            }
+            if (a.Fade > 0) return -1;
+            if (b.Fade > 0) return 1;
+            return new Date(a.TimeMer) - new Date(b.TimeMer);
+        });
+    }
 
     const tbody = document.querySelector('#tableContent tbody');
     const newOrderIds = list.map(i => `row-${i.MapNumber}-${i.Channel}`);
@@ -389,7 +481,17 @@ function renderTable() {
         if (list.length === 0) {
             html += `<tr><td colspan="5"><div class="empty-state"><span>🎮</span>ยังไม่มีบอส — พิมพ์คำสั่งด้านบนเพื่อเริ่มต้น</div></td></tr>`;
         } else {
-            list.forEach(i => { html += buildRowHTML(i, now); });
+            let lastGroup = null;
+            list.forEach(i => {
+                if (sortMode === 'ep') {
+                    const group = getGroupName(parseInt(i.MapNumber));
+                    if (group !== lastGroup) {
+                        html += `<tr class="group-divider"><td colspan="5"><span class="group-divider-label">${group}</span></td></tr>`;
+                        lastGroup = group;
+                    }
+                }
+                html += buildRowHTML(i, now);
+            });
         }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
         return;
@@ -442,10 +544,26 @@ function renderTable() {
         }
     });
 
-    // 5) จัดลำดับแถวตาม sort ใหม่
+    // 5) จัดลำดับแถวตาม sort ใหม่ + แทรก divider
+    // ลบ divider เก่าออกก่อน
+    tbody.querySelectorAll('.group-divider').forEach(tr => tr.remove());
+
+    let lastGroup = null;
     newOrderIds.forEach(id => {
         const tr = document.getElementById(id);
-        if (tr) tbody.appendChild(tr);
+        if (!tr) return;
+        if (sortMode === 'ep') {
+            const mapNum = parseInt(id.split('-')[1]);
+            const group = getGroupName(mapNum);
+            if (group !== lastGroup) {
+                const divider = document.createElement('tr');
+                divider.className = 'group-divider';
+                divider.innerHTML = `<td colspan="5"><span class="group-divider-label">${group}</span></td>`;
+                tbody.appendChild(divider);
+                lastGroup = group;
+            }
+        }
+        tbody.appendChild(tr);
     });
 
     // 6) LAST + INVERT + PLAY: animate แถวไปตำแหน่งใหม่
