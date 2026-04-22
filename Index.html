@@ -153,32 +153,63 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* Group divider */
+/* Sub-channel style */
+.ch-sub { color: #888; font-size: 13px; }
+.ch-sub .ch-branch { color: #ccc; margin-right: 2px; }
+.boss-name { font-size: 11px; color: #aaa; font-weight: 400; margin-top: 1px; }
 .group-divider td {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 16px 8px 4px !important;
+    padding: 24px 8px 8px !important;
     text-align: left !important;
 }
 .group-divider-label {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #24b47e;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #1a1a2e;
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    padding: 8px 18px 8px 42px;
+    border-radius: 10px;
+    border-left: 4px solid #24b47e;
+    position: relative;
+}
+.group-divider-label .ep-icon {
+    position: absolute;
+    left: -24px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 2px solid #fff;
 }
 .group-divider-label::after {
     content: '';
     display: block;
-    width: 60px;
+    flex: 1;
+    min-width: 40px;
     height: 2px;
     background: linear-gradient(to right, #24b47e, transparent);
     border-radius: 2px;
 }
+
+/* กรอบกลุ่ม EP — ครอบแถวในกลุ่มเดียวกัน */
+.group-block-start td { border-top: 2px solid #e0e0e0 !important; }
+.group-block-start td:first-child { border-top-left-radius: 14px !important; }
+.group-block-start td:last-child { border-top-right-radius: 14px !important; }
+.group-block-end td { border-bottom: 2px solid #e0e0e0 !important; }
+.group-block-end td:first-child { border-bottom-left-radius: 14px !important; }
+.group-block-end td:last-child { border-bottom-right-radius: 14px !important; }
+.group-block td:first-child { border-left: 2px solid #e0e0e0 !important; }
+.group-block td:last-child { border-right: 2px solid #e0e0e0 !important; }
 
 .empty-state {
     text-align: center;
@@ -377,6 +408,17 @@ tbody tr.row-removing {
         return g ? g.name : 'อื่น ๆ';
     }
 
+    // ===== ชื่อบอสแต่ละ Map =====
+    const BOSS_NAMES = {
+        80: 'Cowardly Glackuman', 81: 'Fireload', 82: 'Riteris', 83: 'Naktis',
+        85: 'Cowardly Gaigalas', 86: 'Taraox', 87: 'Ferretmarauder', 88: 'Kirmeleech', 89: 'Zaura',
+        90: 'Stone Whale', 91: 'Minotaurs', 92: 'Sitrygailla',
+        95: 'Colimencia', 98: 'Sequoia', 101: 'Neop', 103: 'Nebulas',
+        105: 'Dionia', 107: 'Ellaganos', 109: 'Ebonyphone', 111: 'Gazing Golem', 113: 'Ironbaum',
+        115: 'Diena', 118: 'Ginklass', 120: 'Indianant Algis', 123: 'Zesty',
+        // เพิ่มบอสใหม่ตรงนี้
+    };
+
     // โหมดการเรียง: 'ep' = แบ่งตาม EP, 'fade' = เรียงตาม Fade (เดิม)
     let sortMode = 'ep';
 
@@ -432,19 +474,15 @@ function renderTable() {
 
     // 🔥 sort ตาม sortMode
     if (sortMode === 'ep') {
-        // แบ่งตาม EP → ภายในกลุ่มเรียง Fade มากไปน้อย → เวลา
+        // แบ่งตาม EP → ภายในกลุ่มเรียงตามเลข Map น้อยไปมาก
         list.sort((a, b) => {
             const groupA = MAP_GROUPS.findIndex(g => a.MapNumber >= g.min && a.MapNumber <= g.max);
             const groupB = MAP_GROUPS.findIndex(g => b.MapNumber >= g.min && b.MapNumber <= g.max);
             const gi = (groupA === -1 ? 999 : groupA) - (groupB === -1 ? 999 : groupB);
             if (gi !== 0) return gi;
-            if (a.Fade > 0 && b.Fade > 0) {
-                if (a.Fade === b.Fade) return parseInt(b.MapNumber) - parseInt(a.MapNumber);
-                return b.Fade - a.Fade;
-            }
-            if (a.Fade > 0) return -1;
-            if (b.Fade > 0) return 1;
-            return new Date(a.TimeMer) - new Date(b.TimeMer);
+            const mapDiff = parseInt(a.MapNumber) - parseInt(b.MapNumber);
+            if (mapDiff !== 0) return mapDiff;
+            return parseInt(a.Channel) - parseInt(b.Channel);
         });
     } else {
         // เรียงตาม Fade มากไปน้อย → เวลา (โหมดเดิม)
@@ -482,16 +520,42 @@ function renderTable() {
             html += `<tr><td colspan="5"><div class="empty-state"><span>🎮</span>ยังไม่มีบอส — พิมพ์คำสั่งด้านบนเพื่อเริ่มต้น</div></td></tr>`;
         } else {
             let lastGroup = null;
+            let groupItems = [];
+            const flushGroup = () => {
+                let lastMap = null;
+                let mapCount = {};
+                // นับจำนวน CH ต่อ map ก่อน
+                groupItems.forEach(gi => {
+                    const m = String(gi.MapNumber);
+                    mapCount[m] = (mapCount[m] || 0) + 1;
+                });
+                let mapSeen = {};
+                groupItems.forEach((gi, idx) => {
+                    const m = String(gi.MapNumber);
+                    const extra = sortMode === 'ep' ? ` group-block${idx === 0 ? ' group-block-start' : ''}${idx === groupItems.length - 1 ? ' group-block-end' : ''}` : '';
+                    const isSubCh = (m === lastMap);
+                    // หา isLastCh: เป็น CH สุดท้ายของ map นี้ไหม
+                    mapSeen[m] = (mapSeen[m] || 0) + 1;
+                    const isLastCh = mapSeen[m] === mapCount[m];
+                    html += buildRowHTML(gi, now, extra, isSubCh, isLastCh);
+                    lastMap = m;
+                });
+                groupItems = [];
+            };
             list.forEach(i => {
                 if (sortMode === 'ep') {
                     const group = getGroupName(parseInt(i.MapNumber));
                     if (group !== lastGroup) {
-                        html += `<tr class="group-divider"><td colspan="5"><span class="group-divider-label">${group}</span></td></tr>`;
+                        flushGroup();
+                        html += `<tr class="group-divider"><td colspan="5"><span class="group-divider-label"><img class="ep-icon" src="—Pngtree—coconut.png" alt="">${group}</span></td></tr>`;
                         lastGroup = group;
                     }
+                    groupItems.push(i);
+                } else {
+                    html += buildRowHTML(i, now, '');
                 }
-                html += buildRowHTML(i, now);
             });
+            flushGroup();
         }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
         return;
@@ -521,21 +585,33 @@ function renderTable() {
     });
 
     // 4) อัปเดตเนื้อหาแถวที่มีอยู่ + เพิ่มแถวใหม่
+    // สร้าง map ของ sub-channel info
+    const subChInfo = {};
+    let prevMap = null;
+    const mapCountAll = {};
+    list.forEach(i => { const m = String(i.MapNumber); mapCountAll[m] = (mapCountAll[m] || 0) + 1; });
+    const mapSeenAll = {};
+    list.forEach(i => {
+        const m = String(i.MapNumber);
+        mapSeenAll[m] = (mapSeenAll[m] || 0) + 1;
+        const key = `${i.MapNumber}-${i.Channel}`;
+        subChInfo[key] = { isSubCh: (m === prevMap), isLastCh: mapSeenAll[m] === mapCountAll[m] };
+        prevMap = m;
+    });
+
     list.forEach(i => {
         const rowId = `row-${i.MapNumber}-${i.Channel}`;
+        const info = subChInfo[`${i.MapNumber}-${i.Channel}`] || { isSubCh: false, isLastCh: true };
         let tr = document.getElementById(rowId);
 
         if (tr) {
-            // อัปเดตเนื้อหา in-place
-            tr.outerHTML = buildRowHTML(i, now);
+            tr.outerHTML = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh);
         } else {
-            // สร้างแถวใหม่
             const temp = document.createElement('tbody');
-            temp.innerHTML = buildRowHTML(i, now);
+            temp.innerHTML = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh);
             const newTr = temp.firstElementChild;
             newTr.classList.add('row-entering');
             tbody.appendChild(newTr);
-            // trigger reflow แล้วเอา class ออกเพื่อ animate เข้า
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     newTr.classList.remove('row-entering');
@@ -544,27 +620,52 @@ function renderTable() {
         }
     });
 
-    // 5) จัดลำดับแถวตาม sort ใหม่ + แทรก divider
+    // 5) จัดลำดับแถวตาม sort ใหม่ + แทรก divider + group block
     // ลบ divider เก่าออกก่อน
     tbody.querySelectorAll('.group-divider').forEach(tr => tr.remove());
 
-    let lastGroup = null;
-    newOrderIds.forEach(id => {
-        const tr = document.getElementById(id);
-        if (!tr) return;
-        if (sortMode === 'ep') {
+    // สร้าง group map เพื่อหา first/last ของแต่ละกลุ่ม
+    if (sortMode === 'ep') {
+        const groups = [];
+        let lastGroup = null;
+        let currentGroup = [];
+        newOrderIds.forEach(id => {
             const mapNum = parseInt(id.split('-')[1]);
             const group = getGroupName(mapNum);
             if (group !== lastGroup) {
-                const divider = document.createElement('tr');
-                divider.className = 'group-divider';
-                divider.innerHTML = `<td colspan="5"><span class="group-divider-label">${group}</span></td>`;
-                tbody.appendChild(divider);
+                if (currentGroup.length > 0) groups.push({ name: lastGroup, ids: currentGroup });
+                currentGroup = [id];
                 lastGroup = group;
+            } else {
+                currentGroup.push(id);
             }
-        }
-        tbody.appendChild(tr);
-    });
+        });
+        if (currentGroup.length > 0) groups.push({ name: lastGroup, ids: currentGroup });
+
+        groups.forEach(g => {
+            const divider = document.createElement('tr');
+            divider.className = 'group-divider';
+            divider.innerHTML = `<td colspan="5"><span class="group-divider-label"><img class="ep-icon" src="—Pngtree—coconut.png" alt="">${g.name}</span></td>`;
+            tbody.appendChild(divider);
+            g.ids.forEach((id, idx) => {
+                const tr = document.getElementById(id);
+                if (!tr) return;
+                tr.classList.remove('group-block', 'group-block-start', 'group-block-end');
+                tr.classList.add('group-block');
+                if (idx === 0) tr.classList.add('group-block-start');
+                if (idx === g.ids.length - 1) tr.classList.add('group-block-end');
+                tbody.appendChild(tr);
+            });
+        });
+    } else {
+        newOrderIds.forEach(id => {
+            const tr = document.getElementById(id);
+            if (tr) {
+                tr.classList.remove('group-block', 'group-block-start', 'group-block-end');
+                tbody.appendChild(tr);
+            }
+        });
+    }
 
     // 6) LAST + INVERT + PLAY: animate แถวไปตำแหน่งใหม่
     newOrderIds.forEach(id => {
@@ -593,7 +694,7 @@ function renderTable() {
     });
 }
 
-function buildRowHTML(i, now) {
+function buildRowHTML(i, now, extraClass, isSubCh, isLastCh) {
     const bossTime = new Date(i.TimeMer);
     const isArrived = bossTime <= now || i.Fade > 0 || i.BossOn;
     const rowClass = isArrived ? 'row-active' : 'row-waiting';
@@ -603,11 +704,20 @@ function buildRowHTML(i, now) {
     if (i.BossOn) statusIcon = '💀';
     else if (i.Fade > 0 || bossTime <= now) statusIcon = '🔥';
 
+    let mapLabel;
+    if (isSubCh) {
+        const branch = isLastCh ? '└' : '├';
+        mapLabel = `<div class="ch-sub"><span class="ch-branch">${branch}</span> CH ${i.Channel}</div>`;
+    } else {
+        const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
+        mapLabel = `<div class="map-number"><strong>${i.MapNumber} - ${i.Channel}</strong></div>${bossName ? `<div class="boss-name">${bossName}</div>` : ''}`;
+    }
+
     return `
-<tr class="${rowClass}" id="row-${i.MapNumber}-${i.Channel}">
+<tr class="${rowClass}${extraClass || ''}" id="row-${i.MapNumber}-${i.Channel}">
     <td style="text-align:center;">
         ${i.BossOn ? `<span class="boss-icon boss-active">💀</span>` : ''}
-        <div class="map-number"><strong>${i.MapNumber} - ${i.Channel}</strong></div>
+        ${mapLabel}
         ${(isArrived && i.Fade < 4) ? `<div class="timer map-timer" id="timer-${i.MapNumber}-${i.Channel}">0:00 นาที</div>` : ''}
         ${(i.BossOn) ? `<div id="countdown-${i.MapNumber}-${i.Channel}" style="font-size:12px; color:#f44336; font-weight:bold;">${getCountdown(i.BossStartTime)}</div>` : ''}
     </td>
