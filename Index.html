@@ -5,45 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BossList Dashboard Pro</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #f0f2f5; }
-        .container { max-width: 900px; margin: auto; background: rgba(255,255,255,0.97); padding: 25px; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); backdrop-filter: blur(10px); }
-        h2 { margin-top: 0; color: #1a1a2e; font-size: 1.4em; letter-spacing: -0.5px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #1a1c24; }
+        .container { max-width: 900px; margin: auto; background: rgba(30,32,40,0.95); padding: 25px; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(139,105,20,0.3); }
+        h2 { margin-top: 0; color: #d4a84b; font-size: 1.4em; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(212,168,75,0.2); }
         
         /* สไตล์ช่อง Input */
         .input-group { display: flex; gap: 10px; margin-bottom: 25px; }
-        input { flex: 1; padding: 14px 16px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; box-sizing: border-box; background: #fafafa; }
-        input:focus { border-color: #24b47e; background: #fff; box-shadow: 0 0 0 3px rgba(36,180,126,0.1); }
+        input { flex: 1; padding: 14px 16px; border: 2px solid #3a3d48; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; box-sizing: border-box; background: #2a2d35; color: #e0d5c0; }
+        input:focus { border-color: #d4a84b; background: #32353e; box-shadow: 0 0 0 3px rgba(212,168,75,0.15); }
         .modal-content input { width: 100%; box-sizing: border-box; }
-        button { padding: 14px 28px; background: linear-gradient(135deg, #24b47e, #1a9c6b); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 8px rgba(36,180,126,0.3); }
-        button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(36,180,126,0.4); }
+        button { padding: 14px 28px; background: linear-gradient(135deg, #b8943e, #8b6914); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 8px rgba(139,105,20,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212,168,75,0.4); }
         button:active { transform: translateY(0); }
 
         /* สไตล์ตาราง */
         table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
-        th { padding: 12px 15px; color: #999; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        td { padding: 14px 12px; background: white; text-align: center; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
-        td:first-child { border-left: 1px solid #f0f0f0; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        td:last-child { border-right: 1px solid #f0f0f0; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        th { padding: 12px 15px; color: #8b7a5e; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        td { padding: 14px 12px; background: #2a2d35; text-align: center; border-top: 1px solid #3a3d48; border-bottom: 1px solid #3a3d48; color: #e0d5c0; }
+        td:first-child { border-left: 1px solid #3a3d48; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        td:last-child { border-right: 1px solid #3a3d48; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
         /* แถวสีเทา (ยังไม่ถึงเวลา) */
-        .row-waiting { opacity: 0.55; filter: grayscale(60%); }
-        .row-waiting td { background: #fafafa; }
+        .row-waiting { opacity: 0.35; filter: grayscale(80%); }
+        .row-waiting td { background: #22242c; color: #555; }
         /* แถวสีเข้ม (ถึงเวลาแล้ว) */
-        .row-active td { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-        .row-active td:first-child { border-left: 3px solid #24b47e; }
+        .row-active td { background: #2a2d35; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+        .row-active td:first-child { border-left: 3px solid #d4a84b; }
 
         /* สไตล์ Fade Progress Bar */
-        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #e8e8e8; border-radius: 16px; overflow: hidden; height: 38px; border: 2px solid #ddd; }
-        .row-active .fade-container { border-color: #ff9800; box-shadow: 0 0 0 1px rgba(255,152,0,0.15); }
-        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #bbb; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.3); }
+        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #3a3d48; border-radius: 16px; overflow: hidden; height: 38px; border: 2px solid #4a4d58; }
+        .row-active .fade-container { border-color: #8b6914; box-shadow: 0 0 0 1px rgba(212,168,75,0.15); }
+        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #555; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.05); }
         .fade-box:last-child { border-right: none; }
         .fade-box.active { color: white; }
-        .f1.active { background-color: #ffe0b2; color: #e65100; }
-        .f2.active { background-color: #ffb74d; color: #fff; }
-        .f3.active { background-color: #ff9800; color: #fff; }
-        .f4.active { background-color: #e65100; color: #fff; }
+        .f1.active { background-color: #5c4a1e; color: #d4a84b; }
+        .f2.active { background-color: #8b6914; color: #fff; }
+        .f3.active { background-color: #b8943e; color: #fff; }
+        .f4.active { background-color: #d4a84b; color: #1e2028; font-weight: 800; }
 
-        .hour-slot { background: none !important; text-align: left !important; color: #1a73e8; font-weight: bold; font-size: 1.1em; padding-top: 20px !important; }
+        .hour-slot { background: none !important; text-align: left !important; color: #d4a84b; font-weight: bold; font-size: 1.1em; padding-top: 20px !important; }
     .boss-icon {
     font-size: 28px;
     display: inline-block;
@@ -55,16 +55,17 @@
 }
 
 .command-guide {
-    background: #f8f9fa;
+    background: #2a2d35;
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
-    border-left: 5px solid #24b47e;
+    border-left: 5px solid #8b6914;
+    color: #c0b89a;
 }
 
 .command-guide h3 {
     margin-top: 0;
-    color: #24b47e;
+    color: #d4a84b;
     font-size: 18px;
 }
 
@@ -76,14 +77,14 @@
 .command-guide li {
     margin-bottom: 8px;
     padding: 5px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #3a3d48;
     line-height: 1.5;
 }
 
 .command-guide li:last-child {
     border-bottom: none;
     font-style: italic;
-    color: #666;
+    color: #8b7a5e;
 }
 
 .modal-overlay {
@@ -92,7 +93,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,13 +108,15 @@
 }
 
 .modal-content {
-    background: #fff;
+    background: #2a2d35;
     border-radius: 16px;
     padding: 24px;
     width: 340px;
     max-width: 90%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     animation: modalSlideIn 0.25s ease;
+    border: 1px solid #8b6914;
+    color: #e0d5c0;
 }
 
 @keyframes modalSlideIn {
@@ -125,11 +128,13 @@
     margin-top: 0;
     margin-bottom: 8px;
     font-size: 18px;
+    color: #d4a84b;
 }
 
 .modal-content p {
     margin: 0 0 8px;
     font-size: 14px;
+    color: #c0b89a;
 }
 
 @keyframes bossGlow {
@@ -146,7 +151,7 @@
 .timer {
     font-size: 14px;
     font-weight: 700;
-    color: #24b47e;
+    color: #d4a84b;
     text-align: center;
     margin-top: 2px;
     margin-bottom: 2px;
@@ -154,67 +159,116 @@
 }
 
 /* Sub-channel style */
-.ch-sub { color: #888; font-size: 13px; }
-.ch-sub .ch-branch { color: #ccc; margin-right: 2px; }
-.boss-name { font-size: 11px; color: #aaa; font-weight: 400; margin-top: 1px; }
+.ch-sub { color: #8b7a5e; font-size: 13px; }
+.ch-sub .ch-branch { color: #5a5040; margin-right: 2px; }
+.boss-name { font-size: 11px; color: #8b7a5e; font-weight: 400; margin-top: 1px; }
 .group-divider td {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 24px 8px 8px !important;
-    text-align: left !important;
+    padding: 28px 0 10px !important;
 }
 .group-divider-label {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    color: #1a1a2e;
-    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-    padding: 8px 18px 8px 42px;
-    border-radius: 10px;
-    border-left: 4px solid #24b47e;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #d4a84b;
+    background: linear-gradient(135deg, #1e2028 0%, #2a2d35 40%, #1e2028 100%);
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 2px solid #8b6914;
     position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(212,168,75,0.1), inset 0 -1px 0 rgba(0,0,0,0.3);
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    text-shadow: 0 0 8px rgba(212,168,75,0.3);
+    overflow: hidden;
+}
+/* เส้นทองด้านบน */
+.group-divider-label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4a84b, transparent);
+}
+/* ลายคลื่นทะเลจาง ๆ ด้านล่าง */
+.group-divider-label::after {
+    content: '〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    color: rgba(212,168,75,0.12);
+    letter-spacing: 2px;
+    pointer-events: none;
+    overflow: hidden;
+    white-space: nowrap;
 }
 .group-divider-label .ep-icon {
-    position: absolute;
-    left: -24px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    border: 2px solid #fff;
+    display: none;
 }
-.group-divider-label::after {
-    content: '';
-    display: block;
+/* ไอคอนซ้าย-ขวา */
+.group-divider-label .ep-deco-left,
+.group-divider-label .ep-deco-right {
+    flex-shrink: 0;
+    font-size: 24px;
+    filter: drop-shadow(0 0 4px rgba(212,168,75,0.4));
+}
+/* ชื่อ EP ตรงกลาง */
+.group-divider-label .ep-title {
+    flex-shrink: 0;
+    text-align: center;
+    white-space: nowrap;
+    padding: 0 4px;
+}
+/* เส้นคั่นทอง */
+.group-divider-label .ep-line {
     flex: 1;
-    min-width: 40px;
-    height: 2px;
-    background: linear-gradient(to right, #24b47e, transparent);
-    border-radius: 2px;
+    min-width: 10px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #8b6914 40%, #d4a84b 50%, #8b6914 60%, transparent);
+    margin: 0 10px;
+}
+
+/* === Responsive สำหรับหัว EP === */
+@media (max-width: 700px) {
+    .group-divider-label {
+        font-size: 18px;
+        padding: 12px 14px;
+        border-radius: 10px;
+    }
+    .group-divider-label .ep-deco-left,
+    .group-divider-label .ep-deco-right {
+        font-size: 20px;
+    }
+    .group-divider-label .ep-line {
+        margin: 0 6px;
+    }
 }
 
 /* กรอบกลุ่ม EP — ครอบแถวในกลุ่มเดียวกัน */
-.group-block-start td { border-top: 2px solid #e0e0e0 !important; }
+.group-block-start td { border-top: 2px solid #3a3d48 !important; }
 .group-block-start td:first-child { border-top-left-radius: 14px !important; }
 .group-block-start td:last-child { border-top-right-radius: 14px !important; }
-.group-block-end td { border-bottom: 2px solid #e0e0e0 !important; }
+.group-block-end td { border-bottom: 2px solid #3a3d48 !important; }
 .group-block-end td:first-child { border-bottom-left-radius: 14px !important; }
 .group-block-end td:last-child { border-bottom-right-radius: 14px !important; }
-.group-block td:first-child { border-left: 2px solid #e0e0e0 !important; }
-.group-block td:last-child { border-right: 2px solid #e0e0e0 !important; }
+.group-block td:first-child { border-left: 2px solid #3a3d48 !important; }
+.group-block td:last-child { border-right: 2px solid #3a3d48 !important; }
 
 .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: #bbb;
+    color: #5a5040;
     font-size: 15px;
 }
 .empty-state span { font-size: 40px; display: block; margin-bottom: 10px; }
@@ -222,19 +276,19 @@
 /* ปุ่มจอกว้าง */
 .btn-action {
     padding: 7px 14px;
-    border: 1.5px solid #e0e0e0;
+    border: 1.5px solid #3a3d48;
     border-radius: 20px;
-    background: #fff;
-    color: #555;
+    background: #2a2d35;
+    color: #c0b89a;
     cursor: pointer;
     font-weight: 500;
     font-size: 13px;
     transition: all 0.2s;
 }
-.btn-action:hover { background: #f5f5f5; border-color: #ccc; transform: translateY(-1px); }
-.btn-action.btn-on { border-color: #f44336; color: #f44336; }
-.btn-action.btn-dead { border-color: #2196f3; color: #2196f3; }
-.btn-action.btn-delete { border-color: #e53935; color: #e53935; }
+.btn-action:hover { background: #32353e; border-color: #8b6914; transform: translateY(-1px); }
+.btn-action.btn-on { border-color: #d4a84b; color: #d4a84b; }
+.btn-action.btn-dead { border-color: #6a9fd8; color: #6a9fd8; }
+.btn-action.btn-delete { border-color: #c0564e; color: #c0564e; }
 
 /* FLIP animation สำหรับเลื่อนแถวสมูท */
 tbody tr {
@@ -306,22 +360,22 @@ tbody tr.row-removing {
     flex-wrap: wrap;
     margin-top: 8px;
     padding-top: 8px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid #3a3d48;
 }
 .row-action-bar button {
     padding: 5px 12px;
-    border: 1.5px solid #ddd;
+    border: 1.5px solid #3a3d48;
     border-radius: 20px;
-    background: white;
-    color: #555;
+    background: #2a2d35;
+    color: #c0b89a;
     cursor: pointer;
     font-weight: 500;
     font-size: 13px;
     transition: background 0.2s, border-color 0.2s;
 }
 .row-action-bar button:hover {
-    background: #f5f5f5;
-    border-color: #bbb;
+    background: #32353e;
+    border-color: #8b6914;
 }
     </style>
 </head>
@@ -329,11 +383,11 @@ tbody tr.row-removing {
 
 <div class="container">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
-        <h2 style="margin:0;">🎮 BossList Live Tracker</h2>
+        <h2 style="margin:0;">�‍☠️ BossList Live Tracker</h2>
         <div id="sortToggle" onclick="toggleSortMode()" style="
             display:flex; align-items:center; gap:6px;
             padding:7px 14px; border-radius:20px; cursor:pointer;
-            border:1.5px solid #24b47e; color:#24b47e;
+            border:1.5px solid #d4a84b; color:#d4a84b;
             font-size:13px; font-weight:600; user-select:none;
             transition:all 0.2s;
         ">
@@ -367,8 +421,8 @@ tbody tr.row-removing {
         <p>กรุณาใส่เวลารอบอสใหม่ (1.20 ชั่วโมง หรือ 10 นาที ):</p>
         <input id="deadModalInput" type="text" placeholder="1.20 หรือ 10" style="width: 100%; padding: 8px; margin: 10px 0;" onkeydown="if (event.key === 'Enter') confirmBossDead();" />
         <div style="text-align: right; margin-top: 10px;">
-            <button onclick="closeDeadModal()" style="margin-right: 8px; background:none; color:#888; box-shadow:none; border:1.5px solid #ddd;">ยกเลิก</button>
-            <button onclick="confirmBossDead()" style="background:#2196f3;color:#fff;">บันทึก</button>
+            <button onclick="closeDeadModal()" style="margin-right: 8px; background:none; color:#8b7a5e; box-shadow:none; border:1.5px solid #3a3d48;">ยกเลิก</button>
+            <button onclick="confirmBossDead()" style="background:#b8943e;color:#fff;">บันทึก</button>
         </div>
     </div>
 </div>
@@ -379,8 +433,8 @@ tbody tr.row-removing {
         <h3>ลบบอส</h3>
         <p>คุณแน่ใจหรือไม่ที่จะลบข้อมูลบอสตัวนี้?</p>
         <div style="text-align: right; margin-top: 10px;">
-            <button onclick="closeDeleteModal()" style="margin-right: 8px; background:none; color:#888; box-shadow:none; border:1.5px solid #ddd;">ยกเลิก</button>
-            <button onclick="confirmDeleteBoss()" style="background:#e53935;color:#fff;">ลบ</button>
+            <button onclick="closeDeleteModal()" style="margin-right: 8px; background:none; color:#8b7a5e; box-shadow:none; border:1.5px solid #3a3d48;">ยกเลิก</button>
+            <button onclick="confirmDeleteBoss()" style="background:#c0564e;color:#fff;">ลบ</button>
         </div>
     </div>
 </div>
@@ -430,13 +484,13 @@ tbody tr.row-removing {
         if (sortMode === 'ep') {
             icon.textContent = '📋';
             label.textContent = 'แบ่งตาม EP';
-            btn.style.borderColor = '#24b47e';
-            btn.style.color = '#24b47e';
+            btn.style.borderColor = '#d4a84b';
+            btn.style.color = '#d4a84b';
         } else {
             icon.textContent = '🔥';
             label.textContent = 'เรียงตาม Fade';
-            btn.style.borderColor = '#ff9800';
-            btn.style.color = '#ff9800';
+            btn.style.borderColor = '#c0564e';
+            btn.style.color = '#c0564e';
         }
         renderTable();
     }
@@ -547,7 +601,7 @@ function renderTable() {
                     const group = getGroupName(parseInt(i.MapNumber));
                     if (group !== lastGroup) {
                         flushGroup();
-                        html += `<tr class="group-divider"><td colspan="5"><span class="group-divider-label"><img class="ep-icon" src="—Pngtree—coconut.png" alt="">${group}</span></td></tr>`;
+                        html += `<tr class="group-divider"><td colspan="5"><span class="group-divider-label"><span class="ep-deco-left">⚓</span><span class="ep-line"></span><span class="ep-title">☸ ${group} ☸</span><span class="ep-line"></span><span class="ep-deco-right">🏴‍☠️</span></span></td></tr>`;
                         lastGroup = group;
                     }
                     groupItems.push(i);
@@ -645,7 +699,7 @@ function renderTable() {
         groups.forEach(g => {
             const divider = document.createElement('tr');
             divider.className = 'group-divider';
-            divider.innerHTML = `<td colspan="5"><span class="group-divider-label"><img class="ep-icon" src="—Pngtree—coconut.png" alt="">${g.name}</span></td>`;
+            divider.innerHTML = `<td colspan="5"><span class="group-divider-label"><span class="ep-deco-left">⚓</span><span class="ep-line"></span><span class="ep-title">☸ ${g.name} ☸</span><span class="ep-line"></span><span class="ep-deco-right">🏴‍☠️</span></span></td>`;
             tbody.appendChild(divider);
             g.ids.forEach((id, idx) => {
                 const tr = document.getElementById(id);
@@ -880,11 +934,19 @@ async function processCommand() {
     // =========================
     if (isSlash) {
         const fadeVal = parseInt(val);
+        const nowTimeFade = new Date().toLocaleString('sv-SE', {
+            timeZone: 'Asia/Bangkok'
+        }).replace(' ', 'T');
 
         if (old) {
-            // update fade + reset boss
+            // update fade + reset boss + อัปเดตเวลาเป็นปัจจุบันถ้าเวลาเดิมยังไม่ถึง
+            const oldTime = new Date(old.TimeMer);
+            const nowBangkok = getNowBangkok();
+            const updatedTime = oldTime > nowBangkok ? nowTimeFade : old.TimeMer;
+
             await _db.from('BossList')
                 .update({
+                    TimeMer: updatedTime,
                     Fade: fadeVal,
                     BossOn: false
                 })
@@ -895,9 +957,7 @@ async function processCommand() {
                 .insert([{
                     MapNumber: map,
                     Channel: ch,
-                    TimeMer: new Date().toLocaleString('sv-SE', {
-        timeZone: 'Asia/Bangkok'
-    }).replace(' ', 'T'), // 🔥 เวลาไทย
+                    TimeMer: nowTimeFade,
                     Fade: fadeVal,
                     BossOn: false
                 }]);
@@ -1155,7 +1215,7 @@ function updateTimers() {
             const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
             if (timerEl) {
                 const bossTime = new Date(i.TimeMer);
-                const diffMs = now - bossTime;
+                const diffMs = Math.max(0, now - bossTime);
                 const diffMin = Math.floor(diffMs / 60000);
                 const diffSec = Math.floor((diffMs % 60000) / 1000);
                 timerEl.textContent = `${diffMin}:${String(diffSec).padStart(2, '0')} นาที`;
