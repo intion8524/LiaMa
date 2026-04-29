@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BossList — Setup</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #1a1c24; min-height: 100vh; }
+        .container { max-width: 960px; margin: auto; background: rgba(30,32,40,0.97); padding: 20px; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(139,105,20,0.3); }
+
+        /* Header */
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .page-header h2 { margin: 0; color: #d4a84b; font-size: 1.3em; text-shadow: 0 0 10px rgba(212,168,75,0.2); }
+        .btn-back { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; border: 1.5px solid #3a3d48; background: #2a2d35; color: #c0b89a; cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
+        .btn-back:hover { border-color: #8b6914; color: #d4a84b; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #3a3d48; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn { padding: 9px 16px; border: none; background: none; color: #8b7a5e; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; border-radius: 8px 8px 0 0; white-space: nowrap; flex-shrink: 0; }
+        .tab-btn:hover { color: #d4a84b; background: rgba(212,168,75,0.05); }
+        .tab-btn.active { color: #d4a84b; border-bottom-color: #d4a84b; background: rgba(212,168,75,0.07); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Section title */
+        .section-title { color: #d4a84b; font-size: 14px; font-weight: 700; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+
+        /* Form card */
+        .form-card { background: #22242c; border: 1px solid #3a3d48; border-radius: 14px; padding: 16px; margin-bottom: 18px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .form-grid-boss { display: grid; grid-template-columns: 80px 1fr; gap: 10px; margin-bottom: 10px; }
+        .form-grid-boss2 { display: grid; grid-template-columns: 1fr 90px; gap: 10px; margin-bottom: 10px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 11px; color: #8b7a5e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+        .form-group input, .form-group select {
+            padding: 9px 12px; border: 1.5px solid #3a3d48; border-radius: 10px;
+            background: #1e2028; color: #e0d5c0; font-size: 14px; outline: none; transition: 0.2s; width: 100%;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #d4a84b; background: #252830; box-shadow: 0 0 0 3px rgba(212,168,75,0.1); }
+        .form-group input::placeholder { color: #4a4d58; }
+        .form-actions { display: flex; justify-content: flex-end; }
+
+        .btn-primary { padding: 10px 22px; background: linear-gradient(135deg, #b8943e, #8b6914); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(139,105,20,0.3); white-space: nowrap; width: 100%; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212,168,75,0.35); }
+        .btn-danger { padding: 6px 12px; background: none; border: 1.5px solid #c0564e; color: #c0564e; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.2s; white-space: nowrap; }
+        .btn-danger:hover { background: rgba(192,86,78,0.1); }
+        .btn-edit { padding: 6px 12px; background: none; border: 1.5px solid #3a3d48; color: #c0b89a; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.2s; white-space: nowrap; }
+        .btn-edit:hover { border-color: #8b6914; color: #d4a84b; }
+
+        /* Table — scroll บนมือถือ */
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; }
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; min-width: 420px; }
+        .data-table th { padding: 8px 12px; color: #8b7a5e; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; text-align: left; white-space: nowrap; }
+        .data-table td { padding: 10px 12px; background: #2a2d35; color: #e0d5c0; font-size: 13px; border-top: 1px solid #3a3d48; border-bottom: 1px solid #3a3d48; white-space: nowrap; }
+        .data-table td:first-child { border-left: 3px solid #8b6914; border-radius: 10px 0 0 10px; }
+        .data-table td:last-child { border-right: 1px solid #3a3d48; border-radius: 0 10px 10px 0; }
+        .data-table tr:hover td { background: #32353e; }
+        .td-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+        /* EP badge */
+        .ep-badge { display: inline-block; background: linear-gradient(135deg, #2a2d35, #1e2028); border: 1px solid #8b6914; color: #d4a84b; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+
+        /* Preview */
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; }
+        .ep-card { background: linear-gradient(135deg, #1e2028, #2a2d35); border: 1.5px solid #3a3d48; border-radius: 14px; padding: 14px; transition: border-color 0.2s; }
+        .ep-card:hover { border-color: #8b6914; }
+        .ep-card-title { color: #d4a84b; font-weight: 700; font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .ep-card-title span { font-size: 11px; color: #8b7a5e; font-weight: 400; }
+        .boss-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #2a2d35; font-size: 12px; }
+        .boss-item:last-child { border-bottom: none; }
+        .boss-item .map-num { color: #d4a84b; font-weight: 700; min-width: 26px; font-size: 12px; }
+        .boss-item .boss-name-text { color: #c0b89a; }
+        .no-boss { color: #4a4d58; font-size: 12px; font-style: italic; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 30px; color: #5a5040; }
+        .loading span { font-size: 28px; display: block; margin-bottom: 8px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Toast */
+        #setup-toast { position: fixed; bottom: 20px; right: 16px; left: 16px; max-width: 340px; margin: auto; background: #2a2d35; border: 1.5px solid #4caf7a; color: #a8e6c0; padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.4); opacity: 0; transform: translateY(10px); transition: all 0.25s; pointer-events: none; z-index: 9999; text-align: center; }
+        #setup-toast.show { opacity: 1; transform: translateY(0); }
+        #setup-toast.error { border-color: #c0564e; color: #f0a09a; }
+
+        /* Inline edit */
+        .inline-edit { padding: 5px 8px !important; border: 1.5px solid #d4a84b !important; border-radius: 6px !important; background: #1e2028 !important; color: #e0d5c0 !important; font-size: 12px !important; outline: none !important; width: 100% !important; }
+
+        @media (max-width: 480px) {
+            body { padding: 8px; }
+            .container { padding: 14px; border-radius: 12px; }
+            .page-header h2 { font-size: 1.1em; }
+            .preview-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h2>⚙️ Setup — EP & Boss</h2>
+        <a href="Index.html" class="btn-back">← กลับหน้าหลัก</a>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('ep')">📋 EP Groups</button>
+        <button class="tab-btn" onclick="switchTab('boss')">👾 Map Bosses</button>
+        <button class="tab-btn" onclick="switchTab('preview')">👁 Preview</button>
+    </div>
+
+    <!-- Tab: EP Groups -->
+    <div class="tab-panel active" id="tab-ep">
+        <p class="section-title">⚓ จัดการกลุ่ม EP</p>
+        <div class="form-card">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>เลข EP</label>
+                    <input type="number" id="ep-num" placeholder="เช่น 16" min="1">
+                </div>
+                <div class="form-group">
+                    <label>แมพเริ่มต้น</label>
+                    <input type="number" id="ep-min" placeholder="125">
+                </div>
+                <div class="form-group">
+                    <label>แมพสุดท้าย</label>
+                    <input type="number" id="ep-max" placeholder="130">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-primary" style="width:auto;padding:10px 28px;" onclick="addEP()">+ เพิ่ม EP</button>
+            </div>
+        </div>
+        <div class="table-wrap" id="ep-table-wrap">
+            <div class="loading"><span>⚙️</span>กำลังโหลด...</div>
+        </div>
+    </div>
+
+    <!-- Tab: Map Bosses -->
+    <div class="tab-panel" id="tab-boss">
+        <p class="section-title">👾 จัดการบอสแต่ละแมพ</p>
+        <div class="form-card">
+            <div class="form-grid-boss">
+                <div class="form-group">
+                    <label>เลขแมพ</label>
+                    <input type="number" id="boss-map" placeholder="80">
+                </div>
+                <div class="form-group">
+                    <label>ชื่อบอส</label>
+                    <input type="text" id="boss-name" placeholder="เช่น Cowardly Glackuman">
+                </div>
+            </div>
+            <div class="form-grid-boss2">
+                <div class="form-group">
+                    <label>หมายเหตุ</label>
+                    <input type="text" id="boss-notes" placeholder="(ไม่บังคับ)">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-primary" style="width:auto;padding:10px 28px;" onclick="addBoss()">+ เพิ่มบอส</button>
+            </div>
+        </div>
+        <div class="table-wrap" id="boss-table-wrap">
+            <div class="loading"><span>⚙️</span>กำลังโหลด...</div>
+        </div>
+    </div>
+
+    <!-- Tab: Preview -->
+    <div class="tab-panel" id="tab-preview">
+        <p class="section-title">👁 ตัวอย่างการแสดงผลในหน้าหลัก</p>
+        <div id="preview-wrap">
+            <div class="loading"><span>⚙️</span>กำลังโหลด...</div>
+        </div>
+    </div>
+</div>
+
+<div id="setup-toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const _db = supabase.createClient(
+    'https://xzzanhmsxlkvhmeubsac.supabase.co',
+    'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2'
+);
+
+let epList = [];
+let bossList = [];
+
+// ===== Toast =====
+let toastTimer;
+function toast(msg, isError = false) {
+    const el = document.getElementById('setup-toast');
+    el.textContent = msg;
+    el.className = 'show' + (isError ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+// ===== Tabs =====
+function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        b.classList.toggle('active', ['ep','boss','preview'][i] === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'preview') renderPreview();
+}
+
+// ===== Load Data =====
+async function loadAll() {
+    const [epRes, bossRes] = await Promise.all([
+        _db.from('EpisodeGroups').select('*').order('sort_order'),
+        _db.from('MapBosses').select('*').order('map_number')
+    ]);
+    epList = epRes.data || [];
+    bossList = bossRes.data || [];
+    renderEPTable();
+    renderBossTable();
+}
+
+// ===== EP =====
+function renderEPTable() {
+    const wrap = document.getElementById('ep-table-wrap');
+    if (epList.length === 0) {
+        wrap.innerHTML = '<p style="color:#5a5040;text-align:center;padding:20px;">ยังไม่มีข้อมูล EP — เพิ่มด้านบนได้เลย</p>';
+        return;
+    }
+    wrap.innerHTML = `
+    <table class="data-table">
+        <thead><tr>
+            <th>EP</th><th>แมพเริ่ม</th><th>แมพสุดท้าย</th><th>ลำดับ</th><th></th>
+        </tr></thead>
+        <tbody>
+        ${epList.map(ep => `
+        <tr id="ep-row-${ep.id}">
+            <td><span class="ep-badge">${ep.name}</span></td>
+            <td>${ep.min_map}</td>
+            <td>${ep.max_map}</td>
+            <td>${ep.sort_order}</td>
+            <td><div class="td-actions">
+                <button class="btn-edit" onclick="editEP(${ep.id})">✏️</button>
+                <button class="btn-danger" onclick="deleteEP(${ep.id}, '${ep.name}')">🗑️</button>
+            </div></td>
+        </tr>`).join('')}
+        </tbody>
+    </table>`;
+}
+
+async function addEP() {
+    const epNum = parseInt(document.getElementById('ep-num').value);
+    const min   = parseInt(document.getElementById('ep-min').value);
+    const max   = parseInt(document.getElementById('ep-max').value);
+    if (isNaN(epNum) || isNaN(min) || isNaN(max)) { toast('กรุณากรอกข้อมูลให้ครบ', true); return; }
+    if (min > max) { toast('แมพเริ่มต้นต้องน้อยกว่าแมพสุดท้าย', true); return; }
+
+    const name  = `EP ${epNum}`;
+    const order = epNum; // ใช้เลข EP เป็น sort_order เลย
+
+    const { error } = await _db.from('EpisodeGroups').insert([{ name, min_map: min, max_map: max, sort_order: order }]);
+    if (error) { toast('เกิดข้อผิดพลาด: ' + error.message, true); return; }
+
+    ['ep-num','ep-min','ep-max'].forEach(id => document.getElementById(id).value = '');
+    toast('✅ เพิ่ม ' + name + ' แล้ว');
+    await loadAll();
+}
+
+async function deleteEP(id, name) {
+    if (!confirm(`ลบ "${name}" ออก?\nบอสที่อยู่ใน EP นี้จะไม่ถูกลบ แต่จะไม่มี EP อ้างอิง`)) return;
+    const { error } = await _db.from('EpisodeGroups').delete().eq('id', id);
+    if (error) { toast('เกิดข้อผิดพลาด', true); return; }
+    toast('🗑️ ลบ ' + name + ' แล้ว');
+    await loadAll();
+}
+
+async function editEP(id) {
+    const ep = epList.find(e => e.id === id);
+    if (!ep) return;
+    const epNum = parseInt(ep.name.replace(/\D/g, '')) || ep.sort_order;
+    const row = document.getElementById('ep-row-' + id);
+    row.innerHTML = `
+        <td><input class="inline-edit" id="edit-ep-num-${id}" type="number" value="${epNum}" style="width:65px" placeholder="เลข EP"></td>
+        <td><input class="inline-edit" id="edit-ep-min-${id}" type="number" value="${ep.min_map}" style="width:70px"></td>
+        <td><input class="inline-edit" id="edit-ep-max-${id}" type="number" value="${ep.max_map}" style="width:70px"></td>
+        <td><span style="color:#5a5040;font-size:12px;">auto</span></td>
+        <td><div class="td-actions">
+            <button class="btn-primary" style="padding:6px 14px;font-size:13px;" onclick="saveEP(${id})">💾</button>
+            <button class="btn-edit" onclick="renderEPTable()">✕</button>
+        </div></td>`;
+}
+
+async function saveEP(id) {
+    const epNum = parseInt(document.getElementById(`edit-ep-num-${id}`).value);
+    const min   = parseInt(document.getElementById(`edit-ep-min-${id}`).value);
+    const max   = parseInt(document.getElementById(`edit-ep-max-${id}`).value);
+    if (isNaN(epNum) || isNaN(min) || isNaN(max)) { toast('กรอกข้อมูลให้ครบ', true); return; }
+    const name  = `EP ${epNum}`;
+    const order = epNum;
+    const { error } = await _db.from('EpisodeGroups').update({ name, min_map: min, max_map: max, sort_order: order }).eq('id', id);
+    if (error) { toast('เกิดข้อผิดพลาด', true); return; }
+    toast('✅ บันทึกแล้ว');
+    await loadAll();
+}
+
+// ===== Boss =====
+
+function renderBossTable() {
+    const wrap = document.getElementById('boss-table-wrap');
+    if (bossList.length === 0) {
+        wrap.innerHTML = '<p style="color:#5a5040;text-align:center;padding:20px;">ยังไม่มีข้อมูลบอส — เพิ่มด้านบนได้เลย</p>';
+        return;
+    }
+    // group by EP
+    const epMap = Object.fromEntries(epList.map(e => [e.id, e.name]));
+    // lookup EP จากเลขแมพ (ไม่ใช้ episode_id)
+    const getEPByMap = (mapNum) => epList.find(e => mapNum >= e.min_map && mapNum <= e.max_map);
+    wrap.innerHTML = `
+    <table class="data-table">
+        <thead><tr>
+            <th>แมพ</th><th>ชื่อบอส</th><th>EP</th><th>หมายเหตุ</th><th></th>
+        </tr></thead>
+        <tbody>
+        ${bossList.map(b => {
+            const ep = getEPByMap(b.map_number);
+            return `
+        <tr id="boss-row-${b.id}">
+            <td><strong style="color:#d4a84b">${b.map_number}</strong></td>
+            <td>${b.boss_name}</td>
+            <td>${ep ? `<span class="ep-badge">${ep.name}</span>` : '<span style="color:#4a4d58">—</span>'}</td>
+            <td style="color:#8b7a5e;font-size:12px;">${b.notes || '—'}</td>
+            <td><div class="td-actions">
+                    <button class="btn-edit" onclick="editBoss(${b.id})">✏️</button>
+                    <button class="btn-danger" onclick="deleteBoss(${b.id}, ${b.map_number})">🗑️</button>
+                </div></td>
+        </tr>`;}).join('')}
+        </tbody>
+    </table>`;
+}
+
+async function addBoss() {
+    const mapNum  = parseInt(document.getElementById('boss-map').value);
+    const name    = document.getElementById('boss-name').value.trim();
+    const notes   = document.getElementById('boss-notes').value.trim() || null;
+
+    if (isNaN(mapNum) || !name) { toast('กรุณากรอกเลขแมพและชื่อบอส', true); return; }
+
+    const { error } = await _db.from('MapBosses').insert([{
+        map_number: mapNum, boss_name: name, notes
+    }]);
+    if (error) { toast('เกิดข้อผิดพลาด: ' + error.message, true); return; }
+
+    ['boss-map','boss-name','boss-notes'].forEach(id => document.getElementById(id).value = '');
+    toast(`✅ เพิ่มบอสแมพ ${mapNum} แล้ว`);
+    await loadAll();
+}
+
+async function deleteBoss(id, mapNum) {
+    if (!confirm(`ลบบอสแมพ ${mapNum}?`)) return;
+    const { error } = await _db.from('MapBosses').delete().eq('id', id);
+    if (error) { toast('เกิดข้อผิดพลาด', true); return; }
+    toast(`🗑️ ลบแมพ ${mapNum} แล้ว`);
+    await loadAll();
+}
+
+async function editBoss(id) {
+    const b = bossList.find(x => x.id === id);
+    if (!b) return;
+    const row = document.getElementById('boss-row-' + id);
+    row.innerHTML = `
+        <td><input class="inline-edit" id="edit-b-map-${id}" type="number" value="${b.map_number}" style="width:65px"></td>
+        <td><input class="inline-edit" id="edit-b-name-${id}" value="${b.boss_name}" style="width:160px"></td>
+        <td><span style="color:#5a5040;font-size:12px;">auto</span></td>
+        <td><input class="inline-edit" id="edit-b-notes-${id}" value="${b.notes || ''}" style="width:140px"></td>
+        <td><div class="td-actions">
+            <button class="btn-primary" style="padding:6px 14px;font-size:13px;" onclick="saveBoss(${id})">💾</button>
+            <button class="btn-edit" onclick="renderBossTable()">✕</button>
+        </div></td>`;
+}
+
+async function saveBoss(id) {
+    const mapNum  = parseInt(document.getElementById(`edit-b-map-${id}`).value);
+    const name    = document.getElementById(`edit-b-name-${id}`).value.trim();
+    const notes   = document.getElementById(`edit-b-notes-${id}`).value.trim() || null;
+    if (isNaN(mapNum) || !name) { toast('กรอกข้อมูลให้ครบ', true); return; }
+    const { error } = await _db.from('MapBosses').update({
+        map_number: mapNum, boss_name: name, notes
+    }).eq('id', id);
+    if (error) { toast('เกิดข้อผิดพลาด', true); return; }
+    toast('✅ บันทึกแล้ว');
+    await loadAll();
+}
+
+// ===== Preview =====
+function renderPreview() {
+    const wrap = document.getElementById('preview-wrap');
+    if (epList.length === 0) {
+        wrap.innerHTML = '<p style="color:#5a5040;text-align:center;padding:20px;">ยังไม่มีข้อมูล EP</p>';
+        return;
+    }
+    const html = epList.map(ep => {
+        const bosses = bossList.filter(b => b.map_number >= ep.min_map && b.map_number <= ep.max_map)
+            .sort((a, b) => a.map_number - b.map_number);
+        return `
+        <div class="ep-card">
+            <div class="ep-card-title">
+                ⚓ ${ep.name}
+                <span>แมพ ${ep.min_map}–${ep.max_map}</span>
+            </div>
+            ${bosses.length === 0
+                ? '<div class="no-boss">ยังไม่มีบอสในกลุ่มนี้</div>'
+                : bosses.map(b => `
+                    <div class="boss-item">
+                        <span class="map-num">${b.map_number}</span>
+                        <span class="boss-name-text">${b.boss_name}</span>
+                    </div>`).join('')
+            }
+        </div>`;
+    }).join('');
+    wrap.innerHTML = `<div class="preview-grid">${html}</div>`;
+}
+
+// ===== Init =====
+loadAll();
+</script>
+</body>
+</html>
