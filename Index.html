@@ -653,6 +653,102 @@ tbody tr.row-removing {
     #bossOnIndicator { left: 10px; }
     #bossOnPopup { left: 56px; min-width: 170px; }
 }
+
+/* ===== Fade 4 Indicator (ใต้ Boss ON) ===== */
+#fade4Indicator {
+    position: fixed;
+    left: 18px;
+    top: calc(50% + 90px);
+    z-index: 9000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+#fade4Indicator .ind-icon {
+    font-size: 28px;
+    line-height: 1;
+    animation: fade4Glow 1s ease infinite alternate;
+    filter: drop-shadow(0 0 6px #d4a84b);
+}
+#fade4Indicator .ind-count {
+    background: linear-gradient(135deg, #b8943e, #8b6914);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 2px 7px;
+    box-shadow: 0 0 8px rgba(212,168,75,0.5);
+    white-space: nowrap;
+}
+@keyframes fade4Glow {
+    from { filter: drop-shadow(0 0 3px #d4a84b); transform: scale(1); }
+    to   { filter: drop-shadow(0 0 10px #f5c842); transform: scale(1.1); }
+}
+
+/* Popup Fade 4 */
+#fade4Popup {
+    position: fixed;
+    left: 62px;
+    top: calc(50% + 90px);
+    transform: translateY(-50%) scale(0.95);
+    z-index: 9001;
+    background: linear-gradient(135deg, #2e2810, #1e2028);
+    border: 2px solid #d4a84b;
+    border-radius: 14px;
+    padding: 14px 16px;
+    min-width: 200px;
+    max-width: 260px;
+    box-shadow: 0 8px 32px rgba(212,168,75,0.25), 0 2px 8px rgba(0,0,0,0.5);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+#fade4Popup.open {
+    display: block;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    pointer-events: auto;
+}
+#fade4Popup h4 {
+    margin: 0 0 10px;
+    color: #d4a84b;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+#fade4Popup .fade4-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+#fade4Popup .fade4-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(212,168,75,0.07);
+    border: 1px solid rgba(212,168,75,0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #e0d5c0;
+}
+#fade4Popup .fade4-row .map-label { font-weight: 700; color: #f5d98a; }
+#fade4Popup .fade4-row .fade-badge {
+    background: #d4a84b;
+    color: #1e2028;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 6px;
+    padding: 2px 7px;
+}
+@media (max-width: 700px) {
+    #fade4Indicator { left: 10px; top: calc(50% + 80px); }
+    #fade4Popup { left: 56px; min-width: 170px; top: calc(50% + 80px); }
+}
     </style>
 </head>
 <body>
@@ -734,6 +830,16 @@ tbody tr.row-removing {
     <div class="boss-on-list" id="bossOnList"></div>
 </div>
 
+<!-- Fade 4 Indicator -->
+<div id="fade4Indicator" onclick="toggleFade4Popup()">
+    <span class="ind-icon">🔥</span>
+    <span class="ind-count" id="fade4Count">0 แมพ</span>
+</div>
+<div id="fade4Popup">
+    <h4>🔥 Fade 4 อยู่</h4>
+    <div class="fade4-list" id="fade4List"></div>
+</div>
+
 <script>
     const _db = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
 
@@ -741,12 +847,28 @@ tbody tr.row-removing {
 
     // ===== Boss ON Indicator =====
     let bossOnPopupOpen = false;
+    let fade4PopupOpen = false;
 
     function toggleBossOnPopup() {
         bossOnPopupOpen = !bossOnPopupOpen;
+        fade4PopupOpen = false;
+        document.getElementById('fade4Popup').classList.remove('open');
         const popup = document.getElementById('bossOnPopup');
         if (bossOnPopupOpen) {
-            updateBossOnIndicator(); // refresh ก่อนเปิด
+            updateBossOnIndicator();
+            popup.classList.add('open');
+        } else {
+            popup.classList.remove('open');
+        }
+    }
+
+    function toggleFade4Popup() {
+        fade4PopupOpen = !fade4PopupOpen;
+        bossOnPopupOpen = false;
+        document.getElementById('bossOnPopup').classList.remove('open');
+        const popup = document.getElementById('fade4Popup');
+        if (fade4PopupOpen) {
+            updateBossOnIndicator();
             popup.classList.add('open');
         } else {
             popup.classList.remove('open');
@@ -755,39 +877,77 @@ tbody tr.row-removing {
 
     // ปิด popup เมื่อคลิกนอก
     document.addEventListener('click', (e) => {
-        if (!document.getElementById('bossOnIndicator').contains(e.target) &&
-            !document.getElementById('bossOnPopup').contains(e.target)) {
+        const ids = ['bossOnIndicator','bossOnPopup','fade4Indicator','fade4Popup'];
+        if (!ids.some(id => document.getElementById(id)?.contains(e.target))) {
             bossOnPopupOpen = false;
+            fade4PopupOpen = false;
             document.getElementById('bossOnPopup').classList.remove('open');
+            document.getElementById('fade4Popup').classList.remove('open');
         }
     });
 
     function updateBossOnIndicator() {
         const activeList = cachedBossList.filter(i => i.BossOn);
+        const fade4List  = cachedBossList.filter(i => i.Fade >= 4 && !i.BossOn);
+
+        // --- Boss ON ---
         const indicator = document.getElementById('bossOnIndicator');
-        const countEl = document.getElementById('bossOnCount');
-        const listEl = document.getElementById('bossOnList');
+        const countEl   = document.getElementById('bossOnCount');
+        const listEl    = document.getElementById('bossOnList');
 
         if (activeList.length === 0) {
             indicator.style.display = 'none';
             bossOnPopupOpen = false;
             document.getElementById('bossOnPopup').classList.remove('open');
-            return;
+        } else {
+            indicator.style.display = 'flex';
+            countEl.textContent = `${activeList.length} บอส`;
+            listEl.innerHTML = activeList.map(i => {
+                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
+                const cd = getCountdown(i.BossStartTime);
+                return `
+                <div class="boss-on-row">
+                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#c08080">${bossName}</span>` : ''}</span>
+                    <span class="countdown" id="ind-cd-${i.MapNumber}-${i.Channel}">${cd || '00:00'}</span>
+                </div>`;
+            }).join('');
         }
 
-        indicator.style.display = 'flex';
-        countEl.textContent = `${activeList.length} บอส`;
+        // --- Fade 4 ---
+        const f4Indicator = document.getElementById('fade4Indicator');
+        const f4CountEl   = document.getElementById('fade4Count');
+        const f4ListEl    = document.getElementById('fade4List');
 
-        // อัปเดต list ใน popup
-        listEl.innerHTML = activeList.map(i => {
-            const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
-            const cd = getCountdown(i.BossStartTime);
-            return `
-            <div class="boss-on-row">
-                <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#c08080">${bossName}</span>` : ''}</span>
-                <span class="countdown" id="ind-cd-${i.MapNumber}-${i.Channel}">${cd || '00:00'}</span>
-            </div>`;
-        }).join('');
+        // เลื่อน fade4 indicator ให้อยู่ใต้ bossOn indicator จริงๆ
+        const bossIndEl = document.getElementById('bossOnIndicator');
+        if (bossIndEl && bossIndEl.style.display !== 'none') {
+            const rect = bossIndEl.getBoundingClientRect();
+            f4Indicator.style.top = (rect.bottom + 16) + 'px';
+            f4Indicator.style.transform = 'none';
+            document.getElementById('fade4Popup').style.top = (rect.bottom + 16) + 'px';
+            document.getElementById('fade4Popup').style.transform = 'scale(1)';
+        } else {
+            f4Indicator.style.top = '50%';
+            f4Indicator.style.transform = 'translateY(-50%)';
+            document.getElementById('fade4Popup').style.top = '50%';
+        }
+
+        if (fade4List.length === 0) {
+            f4Indicator.style.display = 'none';
+            fade4PopupOpen = false;
+            document.getElementById('fade4Popup').classList.remove('open');
+        } else {
+            f4Indicator.style.display = 'flex';
+            f4CountEl.textContent = `${fade4List.length} แมพ`;
+            f4ListEl.innerHTML = fade4List.map(i => {
+                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
+                return `
+                <div class="fade4-row">
+                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
+                    <span class="fade-badge">F4</span>
+                </div>`;
+            }).join('');
+        }
     }
 
     // ===== Toast (stack ใต้ sticky-bar) =====
