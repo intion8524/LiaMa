@@ -560,6 +560,99 @@ tbody tr.row-removing {
 .row-highlight td {
     animation: rowPulse 1.2s ease forwards;
 }
+
+/* ===== Boss ON Indicator (ลอยซ้ายกลาง) ===== */
+#bossOnIndicator {
+    position: fixed;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 9000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+#bossOnIndicator .ind-icon {
+    font-size: 32px;
+    animation: indGlow 0.7s ease infinite alternate;
+    filter: drop-shadow(0 0 8px #ff4444);
+    line-height: 1;
+}
+#bossOnIndicator .ind-count {
+    background: #ff4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 2px 7px;
+    box-shadow: 0 0 8px rgba(255,68,68,0.6);
+    white-space: nowrap;
+}
+@keyframes indGlow {
+    from { filter: drop-shadow(0 0 4px #ff4444); transform: scale(1); }
+    to   { filter: drop-shadow(0 0 14px #ff1744); transform: scale(1.15); }
+}
+
+/* Popup รายการบอส ON */
+#bossOnPopup {
+    position: fixed;
+    left: 62px;
+    top: 50%;
+    transform: translateY(-50%) scale(0.95);
+    z-index: 9001;
+    background: linear-gradient(135deg, #2e1010, #1e2028);
+    border: 2px solid #ff4444;
+    border-radius: 14px;
+    padding: 14px 16px;
+    min-width: 200px;
+    max-width: 260px;
+    box-shadow: 0 8px 32px rgba(255,68,68,0.35), 0 2px 8px rgba(0,0,0,0.5);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+#bossOnPopup.open {
+    display: block;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    pointer-events: auto;
+}
+#bossOnPopup h4 {
+    margin: 0 0 10px;
+    color: #ff7070;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+#bossOnPopup .boss-on-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+#bossOnPopup .boss-on-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #f0c0c0;
+}
+#bossOnPopup .boss-on-row .map-label { font-weight: 700; color: #ff9a9a; }
+#bossOnPopup .boss-on-row .countdown { font-variant-numeric: tabular-nums; color: #ff6060; font-weight: 700; font-size: 13px; }
+@media (max-width: 700px) {
+    #bossOnIndicator { left: 10px; }
+    #bossOnPopup { left: 56px; min-width: 170px; }
+}
     </style>
 </head>
 <body>
@@ -631,10 +724,71 @@ tbody tr.row-removing {
 <!-- Toast container -->
 <div id="toast-container"></div>
 
+<!-- Boss ON Indicator -->
+<div id="bossOnIndicator" onclick="toggleBossOnPopup()">
+    <span class="ind-icon">💀</span>
+    <span class="ind-count" id="bossOnCount">0 บอส</span>
+</div>
+<div id="bossOnPopup">
+    <h4>💀 Boss ON อยู่</h4>
+    <div class="boss-on-list" id="bossOnList"></div>
+</div>
+
 <script>
     const _db = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
 
     let cachedBossList = []; // เก็บข้อมูลจาก DB ครั้งสุดท้าย
+
+    // ===== Boss ON Indicator =====
+    let bossOnPopupOpen = false;
+
+    function toggleBossOnPopup() {
+        bossOnPopupOpen = !bossOnPopupOpen;
+        const popup = document.getElementById('bossOnPopup');
+        if (bossOnPopupOpen) {
+            updateBossOnIndicator(); // refresh ก่อนเปิด
+            popup.classList.add('open');
+        } else {
+            popup.classList.remove('open');
+        }
+    }
+
+    // ปิด popup เมื่อคลิกนอก
+    document.addEventListener('click', (e) => {
+        if (!document.getElementById('bossOnIndicator').contains(e.target) &&
+            !document.getElementById('bossOnPopup').contains(e.target)) {
+            bossOnPopupOpen = false;
+            document.getElementById('bossOnPopup').classList.remove('open');
+        }
+    });
+
+    function updateBossOnIndicator() {
+        const activeList = cachedBossList.filter(i => i.BossOn);
+        const indicator = document.getElementById('bossOnIndicator');
+        const countEl = document.getElementById('bossOnCount');
+        const listEl = document.getElementById('bossOnList');
+
+        if (activeList.length === 0) {
+            indicator.style.display = 'none';
+            bossOnPopupOpen = false;
+            document.getElementById('bossOnPopup').classList.remove('open');
+            return;
+        }
+
+        indicator.style.display = 'flex';
+        countEl.textContent = `${activeList.length} บอส`;
+
+        // อัปเดต list ใน popup
+        listEl.innerHTML = activeList.map(i => {
+            const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
+            const cd = getCountdown(i.BossStartTime);
+            return `
+            <div class="boss-on-row">
+                <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#c08080">${bossName}</span>` : ''}</span>
+                <span class="countdown" id="ind-cd-${i.MapNumber}-${i.Channel}">${cd || '00:00'}</span>
+            </div>`;
+        }).join('');
+    }
 
     // ===== Toast (stack ใต้ sticky-bar) =====
     function updateToastPosition() {
@@ -846,6 +1000,7 @@ function renderTable() {
             flushGroup();
         }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
+        updateBossOnIndicator();
         return;
     }
 
@@ -980,6 +1135,7 @@ function renderTable() {
             });
         });
     });
+    updateBossOnIndicator();
 }
 
 function buildRowHTML(i, now, extraClass, isSubCh, isLastCh) {
@@ -1562,6 +1718,12 @@ function updateTimers() {
             const bossTime = new Date(i.TimeMer);
             const isArrived = bossTime <= now || i.Fade > 0 || i.BossOn;
             rowEl.className = isArrived ? 'row-active' : 'row-waiting';
+        }
+
+        // อัปเดต countdown ใน indicator popup
+        if (i.BossOn) {
+            const indCd = document.getElementById(`ind-cd-${i.MapNumber}-${i.Channel}`);
+            if (indCd) indCd.textContent = getCountdown(i.BossStartTime) || '00:00';
         }
     });
 }
