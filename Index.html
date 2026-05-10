@@ -84,6 +84,9 @@
 
         /* สไตล์ Fade Progress Bar */
         .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #3a3d48; border-radius: 16px; overflow: hidden; height: 38px; border: 2px solid #4a4d58; }
+        /* wrapper ครอบ fade-container เพื่อให้ label ทศนิยมลอยออกมาได้ */
+        .fade-wrapper { position: relative; display: flex; justify-content: center; }
+        .fade-wrapper.has-decimal { padding-top: 20px; }
         .row-active .fade-container { border-color: #8b6914; box-shadow: 0 0 0 1px rgba(212,168,75,0.15); }
         .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #555; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.05); }
         .fade-box:last-child { border-right: none; }
@@ -92,6 +95,35 @@
         .f2.active { background-color: #8b6914; color: #fff; }
         .f3.active { background-color: #b8943e; color: #fff; }
         .f4.active { background-color: #d4a84b; color: #1e2028; font-weight: 800; }
+
+        /* Boss ON — ทับสีทั้ง bar เป็นโทนแดง */
+        .fade-bosson { border-color: #c0392b !important; background-color: #2a1010 !important; }
+        .fade-bosson .f1.active { background-color: #6b1a1a; color: #ff9a9a; }
+        .fade-bosson .f2.active { background-color: #922b21; color: #fff; }
+        .fade-bosson .f3.active { background-color: #c0392b; color: #fff; }
+        .fade-bosson .f4.active { background-color: #ff4444; color: #fff; font-weight: 800; box-shadow: 0 0 10px rgba(255,68,68,0.6); animation: bossBarPulse 0.8s ease infinite alternate; }
+        @keyframes bossBarPulse {
+            from { background-color: #ff4444; box-shadow: 0 0 6px rgba(255,68,68,0.5); }
+            to   { background-color: #ff1744; box-shadow: 0 0 16px rgba(255,23,68,0.8); }
+        }
+
+        /* Label ทศนิยมลอยเหนือ fade bar */
+        .fade-decimal-label {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #b8943e, #8b6914);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 6px;
+            padding: 1px 7px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            letter-spacing: 0.3px;
+        }
 
         .hour-slot { background: none !important; text-align: left !important; color: #d4a84b; font-weight: bold; font-size: 1.1em; padding-top: 20px !important; }
     .boss-icon {
@@ -572,7 +604,7 @@ tbody tr.row-removing {
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    cursor: pointer;
+    cursor: default;
     user-select: none;
 }
 #bossOnIndicator .ind-icon {
@@ -596,29 +628,21 @@ tbody tr.row-removing {
     to   { filter: drop-shadow(0 0 14px #ff1744); transform: scale(1.15); }
 }
 
-/* Popup รายการบอส ON */
+/* Popup รายการบอส ON — แสดงตลอด ไม่ต้องกด */
 #bossOnPopup {
     position: fixed;
     left: 62px;
     top: 50%;
-    transform: translateY(-50%) scale(0.95);
+    transform: translateY(-50%);
     z-index: 9001;
     background: linear-gradient(135deg, #2e1010, #1e2028);
     border: 2px solid #ff4444;
     border-radius: 14px;
     padding: 14px 16px;
-    min-width: 200px;
-    max-width: 260px;
+    min-width: 220px;
+    max-width: 280px;
     box-shadow: 0 8px 32px rgba(255,68,68,0.35), 0 2px 8px rgba(0,0,0,0.5);
     display: none;
-    opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    pointer-events: none;
-}
-#bossOnPopup.open {
-    display: block;
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
     pointer-events: auto;
 }
 #bossOnPopup h4 {
@@ -665,7 +689,7 @@ tbody tr.row-removing {
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    cursor: pointer;
+    cursor: default;
     user-select: none;
 }
 #fade4Indicator .ind-icon {
@@ -689,29 +713,21 @@ tbody tr.row-removing {
     to   { filter: drop-shadow(0 0 10px #f5c842); transform: scale(1.1); }
 }
 
-/* Popup Fade 4 */
+/* Popup Fade 4 — แสดงตลอด ไม่ต้องกด */
 #fade4Popup {
     position: fixed;
     left: 62px;
     top: calc(50% + 90px);
-    transform: translateY(-50%) scale(0.95);
+    transform: translateY(-50%);
     z-index: 9001;
     background: linear-gradient(135deg, #2e2810, #1e2028);
     border: 2px solid #d4a84b;
     border-radius: 14px;
     padding: 14px 16px;
-    min-width: 200px;
-    max-width: 260px;
+    min-width: 220px;
+    max-width: 280px;
     box-shadow: 0 8px 32px rgba(212,168,75,0.25), 0 2px 8px rgba(0,0,0,0.5);
     display: none;
-    opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    pointer-events: none;
-}
-#fade4Popup.open {
-    display: block;
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
     pointer-events: auto;
 }
 #fade4Popup h4 {
@@ -834,7 +850,7 @@ tbody tr.row-removing {
 <div id="toast-container"></div>
 
 <!-- Boss ON Indicator -->
-<div id="bossOnIndicator" onclick="toggleBossOnPopup()">
+<div id="bossOnIndicator">
     <span class="ind-icon">💀</span>
     <span class="ind-count" id="bossOnCount">0 บอส</span>
 </div>
@@ -844,7 +860,7 @@ tbody tr.row-removing {
 </div>
 
 <!-- Fade 4 Indicator -->
-<div id="fade4Indicator" onclick="toggleFade4Popup()">
+<div id="fade4Indicator">
     <span class="ind-icon">🔥</span>
     <span class="ind-count" id="fade4Count">0 แมพ</span>
 </div>
@@ -859,15 +875,8 @@ tbody tr.row-removing {
     let cachedBossList = []; // เก็บข้อมูลจาก DB ครั้งสุดท้าย
 
     // ===== Boss ON Indicator =====
-    let bossOnPopupOpen = false;
-    let fade4PopupOpen = false;
 
     function scrollToMap(mapNumber, channel) {
-        // ปิด popup ก่อน
-        bossOnPopupOpen = false;
-        fade4PopupOpen = false;
-        document.getElementById('bossOnPopup').classList.remove('open');
-        document.getElementById('fade4Popup').classList.remove('open');
 
         const rowId = `row-${mapNumber}-${channel}`;
         const tr = document.getElementById(rowId);
@@ -883,43 +892,6 @@ tbody tr.row-removing {
         setTimeout(() => tr.classList.remove('row-highlight'), 1300);
     }
 
-    function toggleBossOnPopup() {
-        bossOnPopupOpen = !bossOnPopupOpen;
-        fade4PopupOpen = false;
-        document.getElementById('fade4Popup').classList.remove('open');
-        const popup = document.getElementById('bossOnPopup');
-        if (bossOnPopupOpen) {
-            updateBossOnIndicator();
-            popup.classList.add('open');
-        } else {
-            popup.classList.remove('open');
-        }
-    }
-
-    function toggleFade4Popup() {
-        fade4PopupOpen = !fade4PopupOpen;
-        bossOnPopupOpen = false;
-        document.getElementById('bossOnPopup').classList.remove('open');
-        const popup = document.getElementById('fade4Popup');
-        if (fade4PopupOpen) {
-            updateBossOnIndicator();
-            popup.classList.add('open');
-        } else {
-            popup.classList.remove('open');
-        }
-    }
-
-    // ปิด popup เมื่อคลิกนอก
-    document.addEventListener('click', (e) => {
-        const ids = ['bossOnIndicator','bossOnPopup','fade4Indicator','fade4Popup'];
-        if (!ids.some(id => document.getElementById(id)?.contains(e.target))) {
-            bossOnPopupOpen = false;
-            fade4PopupOpen = false;
-            document.getElementById('bossOnPopup').classList.remove('open');
-            document.getElementById('fade4Popup').classList.remove('open');
-        }
-    });
-
     function updateBossOnIndicator() {
         const activeList = cachedBossList.filter(i => i.BossOn);
         const fade4List  = cachedBossList.filter(i => i.Fade >= 4 && !i.BossOn);
@@ -928,13 +900,14 @@ tbody tr.row-removing {
         const indicator = document.getElementById('bossOnIndicator');
         const countEl   = document.getElementById('bossOnCount');
         const listEl    = document.getElementById('bossOnList');
+        const popup     = document.getElementById('bossOnPopup');
 
         if (activeList.length === 0) {
             indicator.style.display = 'none';
-            bossOnPopupOpen = false;
-            document.getElementById('bossOnPopup').classList.remove('open');
+            popup.style.display = 'none';
         } else {
             indicator.style.display = 'flex';
+            popup.style.display = 'block';
             countEl.textContent = `${activeList.length} บอส`;
             listEl.innerHTML = activeList.map(i => {
                 const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
@@ -951,6 +924,7 @@ tbody tr.row-removing {
         const f4Indicator = document.getElementById('fade4Indicator');
         const f4CountEl   = document.getElementById('fade4Count');
         const f4ListEl    = document.getElementById('fade4List');
+        const f4Popup     = document.getElementById('fade4Popup');
 
         // เลื่อน fade4 indicator ให้อยู่ใต้ bossOn indicator จริงๆ
         const bossIndEl = document.getElementById('bossOnIndicator');
@@ -958,20 +932,21 @@ tbody tr.row-removing {
             const rect = bossIndEl.getBoundingClientRect();
             f4Indicator.style.top = (rect.bottom + 16) + 'px';
             f4Indicator.style.transform = 'none';
-            document.getElementById('fade4Popup').style.top = (rect.bottom + 16) + 'px';
-            document.getElementById('fade4Popup').style.transform = 'scale(1)';
+            f4Popup.style.top = (rect.bottom + 16) + 'px';
+            f4Popup.style.transform = 'none';
         } else {
             f4Indicator.style.top = '50%';
             f4Indicator.style.transform = 'translateY(-50%)';
-            document.getElementById('fade4Popup').style.top = '50%';
+            f4Popup.style.top = '50%';
+            f4Popup.style.transform = 'translateY(-50%)';
         }
 
         if (fade4List.length === 0) {
             f4Indicator.style.display = 'none';
-            fade4PopupOpen = false;
-            document.getElementById('fade4Popup').classList.remove('open');
+            f4Popup.style.display = 'none';
         } else {
             f4Indicator.style.display = 'flex';
+            f4Popup.style.display = 'block';
             f4CountEl.textContent = `${fade4List.length} แมพ`;
             f4ListEl.innerHTML = fade4List.map(i => {
                 const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
@@ -1074,13 +1049,22 @@ tbody tr.row-removing {
 
     const getNowBangkok = () => new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
 
-function createFadeBar(level, mapNumber, channel) {
+function createFadeBar(level, mapNumber, channel, bossOn = false) {
+    // ตรวจว่าเป็นทศนิยมหรือไม่
+    const floorLevel = Math.floor(level);
+    const isDecimal = level > 0 && level !== floorLevel;
+    const decimalLabel = isDecimal ? `<div class="fade-decimal-label">🔥 ${level}</div>` : '';
+    const bossClass = bossOn ? ' fade-bosson' : '';
+
     return `
-        <div class="fade-container">
-            <div class="fade-box f1 ${level >= 1 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 1)">1</div>
-            <div class="fade-box f2 ${level >= 2 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 2)">2</div>
-            <div class="fade-box f3 ${level >= 3 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 3)">3</div>
-            <div class="fade-box f4 ${level >= 4 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 4)">4</div>
+        <div class="fade-wrapper${isDecimal ? ' has-decimal' : ''}">
+            ${decimalLabel}
+            <div class="fade-container${bossClass}">
+                <div class="fade-box f1 ${level >= 1 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 1)">1</div>
+                <div class="fade-box f2 ${level >= 2 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 2)">2</div>
+                <div class="fade-box f3 ${level >= 3 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 3)">3</div>
+                <div class="fade-box f4 ${level >= 4 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 4)">4</div>
+            </div>
         </div>
     `;
 }
@@ -1356,7 +1340,7 @@ function buildRowHTML(i, now, extraClass, isSubCh, isLastCh) {
     </td>
     <td>
         <div class="time-display" style="font-size:12px; margin-bottom:4px; text-align:center;">${timeStr} น. ${statusIcon}</div>
-        ${createFadeBar(i.Fade, i.MapNumber, i.Channel)}
+        ${createFadeBar(i.Fade, i.MapNumber, i.Channel, i.BossOn)}
         <div class="row-action-bar">
             <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">${i.BossOn ? '⚔️ ON' : '💤 OFF'}</button>
             <input class="dead-input" type="text" placeholder="☠️ เวลาบอส" title="กรอกเวลาบอสใหม่แล้วกด Enter"
@@ -1523,7 +1507,7 @@ async function processCommand() {
     // ✅ เคส /
     // =========================
     if (isSlash) {
-        const fadeVal = parseInt(val);
+        const fadeVal = parseFloat(val);
         const nowTimeFade = new Date().toLocaleString('sv-SE', {
             timeZone: 'Asia/Bangkok'
         }).replace(' ', 'T');
@@ -1558,7 +1542,13 @@ async function processCommand() {
     suppressNextToast = true;
     document.getElementById('cmd').value = "";
     showTable();
-    showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว`);
+
+    // คำนวณเวลาที่ตั้งไว้เพื่อแสดงใน toast
+    if (isPlus) {
+        showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว (${calcTimeLabel(val)})`);
+    } else {
+        showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว`);
+    }
 }
 
  function calcTime(v) {
@@ -1576,6 +1566,22 @@ async function processCommand() {
     return d.toLocaleString('sv-SE', {
         timeZone: 'Asia/Bangkok'
     }).replace(' ', 'T'); // format: YYYY-MM-DDTHH:mm:ss
+}
+
+// คำนวณ label เวลาที่อ่านง่าย เช่น "อีก 1 ชั่วโมง 20 นาที"
+function calcTimeLabel(v) {
+    let totalMin = 0;
+    if (v.includes('.')) {
+        const [h, m] = v.split('.');
+        totalMin = parseInt(h) * 60 + parseInt(m || 0);
+    } else {
+        totalMin = parseInt(v);
+    }
+    if (isNaN(totalMin) || totalMin <= 0) return 'ทันที';
+    if (totalMin < 60) return `อีก ${totalMin} นาที`;
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return m > 0 ? `อีก ${h} ชั่วโมง ${m} นาที` : `อีก ${h} ชั่วโมง`;
 }
 
     // ===== Realtime — แจ้งเตือนทุกคนเมื่อ DB เปลี่ยน =====
@@ -1741,7 +1747,7 @@ async function inlineConfirmDead(mapNumber, channel, inputValue) {
         .update({ TimeMer: newTime, BossOn: false, BossStartTime: null, Fade: 0 })
         .eq('MapNumber', map)
         .eq('Channel', ch);
-    showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว`);
+    showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว (${calcTimeLabel(inputValue)})`);
 }
 
 async function markBossDead(mapNumber, channel) {
@@ -1803,6 +1809,7 @@ async function confirmBossDead() {
         .update({ TimeMer: newTime, BossOn: false, BossStartTime: null, Fade: 0 })
         .eq('MapNumber', map)
         .eq('Channel', ch);
+    showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว (${calcTimeLabel(inputValue)})`);
 }
 
 async function deleteBoss(mapNumber, channel) {
