@@ -69,11 +69,11 @@
         button:active { transform: translateY(0); }
 
         /* สไตล์ตาราง */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
-        th { padding: 12px 15px; color: #8b7a5e; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        td { padding: 14px 12px; background: #2a2d35; text-align: center; border-top: 1px solid #3a3d48; border-bottom: 1px solid #3a3d48; color: #e0d5c0; }
-        td:first-child { border-left: 1px solid #3a3d48; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        td:last-child { border-right: 1px solid #3a3d48; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
+        th { padding: 8px 10px; color: #8b7a5e; text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        td { padding: 8px 8px; background: #2a2d35; text-align: center; border-top: 1px solid #3a3d48; border-bottom: 1px solid #3a3d48; color: #e0d5c0; font-size: 13px; }
+        td:first-child { border-left: 1px solid #3a3d48; border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        td:last-child { border-right: 1px solid #3a3d48; border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
 
         /* แถวสีเทา (ยังไม่ถึงเวลา) */
         .row-waiting { opacity: 0.35; filter: grayscale(80%); }
@@ -104,12 +104,12 @@
         }
 
         /* สไตล์ Fade Progress Bar */
-        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #3a3d48; border-radius: 16px; overflow: hidden; height: 38px; border: 2px solid #4a4d58; }
+        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 220px; margin: auto; background-color: #3a3d48; border-radius: 12px; overflow: hidden; height: 30px; border: 2px solid #4a4d58; }
         /* wrapper ครอบ fade-container เพื่อให้ label ทศนิยมลอยออกมาได้ */
         .fade-wrapper { position: relative; display: flex; justify-content: center; }
-        .fade-wrapper.has-decimal { padding-top: 20px; }
+        .fade-wrapper.has-decimal { padding-top: 18px; }
         .row-active .fade-container { border-color: #8b6914; box-shadow: 0 0 0 1px rgba(212,168,75,0.15); }
-        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #555; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.05); }
+        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #555; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.05); }
         .fade-box:last-child { border-right: none; }
         .fade-box.active { color: white; }
         .f1.active { background-color: #5c4a1e; color: #d4a84b; }
@@ -156,9 +156,14 @@
 
         .hour-slot { background: none !important; text-align: left !important; color: #d4a84b; font-weight: bold; font-size: 1.1em; padding-top: 20px !important; }
     .boss-icon {
-    font-size: 28px;
+    font-size: 20px;
     display: inline-block;
 }
+/* เลขแมพ — เด่นชัดเสมอ */
+.map-number strong { font-size: 17px; color: #e8d5a0; letter-spacing: 0.3px; }
+.boss-name { font-size: 10px; color: #8b7a5e; font-weight: 400; margin-top: 1px; }
+.timer { font-size: 11px; }
+.map-timer { font-size: 11px; }
 
 .boss-active {
     color: #f44336;
@@ -356,7 +361,7 @@ tr.row-sub.row-dead .ch-badge {
     border-color: rgba(155,89,182,0.4);
     color: #c39bd3;
 }
-.boss-name { font-size: 11px; color: #8b7a5e; font-weight: 400; margin-top: 1px; }
+.boss-name { font-size: 10px; color: #8b7a5e; font-weight: 400; margin-top: 1px; }
 .group-divider td {
     background: none !important;
     border: none !important;
@@ -515,26 +520,25 @@ tbody tr.row-removing {
     .input-group input { padding: 10px; font-size: 14px; }
     .input-group button { padding: 10px 16px; font-size: 14px; }
 
-    table { border-spacing: 0 5px; }
-    th { padding: 6px 4px; font-size: 12px; }
-    td { padding: 8px 4px; font-size: 12px; }
+    table { border-spacing: 0 3px; }
+    th { padding: 5px 4px; font-size: 11px; }
+    td { padding: 6px 4px; font-size: 12px; }
 
     /* ซ่อน 3 คอลัมน์ปุ่มแยก */
     th.col-bosson, th.col-dead, th.col-delete,
     td.col-bosson, td.col-dead, td.col-delete { display: none; }
 
-    .fade-container { width: 85%; max-width: 240px; height: 34px; }
-    .fade-box { font-size: 13px; }
+    .fade-container { width: 85%; max-width: 200px; height: 26px; }
+    .fade-box { font-size: 12px; }
 
-    .boss-icon { font-size: 22px; }
-    .timer { font-size: 12px; }
+    .boss-icon { font-size: 18px; }
 
     /* แสดงปุ่ม action bar ในแถว */
     .row-action-bar { display: flex !important; }
 
-    /* MapNumber คอลัมน์ — ขยายให้เด่น */
-    .map-number { font-size: 20px; }
-    .map-timer { font-size: 14px; }
+    /* MapNumber — ยังคงเด่น */
+    .map-number strong { font-size: 16px; }
+    .map-timer { font-size: 11px; }
 
     /* ซ่อนเวลาตั้ง เพราะมี timer นับอยู่แล้ว */
     .time-display { display: none; }
@@ -544,10 +548,10 @@ tbody tr.row-removing {
 @media (max-width: 450px) {
     .container { padding: 8px; }
     th { padding: 4px 2px; font-size: 11px; }
-    td { padding: 6px 2px; font-size: 11px; }
-    .fade-container { width: 80%; max-width: 200px; height: 30px; }
-    .fade-box { font-size: 12px; }
-    .map-number { font-size: 18px; }
+    td { padding: 5px 2px; font-size: 11px; }
+    .fade-container { width: 80%; max-width: 180px; height: 24px; }
+    .fade-box { font-size: 11px; }
+    .map-number strong { font-size: 15px; }
     .map-timer { font-size: 13px; }
 }
 
