@@ -1583,17 +1583,22 @@ async function processCommand() {
     const isPlus = input.includes('+');
     const isSlash = input.includes('/');
 
-    if (isPlus) [rawMap, val] = input.split('+');
-    else if (isSlash) [rawMap, val] = input.split('/');
-    else {
-        // 🆕 รูปแบบ space: "95 2.7", "95 1 2.7" (fade) หรือ "101 +1.1", "101 1 +1.1" (ตั้งเวลา)
+    // 🆕 รูปแบบ space ต้องเช็คก่อน isPlus/isSlash เพราะอาจมี + อยู่ใน part สุดท้าย
+    // เช่น "120 4 +1.42" — ถ้าปล่อยให้ isPlus จับก่อนจะ parse ch ผิด
+    {
         const spaceParts = input.trim().split(/\s+/);
         if (spaceParts.length >= 2) {
             const lastPart = spaceParts[spaceParts.length - 1];
             const isTimePart = lastPart.startsWith('+');
             const isFadePart = !isTimePart && !isNaN(parseFloat(lastPart));
 
-            if (isTimePart || isFadePart) {
+            // space pattern: ต้องมีอย่างน้อย 2 parts และ part แรกเป็นตัวเลข (map)
+            // และ part ที่ 2 (ถ้ามี 3 parts) ต้องเป็นตัวเลขล้วน (ch)
+            const isSpacePattern = (isTimePart || isFadePart) &&
+                !isNaN(parseInt(spaceParts[0])) &&
+                (spaceParts.length === 2 || !isNaN(parseInt(spaceParts[1])));
+
+            if (isSpacePattern) {
                 let map, ch;
                 if (spaceParts.length === 2) {
                     map = parseInt(spaceParts[0]); ch = 1;
@@ -1605,9 +1610,8 @@ async function processCommand() {
                 const { data: old } = await _db.from('BossList').select('*').eq('MapNumber', map).eq('Channel', ch).maybeSingle();
 
                 if (isTimePart) {
-                    // ตั้งเวลา: "101 +1.1" หรือ "101 1 +1.1"
-                    const val = lastPart.slice(1); // ตัด + ออก
-                    const newTime = calcTime(val);
+                    const timeVal = lastPart.slice(1);
+                    const newTime = calcTime(timeVal);
                     if (old) {
                         await _db.from('BossList').update({ TimeMer: newTime, Fade: 0, Status: 'waiting' }).eq('id', old.id);
                     } else {
@@ -1616,11 +1620,9 @@ async function processCommand() {
                     suppressNextToast = true;
                     document.getElementById('cmd').value = "";
                     showTable();
-                    showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว (${calcTimeLabel(val)})`);
+                    showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว (${calcTimeLabel(timeVal)})`);
                 } else {
-                    // fade: "95 2.7" หรือ "95 1 2.7"
                     const fadeVal = parseFloat(lastPart);
-                    if (isNaN(fadeVal)) { alert("รูปแบบไม่ถูกต้อง"); return; }
                     const nowTimeFade = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T');
                     if (old) {
                         const oldTime = new Date(old.TimeMer);
@@ -1637,6 +1639,11 @@ async function processCommand() {
                 return;
             }
         }
+    }
+
+    if (isPlus) [rawMap, val] = input.split('+');
+    else if (isSlash) [rawMap, val] = input.split('/');
+    else {
         return;
     }
 
