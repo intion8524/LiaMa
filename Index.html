@@ -903,6 +903,7 @@ tbody tr.row-removing {
             <li>4.3) 80 +1.20 = ตั้งเวลาแมพ 80 ช่อง 1 อีก 1 ชั่วโมง 20 นาที</li>
             <li>4.4) 80 1 +30 = ตั้งเวลาแมพ 80 ช่อง 1 อีก 30 นาที (ระบุช่องด้วย)</li>
             <li>5) 80.1on = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 4 และ Boss ON ทันที (เริ่มนับถอยหลัง 30 นาที)</li>
+            <li>5.1) 80 1 on = เหมือนข้อ 5 แต่ใช้ space แทน</li>
             <li>หมายเหตุ: เลขหลังจุดหรือขีดกลางคือช่อง (channel) ถ้าไม่ใส่จะเป็นช่อง 1 โดยอัตโนมัติ</li>
         </ul>
     </div>
@@ -1514,8 +1515,17 @@ async function processCommand() {
     // 🔥 เคสพิเศษ: ถ้ามี 'on' แสดงว่า boss เกิดแล้ว
     if (input.toLowerCase().includes('on')) {
         // ลบ 'on' ออกแล้ว parse map
-        const cleanInput = input.toLowerCase().replace('on', '').trim();
-        const { map, ch } = parseMapInput(cleanInput);
+        const cleanInput = input.toLowerCase().replace(/\bon\b/, '').trim();
+
+        // รองรับทั้ง "105.2", "105-2" และ "105 2"
+        let map, ch;
+        const spaceParts = cleanInput.split(/\s+/);
+        if (spaceParts.length >= 2 && !isNaN(parseInt(spaceParts[1]))) {
+            map = parseInt(spaceParts[0]);
+            ch  = parseInt(spaceParts[1]);
+        } else {
+            ({ map, ch } = parseMapInput(cleanInput));
+        }
 
         if (!map || isNaN(map)) {
             alert("รูปแบบไม่ถูกต้อง");
