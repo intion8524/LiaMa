@@ -81,6 +81,27 @@
         /* แถวสีเข้ม (ถึงเวลาแล้ว) */
         .row-active td { background: #2a2d35; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
         .row-active td:first-child { border-left: 3px solid #d4a84b; }
+        /* แถวรอเวลาเกิดใหม่ */
+        .row-dead td { background: #1e1a2a; }
+        .row-dead td:first-child { border-left: 3px solid #9b59b6; }
+        .row-dead .dead-waiting-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(155,89,182,0.15);
+            border: 1px solid rgba(155,89,182,0.4);
+            color: #c39bd3;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 4px 10px;
+            margin-top: 4px;
+            animation: deadPulse 1.5s ease infinite alternate;
+        }
+        @keyframes deadPulse {
+            from { border-color: rgba(155,89,182,0.3); color: #a569bd; }
+            to   { border-color: rgba(155,89,182,0.7); color: #d7bde2; }
+        }
 
         /* สไตล์ Fade Progress Bar */
         .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 280px; margin: auto; background-color: #3a3d48; border-radius: 16px; overflow: hidden; height: 38px; border: 2px solid #4a4d58; }
@@ -106,6 +127,14 @@
             from { background-color: #ff4444; box-shadow: 0 0 6px rgba(255,68,68,0.5); }
             to   { background-color: #ff1744; box-shadow: 0 0 16px rgba(255,23,68,0.8); }
         }
+
+        /* Dead — ทับสีทั้ง bar เป็นโทนม่วง */
+        .fade-dead { border-color: #7d3c98 !important; background-color: #1a1020 !important; }
+        .fade-dead .f1.active { background-color: #4a235a; color: #d7bde2; }
+        .fade-dead .f2.active { background-color: #6c3483; color: #fff; }
+        .fade-dead .f3.active { background-color: #8e44ad; color: #fff; }
+        .fade-dead .f4.active { background-color: #9b59b6; color: #fff; font-weight: 800; }
+        .fade-dead .fade-box { color: #4a235a; }
 
         /* Label ทศนิยมลอยเหนือ fade bar */
         .fade-decimal-label {
@@ -263,6 +292,70 @@
 /* Sub-channel style */
 .ch-sub { color: #8b7a5e; font-size: 13px; }
 .ch-sub .ch-branch { color: #5a5040; margin-right: 2px; }
+
+/* ========== Group border — เส้นซ้ายครอบกลุ่ม CH ========== */
+
+/* แถวหลักที่มี sub ตามมา — ตัดมุมล่างซ้ายออก ให้เส้นต่อลงไป */
+tr.row-has-sub td:first-child {
+    border-bottom-left-radius: 0 !important;
+    border-left: 3px solid #8b6914 !important;
+    border-bottom: none !important;
+}
+tr.row-has-sub.row-waiting td:first-child { border-left-color: #3a3d48 !important; }
+tr.row-has-sub.row-dead    td:first-child { border-left-color: #7d3c98 !important; }
+
+/* แถว sub-channel — เส้นซ้ายต่อเนื่อง พื้นหลังต่าง */
+tr.row-sub td {
+    background: #232630 !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+tr.row-sub td:first-child {
+    border-left: 3px solid #5a4a1e !important;
+    border-top: none !important;
+    border-radius: 0 !important;
+}
+tr.row-sub td:last-child  { border-radius: 0 !important; }
+
+/* แถว sub สุดท้าย — ปิดมุมล่าง */
+tr.row-sub.row-sub-last td:first-child {
+    border-bottom-left-radius: 10px !important;
+}
+tr.row-sub.row-sub-last td:last-child {
+    border-bottom-right-radius: 10px !important;
+}
+
+/* สีเส้นตาม status */
+tr.row-sub.row-active td:first-child,
+tr.row-has-sub.row-active td:first-child { border-left-color: #8b6914 !important; }
+
+tr.row-sub.row-dead td:first-child,
+tr.row-has-sub.row-dead td:first-child   { border-left-color: #7d3c98 !important; }
+
+/* CH Badge pill */
+.ch-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(139,105,20,0.15);
+    border: 1px solid rgba(139,105,20,0.35);
+    color: #a08040;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 2px 10px;
+    letter-spacing: 0.5px;
+}
+tr.row-sub.row-active .ch-badge {
+    background: rgba(212,168,75,0.12);
+    border-color: rgba(212,168,75,0.4);
+    color: #d4a84b;
+}
+tr.row-sub.row-dead .ch-badge {
+    background: rgba(155,89,182,0.12);
+    border-color: rgba(155,89,182,0.4);
+    color: #c39bd3;
+}
 .boss-name { font-size: 11px; color: #8b7a5e; font-weight: 400; margin-top: 1px; }
 .group-divider td {
     background: none !important;
@@ -763,6 +856,7 @@ tbody tr.row-removing {
     padding: 2px 7px;
 }
 #fade4Popup .fade4-row:hover { background: rgba(212,168,75,0.14); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
+@media (max-width: 700px) {
     #fade4Indicator { left: 10px; top: calc(50% + 80px); }
     #fade4Popup { left: 56px; min-width: 170px; top: calc(50% + 80px); }
 }
@@ -804,6 +898,8 @@ tbody tr.row-removing {
             <li>2) 80.1+1.20 = ตั้งเวลาบอสแมพ 80 ช่อง 1 ที่ เวลาปัจจุบัน + 1 ชั่วโมง 20 นาที</li>
             <li>3) 80.1+10 = ตั้งเวลาบอสแมพ 80 ช่อง 1 ที่ เวลาปัจจุบัน + 10 นาที</li>
             <li>4) 80.1/2 = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 2 (พร้อมรอเฟดต่อ)</li>
+            <li>4.1) 80 2.7 = บอสแมพ 80 ช่อง 1 เฟด 2.7 (space แทน /)</li>
+            <li>4.2) 80 1 2.7 = บอสแมพ 80 ช่อง 1 เฟด 2.7 (ระบุช่องด้วย)</li>
             <li>5) 80.1on = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 4 และ Boss ON ทันที (เริ่มนับถอยหลัง 30 นาที)</li>
             <li>หมายเหตุ: เลขหลังจุดหรือขีดกลางคือช่อง (channel) ถ้าไม่ใส่จะเป็นช่อง 1 โดยอัตโนมัติ</li>
         </ul>
@@ -893,8 +989,8 @@ tbody tr.row-removing {
     }
 
     function updateBossOnIndicator() {
-        const activeList = cachedBossList.filter(i => i.BossOn);
-        const fade4List  = cachedBossList.filter(i => i.Fade >= 4 && !i.BossOn);
+        const activeList = cachedBossList.filter(i => i.Status === 'boss_on');
+        const fade4List  = cachedBossList.filter(i => i.Fade >= 4 && i.Status === 'active');
 
         // --- Boss ON ---
         const indicator = document.getElementById('bossOnIndicator');
@@ -953,7 +1049,7 @@ tbody tr.row-removing {
                 return `
                 <div class="fade4-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
                     <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
-                    <span class="fade-badge">F4</span>
+                    <span class="fade-badge">F${i.Fade}</span>
                 </div>`;
             }).join('');
         }
@@ -1049,12 +1145,11 @@ tbody tr.row-removing {
 
     const getNowBangkok = () => new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
 
-function createFadeBar(level, mapNumber, channel, bossOn = false) {
-    // ตรวจว่าเป็นทศนิยมหรือไม่
+function createFadeBar(level, mapNumber, channel, bossOn = false, isDead = false) {
     const floorLevel = Math.floor(level);
     const isDecimal = level > 0 && level !== floorLevel;
     const decimalLabel = isDecimal ? `<div class="fade-decimal-label">🔥 ${level}</div>` : '';
-    const bossClass = bossOn ? ' fade-bosson' : '';
+    const bossClass = isDead ? ' fade-dead' : (bossOn ? ' fade-bosson' : '');
 
     return `
         <div class="fade-wrapper${isDecimal ? ' has-decimal' : ''}">
@@ -1102,6 +1197,9 @@ function renderTable() {
     } else {
         // เรียงตาม Fade มากไปน้อย → เวลา (โหมดเดิม)
         list.sort((a, b) => {
+            // dead ขึ้นก่อนเสมอ
+            if (a.Status === 'dead' && b.Status !== 'dead') return -1;
+            if (a.Status !== 'dead' && b.Status === 'dead') return 1;
             if (a.Fade > 0 && b.Fade > 0) {
                 if (a.Fade === b.Fade) return parseInt(b.MapNumber) - parseInt(a.MapNumber);
                 return b.Fade - a.Fade;
@@ -1149,10 +1247,10 @@ function renderTable() {
                     const m = String(gi.MapNumber);
                     const extra = sortMode === 'ep' ? ` group-block${idx === 0 ? ' group-block-start' : ''}${idx === groupItems.length - 1 ? ' group-block-end' : ''}` : '';
                     const isSubCh = (m === lastMap);
-                    // หา isLastCh: เป็น CH สุดท้ายของ map นี้ไหม
                     mapSeen[m] = (mapSeen[m] || 0) + 1;
                     const isLastCh = mapSeen[m] === mapCount[m];
-                    html += buildRowHTML(gi, now, extra, isSubCh, isLastCh);
+                    const hasSub = !isSubCh && mapCount[m] > 1;
+                    html += buildRowHTML(gi, now, extra, isSubCh, isLastCh, hasSub);
                     lastMap = m;
                 });
                 groupItems = [];
@@ -1211,20 +1309,33 @@ function renderTable() {
         const m = String(i.MapNumber);
         mapSeenAll[m] = (mapSeenAll[m] || 0) + 1;
         const key = `${i.MapNumber}-${i.Channel}`;
-        subChInfo[key] = { isSubCh: (m === prevMap), isLastCh: mapSeenAll[m] === mapCountAll[m] };
+        const isSubCh = (m === prevMap);
+        subChInfo[key] = {
+            isSubCh,
+            isLastCh: mapSeenAll[m] === mapCountAll[m],
+            hasSub: !isSubCh && mapCountAll[m] > 1
+        };
         prevMap = m;
     });
 
     list.forEach(i => {
         const rowId = `row-${i.MapNumber}-${i.Channel}`;
-        const info = subChInfo[`${i.MapNumber}-${i.Channel}`] || { isSubCh: false, isLastCh: true };
+        const info = subChInfo[`${i.MapNumber}-${i.Channel}`] || { isSubCh: false, isLastCh: true, hasSub: false };
         let tr = document.getElementById(rowId);
 
         if (tr) {
-            tr.outerHTML = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh);
+            // อัปเดต in-place แทน outerHTML เพื่อไม่ให้กระพริบ
+            const newHtml = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh, info.hasSub);
+            const temp = document.createElement('tbody');
+            temp.innerHTML = newHtml;
+            const newTr = temp.firstElementChild;
+            // เก็บ class ที่ animate ไว้ก่อน
+            const keepClasses = ['row-highlight', 'row-entering', 'row-removing'];
+            keepClasses.forEach(c => { if (tr.classList.contains(c)) newTr.classList.add(c); });
+            tr.replaceWith(newTr);
         } else {
             const temp = document.createElement('tbody');
-            temp.innerHTML = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh);
+            temp.innerHTML = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh, info.hasSub);
             const newTr = temp.firstElementChild;
             newTr.classList.add('row-entering');
             tbody.appendChild(newTr);
@@ -1311,38 +1422,48 @@ function renderTable() {
     updateBossOnIndicator();
 }
 
-function buildRowHTML(i, now, extraClass, isSubCh, isLastCh) {
+function buildRowHTML(i, now, extraClass, isSubCh, isLastCh, hasSub = false) {
+    const status = i.Status || 'waiting';
     const bossTime = new Date(i.TimeMer);
-    const isArrived = bossTime <= now || i.Fade > 0 || i.BossOn;
-    const rowClass = isArrived ? 'row-active' : 'row-waiting';
+    const isArrived = status === 'active' || status === 'boss_on' || status === 'dead' || bossTime <= now;
+
+    // row CSS class
+    const rowClassMap = { waiting: 'row-waiting', active: 'row-active', boss_on: 'row-active', dead: 'row-dead' };
+    const rowClass = rowClassMap[status] || 'row-waiting';
+
     const timeStr = bossTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
 
     let statusIcon = '⏳';
-    if (i.BossOn) statusIcon = '💀';
-    else if (i.Fade > 0 || bossTime <= now) statusIcon = '🔥';
+    if (status === 'boss_on') statusIcon = '💀';
+    else if (status === 'dead')   statusIcon = '☠️';
+    else if (status === 'active') statusIcon = '🔥';
 
     let mapLabel;
     if (isSubCh) {
-        const branch = isLastCh ? '└' : '├';
-        mapLabel = `<div class="ch-sub"><span class="ch-branch">${branch}</span> CH ${i.Channel}</div>`;
+        mapLabel = `<div class="ch-badge">CH ${i.Channel}</div>`;
     } else {
         const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
         mapLabel = `<div class="map-number"><strong>${i.MapNumber} - ${i.Channel}</strong></div>${bossName ? `<div class="boss-name">${bossName}</div>` : ''}`;
     }
 
+    const isDead   = status === 'dead';
+    const isBossOn = status === 'boss_on';
+    const deadBadge = isDead ? `<div class="dead-waiting-badge">☠️ รอเวลาเกิดใหม่</div>` : '';
+
     return `
-<tr class="${rowClass}${extraClass || ''}" id="row-${i.MapNumber}-${i.Channel}">
+<tr class="${rowClass}${isSubCh ? ' row-sub' + (isLastCh ? ' row-sub-last' : '') : (hasSub ? ' row-has-sub' : '')}${extraClass || ''}" id="row-${i.MapNumber}-${i.Channel}">
     <td style="text-align:center;">
-        ${i.BossOn ? `<span class="boss-icon boss-active">💀</span>` : ''}
+        ${isBossOn ? `<span class="boss-icon boss-active">💀</span>` : ''}
         ${mapLabel}
-        ${(isArrived && i.Fade < 4) ? `<div class="timer map-timer" id="timer-${i.MapNumber}-${i.Channel}">0:00 นาที</div>` : ''}
-        ${(i.BossOn) ? `<div id="countdown-${i.MapNumber}-${i.Channel}" style="font-size:12px; color:#f44336; font-weight:bold;">${getCountdown(i.BossStartTime)}</div>` : ''}
+        ${deadBadge}
+        ${(status !== 'boss_on' && status !== 'dead' && i.Fade < 4) ? `<div class="timer map-timer" id="timer-${i.MapNumber}-${i.Channel}">0:00 นาที</div>` : ''}
+        ${isBossOn ? `<div id="countdown-${i.MapNumber}-${i.Channel}" style="font-size:12px; color:#f44336; font-weight:bold;">${getCountdown(i.BossStartTime)}</div>` : ''}
     </td>
     <td>
-        <div class="time-display" style="font-size:12px; margin-bottom:4px; text-align:center;">${timeStr} น. ${statusIcon}</div>
-        ${createFadeBar(i.Fade, i.MapNumber, i.Channel, i.BossOn)}
+        <div class="time-display" style="font-size:12px; margin-bottom:4px; text-align:center;">${isDead ? '☠️ ตายแล้ว' : timeStr + ' น. ' + statusIcon}</div>
+        ${createFadeBar(i.Fade, i.MapNumber, i.Channel, isBossOn, isDead)}
         <div class="row-action-bar">
-            <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">${i.BossOn ? '⚔️ ON' : '💤 OFF'}</button>
+            <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">${isBossOn ? '⚔️ ON' : '💤 OFF'}</button>
             <input class="dead-input" type="text" placeholder="☠️ เวลาบอส" title="กรอกเวลาบอสใหม่แล้วกด Enter"
                 onkeydown="if(event.key==='Enter'){event.preventDefault();inlineConfirmDead('${i.MapNumber}','${i.Channel}',this.value);this.value='';}"
                 style="width:100px;padding:5px 8px;border-radius:20px;border:1.5px solid #6a9fd8;background:#1e2028;color:#6a9fd8;font-size:13px;text-align:center;outline:none;"
@@ -1351,18 +1472,18 @@ function buildRowHTML(i, now, extraClass, isSubCh, isLastCh) {
         </div>
     </td>
     <td class="col-bosson" style="text-align:center;">
-        <button class="btn-action ${i.BossOn ? 'btn-on' : ''}" onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">
-            ${i.BossOn ? '⚔️ ON' : '💤 OFF'}
+        <button class="btn-action ${isBossOn ? 'btn-on' : ''}" onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">
+            ${isBossOn ? '⚔️ ON' : '💤 OFF'}
         </button>
     </td>
     <td class="col-dead" style="text-align:center;">
         <div class="dead-input-wrap">
-            <span class="dead-input-label">⏱ กรอกเวลาใหม่ แล้วกด Enter</span>
+            <span class="dead-input-label">${isDead ? '⚠️ ใส่เวลาเกิดใหม่' : '⏱ กรอกเวลาใหม่ แล้วกด Enter'}</span>
             <input class="dead-input" type="text" placeholder="1.20 หรือ 10" title="กรอกเวลาบอสใหม่แล้วกด Enter"
                 onkeydown="if(event.key==='Enter'){event.preventDefault();inlineConfirmDead('${i.MapNumber}','${i.Channel}',this.value);this.value='';}"
-                style="width:90px;padding:5px 8px;border-radius:8px;border:1.5px solid #6a9fd8;background:#1e2028;color:#6a9fd8;font-size:13px;text-align:center;outline:none;"
-                onfocus="this.style.borderColor='#8bbfe8';this.style.boxShadow='0 0 0 2px rgba(106,159,216,0.2)'"
-                onblur="this.style.borderColor='#6a9fd8';this.style.boxShadow='none'"
+                style="width:90px;padding:5px 8px;border-radius:8px;border:1.5px solid ${isDead ? '#9b59b6' : '#6a9fd8'};background:#1e2028;color:${isDead ? '#c39bd3' : '#6a9fd8'};font-size:13px;text-align:center;outline:none;"
+                onfocus="this.style.borderColor='${isDead ? '#d7bde2' : '#8bbfe8'}';this.style.boxShadow='0 0 0 2px rgba(${isDead ? '155,89,182' : '106,159,216'},0.2)'"
+                onblur="this.style.borderColor='${isDead ? '#9b59b6' : '#6a9fd8'}';this.style.boxShadow='none'"
             />
         </div>
     </td>
@@ -1420,7 +1541,7 @@ async function processCommand() {
             // update
             await _db.from('BossList')
                 .update({
-                    BossOn: true,
+                    Status: 'boss_on',
                     Fade: 4,
                     BossStartTime: nowTime
                 })
@@ -1431,9 +1552,9 @@ async function processCommand() {
                 .insert([{
                     MapNumber: map,
                     Channel: ch,
-                    TimeMer: nowTime, // ตั้งเวลาปัจจุบัน
+                    TimeMer: nowTime,
                     Fade: 4,
-                    BossOn: true,
+                    Status: 'boss_on',
                     BossStartTime: nowTime
                 }]);
         }
@@ -1452,7 +1573,41 @@ async function processCommand() {
 
     if (isPlus) [rawMap, val] = input.split('+');
     else if (isSlash) [rawMap, val] = input.split('/');
-    else return;
+    else {
+        // 🆕 รูปแบบ space: "95 2.7" หรือ "95 1 2.7"
+        const spaceParts = input.trim().split(/\s+/);
+        // ต้องมี 2-3 ส่วน และส่วนสุดท้ายต้องเป็นตัวเลข (fade)
+        if (spaceParts.length >= 2 && !isNaN(parseFloat(spaceParts[spaceParts.length - 1]))) {
+            const fadeVal = parseFloat(spaceParts[spaceParts.length - 1]);
+            let map, ch;
+            if (spaceParts.length === 2) {
+                // "95 2.7" → map=95, ch=1, fade=2.7
+                map = parseInt(spaceParts[0]);
+                ch = 1;
+            } else {
+                // "95 1 2.7" → map=95, ch=1, fade=2.7
+                map = parseInt(spaceParts[0]);
+                ch = parseInt(spaceParts[1]);
+            }
+            if (!map || isNaN(map) || isNaN(fadeVal)) { alert("รูปแบบไม่ถูกต้อง"); return; }
+
+            const nowTimeFade = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T');
+            const { data: old } = await _db.from('BossList').select('*').eq('MapNumber', map).eq('Channel', ch).maybeSingle();
+            if (old) {
+                const oldTime = new Date(old.TimeMer);
+                const updatedTime = oldTime > getNowBangkok() ? nowTimeFade : old.TimeMer;
+                await _db.from('BossList').update({ TimeMer: updatedTime, Fade: fadeVal, Status: 'active' }).eq('id', old.id);
+            } else {
+                await _db.from('BossList').insert([{ MapNumber: map, Channel: ch, TimeMer: nowTimeFade, Fade: fadeVal, Status: 'active' }]);
+            }
+            suppressNextToast = true;
+            document.getElementById('cmd').value = "";
+            showTable();
+            showToast(`🔥 แมพ ${map} CH${ch} — Fade ${fadeVal}`, fadeVal >= 4 ? 'fade4' : 'info');
+            return;
+        }
+        return;
+    }
 
     // 🔥 parse map + channel
     const { map, ch } = parseMapInput(rawMap.trim());
@@ -1482,24 +1637,12 @@ async function processCommand() {
         const newTime = calcTime(val);
 
         if (old) {
-            // update
             await _db.from('BossList')
-                .update({
-                    TimeMer: newTime,
-                    Fade: 0,
-                    BossOn: false
-                })
+                .update({ TimeMer: newTime, Fade: 0, Status: 'waiting' })
                 .eq('id', old.id);
         } else {
-            // insert
             await _db.from('BossList')
-                .insert([{
-                    MapNumber: map,
-                    Channel: ch,
-                    TimeMer: newTime,
-                    Fade: 0,
-                    BossOn: false
-                }]);
+                .insert([{ MapNumber: map, Channel: ch, TimeMer: newTime, Fade: 0, Status: 'waiting' }]);
         }
     }
 
@@ -1508,33 +1651,18 @@ async function processCommand() {
     // =========================
     if (isSlash) {
         const fadeVal = parseFloat(val);
-        const nowTimeFade = new Date().toLocaleString('sv-SE', {
-            timeZone: 'Asia/Bangkok'
-        }).replace(' ', 'T');
+        const nowTimeFade = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T');
 
         if (old) {
-            // update fade + reset boss + อัปเดตเวลาเป็นปัจจุบันถ้าเวลาเดิมยังไม่ถึง
             const oldTime = new Date(old.TimeMer);
             const nowBangkok = getNowBangkok();
             const updatedTime = oldTime > nowBangkok ? nowTimeFade : old.TimeMer;
-
             await _db.from('BossList')
-                .update({
-                    TimeMer: updatedTime,
-                    Fade: fadeVal,
-                    BossOn: false
-                })
+                .update({ TimeMer: updatedTime, Fade: fadeVal, Status: 'active' })
                 .eq('id', old.id);
         } else {
-            // insert ใหม่
             await _db.from('BossList')
-                .insert([{
-                    MapNumber: map,
-                    Channel: ch,
-                    TimeMer: nowTimeFade,
-                    Fade: fadeVal,
-                    BossOn: false
-                }]);
+                .insert([{ MapNumber: map, Channel: ch, TimeMer: nowTimeFade, Fade: fadeVal, Status: 'active' }]);
         }
     }
 
@@ -1543,11 +1671,11 @@ async function processCommand() {
     document.getElementById('cmd').value = "";
     showTable();
 
-    // คำนวณเวลาที่ตั้งไว้เพื่อแสดงใน toast
+    // toast แจ้งผล
     if (isPlus) {
         showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว (${calcTimeLabel(val)})`);
     } else {
-        showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว`);
+        showToast(`🔥 แมพ ${map} CH${ch} — Fade ${parseFloat(val)}`, parseFloat(val) >= 4 ? 'fade4' : 'info');
     }
 }
 
@@ -1590,6 +1718,7 @@ function calcTimeLabel(v) {
 
     _db.channel('bossList-realtime')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'BossList' }, (payload) => {
+            markRealtimeEvent();
             showTable();
             if (suppressNextToast) {
                 suppressNextToast = false;
@@ -1619,9 +1748,11 @@ function calcTimeLabel(v) {
                 showToast(`🗑️ ${label} — ถูกลบแล้ว`, 'error');
             } else if (payload.eventType === 'UPDATE') {
                 const n = payload.new;
-                if (n.BossOn) {
+                if (n.Status === 'boss_on') {
                     showToast(`⚔️ ${label} — Boss ON!`, 'bosson');
-                } else if (n.Fade > 0 && !n.BossOn) {
+                } else if (n.Status === 'dead') {
+                    showToast(`☠️ ${label} — บอสตาย รอเวลาเกิดใหม่`, 'info');
+                } else if (n.Status === 'active' && n.Fade > 0) {
                     showToast(`🔥 ${label} — Fade ${n.Fade}`, n.Fade >= 4 ? 'fade4' : 'info');
                 } else {
                     showToast(`☠️ ${label} — ตั้งเวลาใหม่แล้ว`);
@@ -1631,12 +1762,20 @@ function calcTimeLabel(v) {
         .subscribe();
 
     let intervalCounter = 0;
+    let lastRealtimeEvent = Date.now();
+
+    // บันทึกเวลาที่ได้รับ realtime event ล่าสุด
+    function markRealtimeEvent() { lastRealtimeEvent = Date.now(); }
+
     setInterval(() => {
         updateTimers();
         intervalCounter++;
+        // fetch DB ใหม่เฉพาะเมื่อไม่มี realtime event นานกว่า 5 นาที (fallback)
         if (intervalCounter >= 30) {
-            showTable();
             intervalCounter = 0;
+            if (Date.now() - lastRealtimeEvent > 5 * 60 * 1000) {
+                showTable();
+            }
         }
     }, 1000);
 
@@ -1662,18 +1801,16 @@ async function setFade(mapNumber, channel, fadeLevel) {
     const map = parseInt(mapNumber, 10);
     const ch = parseInt(channel, 10);
 
-    // Optimistic: อัปเดต cache + render ทันที
     const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
     if (!item) return;
 
     item.Fade = fadeLevel;
-    item.BossOn = false;
+    item.Status = fadeLevel >= 4 ? 'active' : 'active'; // กด fade = active เสมอ
     renderTable();
 
-    // ส่ง DB ทีหลัง (ไม่ต้อง query ก่อน)
     suppressNextToast = true;
     await _db.from('BossList')
-        .update({ Fade: fadeLevel, BossOn: false })
+        .update({ Fade: fadeLevel, Status: 'active' })
         .eq('MapNumber', map)
         .eq('Channel', ch);
     showToast(`🔥 แมพ ${map} CH${ch} — Fade ${fadeLevel}`, fadeLevel >= 4 ? 'fade4' : 'info');
@@ -1686,29 +1823,36 @@ async function toggleBossOn(mapNumber, channel) {
     const map = parseInt(mapNumber, 10);
     const ch = parseInt(channel, 10);
 
-    // Optimistic: อัปเดต cache + render ทันที
     const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
     if (!item) return;
 
-    const newBossOn = !item.BossOn;
     const nowTime = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
+    const isBossOn = item.Status === 'boss_on';
 
-    item.BossOn = newBossOn;
-    item.BossStartTime = newBossOn ? nowTime : null;
-    item.Fade = newBossOn ? 4 : item.Fade;
+    if (!isBossOn) {
+        // กด ON → boss_on
+        item.Status = 'boss_on';
+        item.Fade = 4;
+        item.BossStartTime = nowTime;
+    } else {
+        // กด OFF → dead (รอกรอกเวลาเกิดใหม่)
+        item.Status = 'dead';
+        item.BossStartTime = null;
+    }
     renderTable();
 
-    // ส่ง DB ทีหลัง
     suppressNextToast = true;
-    await _db.from('BossList')
-        .update({
-            BossOn: newBossOn,
-            BossStartTime: newBossOn ? nowTime : null,
-            Fade: newBossOn ? 4 : item.Fade
-        })
-        .eq('MapNumber', map)
-        .eq('Channel', ch);
-    showToast(newBossOn ? `⚔️ แมพ ${map} CH${ch} — Boss ON!` : `💤 แมพ ${map} CH${ch} — Boss OFF`, newBossOn ? 'bosson' : 'info');
+    if (!isBossOn) {
+        await _db.from('BossList')
+            .update({ Status: 'boss_on', Fade: 4, BossStartTime: nowTime })
+            .eq('MapNumber', map).eq('Channel', ch);
+        showToast(`⚔️ แมพ ${map} CH${ch} — Boss ON!`, 'bosson');
+    } else {
+        await _db.from('BossList')
+            .update({ Status: 'dead', BossStartTime: null })
+            .eq('MapNumber', map).eq('Channel', ch);
+        showToast(`☠️ แมพ ${map} CH${ch} — บอสตาย รอกรอกเวลาเกิดใหม่`, 'info');
+    }
 }
 
 let pendingDeadMap = null;
@@ -1736,7 +1880,7 @@ async function inlineConfirmDead(mapNumber, channel, inputValue) {
     const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
     if (item) {
         item.TimeMer = newTime;
-        item.BossOn = false;
+        item.Status = 'waiting';
         item.BossStartTime = null;
         item.Fade = 0;
     }
@@ -1744,7 +1888,7 @@ async function inlineConfirmDead(mapNumber, channel, inputValue) {
 
     suppressNextToast = true;
     await _db.from('BossList')
-        .update({ TimeMer: newTime, BossOn: false, BossStartTime: null, Fade: 0 })
+        .update({ TimeMer: newTime, Status: 'waiting', BossStartTime: null, Fade: 0 })
         .eq('MapNumber', map)
         .eq('Channel', ch);
     showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว (${calcTimeLabel(inputValue)})`);
@@ -1797,7 +1941,7 @@ async function confirmBossDead() {
     const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
     if (item) {
         item.TimeMer = newTime;
-        item.BossOn = false;
+        item.Status = 'waiting';
         item.BossStartTime = null;
         item.Fade = 0;
     }
@@ -1806,7 +1950,7 @@ async function confirmBossDead() {
 
     // ส่ง DB ทีหลัง
     await _db.from('BossList')
-        .update({ TimeMer: newTime, BossOn: false, BossStartTime: null, Fade: 0 })
+        .update({ TimeMer: newTime, Status: 'waiting', BossStartTime: null, Fade: 0 })
         .eq('MapNumber', map)
         .eq('Channel', ch);
     showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว (${calcTimeLabel(inputValue)})`);
@@ -1891,34 +2035,33 @@ function getCountdown(startTime) {
 function updateTimers() {
     const now = getNowBangkok();
     cachedBossList.forEach(i => {
-        // อัปเดต timer นับเวลาหลังบอสเกิด (ไม่นับถ้า fade 4)
-        if (i.Fade < 4) {
-            const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
-            if (timerEl) {
-                const bossTime = new Date(i.TimeMer);
-                const diffMs = Math.max(0, now - bossTime);
-                const diffMin = Math.floor(diffMs / 60000);
-                const diffSec = Math.floor((diffMs % 60000) / 1000);
-                timerEl.textContent = `${diffMin}:${String(diffSec).padStart(2, '0')} นาที`;
+        const status = i.Status || 'waiting';
+
+        // นับเวลาที่บอสเกิดมาแล้ว — ทำงานทันทีที่ TimeMer ผ่านมา ไม่ว่า Status จะเป็นอะไร
+        // ยกเว้น boss_on (มี countdown แยก) และ dead (ไม่ต้องนับ)
+        if (status !== 'boss_on' && status !== 'dead' && i.Fade < 4) {
+            const bossTime = new Date(i.TimeMer);
+            if (bossTime <= now) {
+                const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
+                if (timerEl) {
+                    const diffMs = now - bossTime;
+                    const diffMin = Math.floor(diffMs / 60000);
+                    const diffSec = Math.floor((diffMs % 60000) / 1000);
+                    timerEl.textContent = `${diffMin}:${String(diffSec).padStart(2, '0')} นาที`;
+                }
+                // sync Status ใน cache + DOM เมื่อเวลาถึง
+                if (status === 'waiting') {
+                    i.Status = 'active';
+                    const rowEl = document.getElementById(`row-${i.MapNumber}-${i.Channel}`);
+                    if (rowEl) rowEl.className = 'row-active';
+                }
             }
         }
 
-        // อัปเดต countdown ของ BossOn (30 นาที)
-        const countdownEl = document.getElementById(`countdown-${i.MapNumber}-${i.Channel}`);
-        if (countdownEl && i.BossOn) {
-            countdownEl.textContent = getCountdown(i.BossStartTime);
-        }
-
-        // อัปเดตสถานะแถว active/waiting แบบ in-place
-        const rowEl = document.getElementById(`row-${i.MapNumber}-${i.Channel}`);
-        if (rowEl) {
-            const bossTime = new Date(i.TimeMer);
-            const isArrived = bossTime <= now || i.Fade > 0 || i.BossOn;
-            rowEl.className = isArrived ? 'row-active' : 'row-waiting';
-        }
-
-        // อัปเดต countdown ใน indicator popup
-        if (i.BossOn) {
+        // อัปเดต countdown ของ boss_on (30 นาที)
+        if (status === 'boss_on') {
+            const countdownEl = document.getElementById(`countdown-${i.MapNumber}-${i.Channel}`);
+            if (countdownEl) countdownEl.textContent = getCountdown(i.BossStartTime);
             const indCd = document.getElementById(`ind-cd-${i.MapNumber}-${i.Channel}`);
             if (indCd) indCd.textContent = getCountdown(i.BossStartTime) || '00:00';
         }
