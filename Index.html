@@ -900,6 +900,8 @@ tbody tr.row-removing {
             <li>4) 80.1/2 = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 2 (พร้อมรอเฟดต่อ)</li>
             <li>4.1) 80 2.7 = บอสแมพ 80 ช่อง 1 เฟด 2.7 (space แทน /)</li>
             <li>4.2) 80 1 2.7 = บอสแมพ 80 ช่อง 1 เฟด 2.7 (ระบุช่องด้วย)</li>
+            <li>4.3) 80 +1.20 = ตั้งเวลาแมพ 80 ช่อง 1 อีก 1 ชั่วโมง 20 นาที</li>
+            <li>4.4) 80 1 +30 = ตั้งเวลาแมพ 80 ช่อง 1 อีก 30 นาที (ระบุช่องด้วย)</li>
             <li>5) 80.1on = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 4 และ Boss ON ทันที (เริ่มนับถอยหลัง 30 นาที)</li>
             <li>หมายเหตุ: เลขหลังจุดหรือขีดกลางคือช่อง (channel) ถ้าไม่ใส่จะเป็นช่อง 1 โดยอัตโนมัติ</li>
         </ul>
@@ -1574,37 +1576,56 @@ async function processCommand() {
     if (isPlus) [rawMap, val] = input.split('+');
     else if (isSlash) [rawMap, val] = input.split('/');
     else {
-        // 🆕 รูปแบบ space: "95 2.7" หรือ "95 1 2.7"
+        // 🆕 รูปแบบ space: "95 2.7", "95 1 2.7" (fade) หรือ "101 +1.1", "101 1 +1.1" (ตั้งเวลา)
         const spaceParts = input.trim().split(/\s+/);
-        // ต้องมี 2-3 ส่วน และส่วนสุดท้ายต้องเป็นตัวเลข (fade)
-        if (spaceParts.length >= 2 && !isNaN(parseFloat(spaceParts[spaceParts.length - 1]))) {
-            const fadeVal = parseFloat(spaceParts[spaceParts.length - 1]);
-            let map, ch;
-            if (spaceParts.length === 2) {
-                // "95 2.7" → map=95, ch=1, fade=2.7
-                map = parseInt(spaceParts[0]);
-                ch = 1;
-            } else {
-                // "95 1 2.7" → map=95, ch=1, fade=2.7
-                map = parseInt(spaceParts[0]);
-                ch = parseInt(spaceParts[1]);
-            }
-            if (!map || isNaN(map) || isNaN(fadeVal)) { alert("รูปแบบไม่ถูกต้อง"); return; }
+        if (spaceParts.length >= 2) {
+            const lastPart = spaceParts[spaceParts.length - 1];
+            const isTimePart = lastPart.startsWith('+');
+            const isFadePart = !isTimePart && !isNaN(parseFloat(lastPart));
 
-            const nowTimeFade = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T');
-            const { data: old } = await _db.from('BossList').select('*').eq('MapNumber', map).eq('Channel', ch).maybeSingle();
-            if (old) {
-                const oldTime = new Date(old.TimeMer);
-                const updatedTime = oldTime > getNowBangkok() ? nowTimeFade : old.TimeMer;
-                await _db.from('BossList').update({ TimeMer: updatedTime, Fade: fadeVal, Status: 'active' }).eq('id', old.id);
-            } else {
-                await _db.from('BossList').insert([{ MapNumber: map, Channel: ch, TimeMer: nowTimeFade, Fade: fadeVal, Status: 'active' }]);
+            if (isTimePart || isFadePart) {
+                let map, ch;
+                if (spaceParts.length === 2) {
+                    map = parseInt(spaceParts[0]); ch = 1;
+                } else {
+                    map = parseInt(spaceParts[0]); ch = parseInt(spaceParts[1]);
+                }
+                if (!map || isNaN(map)) { alert("รูปแบบไม่ถูกต้อง"); return; }
+
+                const { data: old } = await _db.from('BossList').select('*').eq('MapNumber', map).eq('Channel', ch).maybeSingle();
+
+                if (isTimePart) {
+                    // ตั้งเวลา: "101 +1.1" หรือ "101 1 +1.1"
+                    const val = lastPart.slice(1); // ตัด + ออก
+                    const newTime = calcTime(val);
+                    if (old) {
+                        await _db.from('BossList').update({ TimeMer: newTime, Fade: 0, Status: 'waiting' }).eq('id', old.id);
+                    } else {
+                        await _db.from('BossList').insert([{ MapNumber: map, Channel: ch, TimeMer: newTime, Fade: 0, Status: 'waiting' }]);
+                    }
+                    suppressNextToast = true;
+                    document.getElementById('cmd').value = "";
+                    showTable();
+                    showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว (${calcTimeLabel(val)})`);
+                } else {
+                    // fade: "95 2.7" หรือ "95 1 2.7"
+                    const fadeVal = parseFloat(lastPart);
+                    if (isNaN(fadeVal)) { alert("รูปแบบไม่ถูกต้อง"); return; }
+                    const nowTimeFade = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T');
+                    if (old) {
+                        const oldTime = new Date(old.TimeMer);
+                        const updatedTime = oldTime > getNowBangkok() ? nowTimeFade : old.TimeMer;
+                        await _db.from('BossList').update({ TimeMer: updatedTime, Fade: fadeVal, Status: 'active' }).eq('id', old.id);
+                    } else {
+                        await _db.from('BossList').insert([{ MapNumber: map, Channel: ch, TimeMer: nowTimeFade, Fade: fadeVal, Status: 'active' }]);
+                    }
+                    suppressNextToast = true;
+                    document.getElementById('cmd').value = "";
+                    showTable();
+                    showToast(`🔥 แมพ ${map} CH${ch} — Fade ${fadeVal}`, fadeVal >= 4 ? 'fade4' : 'info');
+                }
+                return;
             }
-            suppressNextToast = true;
-            document.getElementById('cmd').value = "";
-            showTable();
-            showToast(`🔥 แมพ ${map} CH${ch} — Fade ${fadeVal}`, fadeVal >= 4 ? 'fade4' : 'info');
-            return;
         }
         return;
     }
