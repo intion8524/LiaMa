@@ -1174,8 +1174,20 @@ function createFadeBar(level, mapNumber, channel, bossOn = false, isDead = false
 async function cleanOldData() {
     const now = new Date();
     const nowBangkok = new Date(now.toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
-    const twoHoursAgoBangkok = new Date(nowBangkok.getTime() - 2 * 60 * 60 * 1000);
-    await _db.from('BossList').delete().lt('TimeMer', twoHoursAgoBangkok.toISOString());
+    const twoHoursAgo  = new Date(nowBangkok.getTime() - 2  * 60 * 60 * 1000);
+    const oneDayAgo    = new Date(nowBangkok.getTime() - 24 * 60 * 60 * 1000);
+
+    // active/boss_on ที่เวลาเกิน 2 ชั่วโมง → เปลี่ยนเป็น dead รอกรอกเวลาใหม่
+    await _db.from('BossList')
+        .update({ Status: 'dead', BossStartTime: null })
+        .lt('TimeMer', twoHoursAgo.toISOString())
+        .in('Status', ['active', 'boss_on']);
+
+    // dead ที่ค้างนานกว่า 24 ชั่วโมง → ลบทิ้ง
+    await _db.from('BossList')
+        .delete()
+        .lt('TimeMer', oneDayAgo.toISOString())
+        .eq('Status', 'dead');
 }
 
 async function showTable() {
@@ -1188,6 +1200,8 @@ async function showTable() {
 function renderTable() {
     const list = cachedBossList;
     const now = getNowBangkok();
+    // บันทึก scroll position ก่อน render เพื่อป้องกัน browser reset
+    const scrollY = window.scrollY;
 
     // 🔥 sort ตาม sortMode
     if (sortMode === 'ep') {
@@ -1279,6 +1293,7 @@ function renderTable() {
         }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
         updateBossOnIndicator();
+        if (window.scrollY !== scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
         return;
     }
 
@@ -1427,6 +1442,8 @@ function renderTable() {
         });
     });
     updateBossOnIndicator();
+    // restore scroll position หลัง DOM เปลี่ยน
+    if (window.scrollY !== scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
 }
 
 function buildRowHTML(i, now, extraClass, isSubCh, isLastCh, hasSub = false) {
