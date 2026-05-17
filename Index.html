@@ -841,6 +841,46 @@ tbody tr[id^="row-"] { cursor: pointer; }
     display: none;
     pointer-events: auto;
 }
+
+/* Dead Popup — สีม่วง (เล็กกว่า popup อื่น) */
+#deadPopup {
+    position: fixed;
+    left: 8px;
+    top: calc(50% + 180px);
+    transform: translateY(-50%);
+    z-index: 9001;
+    background: linear-gradient(135deg, #1e1028, #1e2028);
+    border: 1.5px solid #9b59b6;
+    border-radius: 10px;
+    padding: 6px 8px;
+    min-width: 140px;
+    max-width: 180px;
+    box-shadow: 0 4px 16px rgba(155,89,182,0.2), 0 2px 6px rgba(0,0,0,0.4);
+    display: none;
+    pointer-events: auto;
+}
+#deadPopup h4 {
+    margin: 0 0 6px;
+    color: #c39bd3;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+#deadPopup .dead-popup-list { display: flex; flex-direction: column; gap: 4px; }
+#deadPopup .dead-popup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(155,89,182,0.08);
+    border: 1px solid rgba(155,89,182,0.15);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #d7bde2;
+}
+#deadPopup .dead-popup-row .map-label { font-weight: 700; color: #c39bd3; font-size: 11px; }
+#deadPopup .dead-popup-row .dead-badge { font-size: 10px; color: #9b59b6; }
+#deadPopup .dead-popup-row:hover { background: rgba(155,89,182,0.15); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
 #fade4Popup h4 {
     margin: 0 0 10px;
     color: #d4a84b;
@@ -1135,6 +1175,12 @@ tbody tr[id^="row-"] { cursor: pointer; }
     <div class="fade4-list" id="fade4List"></div>
 </div>
 
+<!-- Dead Popup (รอกรอกเวลา) -->
+<div id="deadPopup">
+    <h4>⭐ รอกรอกเวลา</h4>
+    <div class="dead-popup-list" id="deadPopupList"></div>
+</div>
+
 <script>
     const _db = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
 
@@ -1210,6 +1256,36 @@ tbody tr[id^="row-"] { cursor: pointer; }
                 </div>`;
             }).join('');
         }
+
+        // --- Dead (รอกรอกเวลา) ---
+        const deadList = cachedBossList.filter(i => i.Status === 'dead');
+        const deadPopup = document.getElementById('deadPopup');
+        const deadListEl = document.getElementById('deadPopupList');
+
+        // วางใต้ fade4 popup หรือ bossOn popup
+        const lastVisiblePopup = f4Popup.style.display !== 'none' ? f4Popup : (popup.style.display !== 'none' ? popup : null);
+        if (lastVisiblePopup) {
+            const rect = lastVisiblePopup.getBoundingClientRect();
+            deadPopup.style.top = (rect.bottom + 10) + 'px';
+            deadPopup.style.transform = 'none';
+        } else {
+            deadPopup.style.top = '50%';
+            deadPopup.style.transform = 'translateY(-50%)';
+        }
+
+        if (deadList.length === 0) {
+            deadPopup.style.display = 'none';
+        } else {
+            deadPopup.style.display = 'block';
+            deadListEl.innerHTML = deadList.map(i => {
+                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
+                return `
+                <div class="dead-popup-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
+                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#8a6aaa">${bossName}</span>` : ''}</span>
+                    <span class="dead-badge">☠️</span>
+                </div>`;
+            }).join('');
+        }
     }
 
     // ===== Toast (stack ใต้ sticky-bar) =====
@@ -1279,16 +1355,17 @@ tbody tr[id^="row-"] { cursor: pointer; }
     }
 
     // ===== EP Filter =====
-    let selectedEPs = JSON.parse(localStorage.getItem('selectedEPs') || 'null'); // null = ทั้งหมด
+    // deselectedEPs = EP ที่ถูก "เอาออก" — null หรือ [] = แสดงทั้งหมด
+    let deselectedEPs = JSON.parse(localStorage.getItem('deselectedEPs') || '[]');
 
     function renderEPFilter() {
         const bar = document.getElementById('epFilterBar');
         if (!MAP_GROUPS.length) { bar.innerHTML = ''; return; }
 
-        const allActive = selectedEPs === null;
+        const allActive = deselectedEPs.length === 0;
         let html = `<span class="ep-chip ${allActive ? 'active' : ''}" onclick="toggleEPFilter(null)">ทั้งหมด</span>`;
         MAP_GROUPS.forEach((g, idx) => {
-            const isActive = selectedEPs && selectedEPs.includes(idx);
+            const isActive = !deselectedEPs.includes(idx);
             html += `<span class="ep-chip ${isActive ? 'active' : ''}" onclick="toggleEPFilter(${idx})">${g.name}</span>`;
         });
         bar.innerHTML = html;
@@ -1296,29 +1373,30 @@ tbody tr[id^="row-"] { cursor: pointer; }
 
     function toggleEPFilter(idx) {
         if (idx === null) {
-            // กด "ทั้งหมด" → reset
-            selectedEPs = null;
+            // กด "ทั้งหมด" → reset เอากลับมาหมด
+            deselectedEPs = [];
         } else {
-            if (selectedEPs === null) selectedEPs = [];
-            const pos = selectedEPs.indexOf(idx);
+            const pos = deselectedEPs.indexOf(idx);
             if (pos >= 0) {
-                selectedEPs.splice(pos, 1);
-                if (selectedEPs.length === 0) selectedEPs = null; // ถ้าไม่เลือกอะไรเลย = ทั้งหมด
+                // กดอีกครั้ง → เอากลับมา (เลือก)
+                deselectedEPs.splice(pos, 1);
             } else {
-                selectedEPs.push(idx);
+                // กด → เอาออก (ไม่เลือก)
+                deselectedEPs.push(idx);
+                // ถ้าเอาออกหมดทุก EP → reset กลับมาทั้งหมด
+                if (deselectedEPs.length >= MAP_GROUPS.length) deselectedEPs = [];
             }
         }
-        localStorage.setItem('selectedEPs', JSON.stringify(selectedEPs));
+        localStorage.setItem('deselectedEPs', JSON.stringify(deselectedEPs));
         renderEPFilter();
-        // rebuild ตารางใหม่ทั้งหมดเมื่อ filter เปลี่ยน
         document.getElementById('tableContent').innerHTML = '';
         renderTable();
     }
 
     function isMapVisible(mapNumber) {
-        if (selectedEPs === null) return true; // ทั้งหมด
+        if (deselectedEPs.length === 0) return true;
         const idx = MAP_GROUPS.findIndex(g => mapNumber >= g.min && mapNumber <= g.max);
-        return selectedEPs.includes(idx);
+        return !deselectedEPs.includes(idx);
     }
 
     // โหมดการเรียง: 'ep' = แบ่งตาม EP, 'fade' = เรียงตาม Fade, 'time' = เรียงตามเวลา
