@@ -568,6 +568,30 @@ tbody tr.row-removing {
 th.col-bosson, th.col-dead, th.col-delete,
 td.col-bosson, td.col-dead, td.col-delete { display: none; }
 
+/* เส้นแบ่ง 30 นาที (time mode) */
+.time-divider td {
+    background: none !important;
+    border: none !important;
+    padding: 12px 0 !important;
+}
+.time-divider-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6a9fd8;
+    letter-spacing: 0.5px;
+}
+.time-divider-label::before,
+.time-divider-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #6a9fd8 40%, #6a9fd8 60%, transparent);
+}
+
 /* กดแถวเปิด bottom sheet */
 tbody tr[id^="row-"] { cursor: pointer; }
 
@@ -1442,6 +1466,7 @@ function renderTable() {
         } else {
             let lastGroup = null;
             let groupItems = [];
+            let timeDividerInserted = false;
             const flushGroup = () => {
                 let lastMap = null;
                 let mapCount = {};
@@ -1473,9 +1498,20 @@ function renderTable() {
                     }
                     groupItems.push(i);
                 } else {
+                    // สำหรับ time mode — แทรกเส้น 30 นาที (บอสที่เกิดมาเกิน 30 นาทีแล้ว)
+                    if (sortMode === 'time' && !timeDividerInserted) {
+                        const bossTime = new Date(i.TimeMer);
+                        const elapsed = now - bossTime;
+                        // ถ้าบอสตัวนี้เกิดมาไม่ถึง 30 นาที แต่ตัวก่อนหน้าเกิน → แทรกเส้น
+                        if (elapsed < 30 * 60 * 1000) {
+                            html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td></tr>`;
+                            timeDividerInserted = true;
+                        }
+                    }
                     html += buildRowHTML(i, now, '');
                 }
             });
+            timeDividerInserted = false;
             flushGroup();
         }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
