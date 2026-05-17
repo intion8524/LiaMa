@@ -1595,6 +1595,7 @@ function renderTable() {
     // 5) จัดลำดับแถวตาม sort ใหม่ + แทรก divider + group block
     // ลบ divider เก่าออกก่อน
     tbody.querySelectorAll('.group-divider').forEach(tr => tr.remove());
+    tbody.querySelectorAll('.time-divider').forEach(tr => tr.remove());
 
     // สร้าง group map เพื่อหา first/last ของแต่ละกลุ่ม
     if (sortMode === 'ep') {
@@ -1630,10 +1631,26 @@ function renderTable() {
             });
         });
     } else {
+        let timeDivDone = false;
         newOrderIds.forEach(id => {
             const tr = document.getElementById(id);
             if (tr) {
                 tr.classList.remove('group-block', 'group-block-start', 'group-block-end');
+                // แทรกเส้น 30 นาทีสำหรับ time mode
+                if (sortMode === 'time' && !timeDivDone) {
+                    const parts = id.split('-');
+                    const item = cachedBossList.find(i => i.MapNumber == parts[1] && i.Channel == parts[2]);
+                    if (item) {
+                        const elapsed = now - new Date(item.TimeMer);
+                        if (elapsed < 30 * 60 * 1000) {
+                            const divider = document.createElement('tr');
+                            divider.className = 'time-divider';
+                            divider.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td>`;
+                            tbody.appendChild(divider);
+                            timeDivDone = true;
+                        }
+                    }
+                }
                 tbody.appendChild(tr);
             }
         });
