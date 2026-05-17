@@ -1355,17 +1355,18 @@ tbody tr[id^="row-"] { cursor: pointer; }
     }
 
     // ===== EP Filter =====
-    // deselectedEPs = EP ที่ถูก "เอาออก" — null หรือ [] = แสดงทั้งหมด
-    let deselectedEPs = JSON.parse(localStorage.getItem('deselectedEPs') || '[]');
+    // mode: 'all' = แสดงทั้งหมด, 'pick' = เลือกเฉพาะที่ติ๊ก
+    let epFilterMode = localStorage.getItem('epFilterMode') || 'all';
+    let pickedEPs = JSON.parse(localStorage.getItem('pickedEPs') || '[]');
 
     function renderEPFilter() {
         const bar = document.getElementById('epFilterBar');
         if (!MAP_GROUPS.length) { bar.innerHTML = ''; return; }
 
-        const allActive = deselectedEPs.length === 0;
+        const allActive = epFilterMode === 'all';
         let html = `<span class="ep-chip ${allActive ? 'active' : ''}" onclick="toggleEPFilter(null)">ทั้งหมด</span>`;
         MAP_GROUPS.forEach((g, idx) => {
-            const isActive = !deselectedEPs.includes(idx);
+            const isActive = allActive || pickedEPs.includes(idx);
             html += `<span class="ep-chip ${isActive ? 'active' : ''}" onclick="toggleEPFilter(${idx})">${g.name}</span>`;
         });
         bar.innerHTML = html;
@@ -1373,30 +1374,45 @@ tbody tr[id^="row-"] { cursor: pointer; }
 
     function toggleEPFilter(idx) {
         if (idx === null) {
-            // กด "ทั้งหมด" → reset เอากลับมาหมด
-            deselectedEPs = [];
-        } else {
-            const pos = deselectedEPs.indexOf(idx);
-            if (pos >= 0) {
-                // กดอีกครั้ง → เอากลับมา (เลือก)
-                deselectedEPs.splice(pos, 1);
+            // กด "ทั้งหมด" → toggle ระหว่าง all กับ pick (ไม่เลือกอะไรเลย)
+            if (epFilterMode === 'all') {
+                epFilterMode = 'pick';
+                pickedEPs = [];
             } else {
-                // กด → เอาออก (ไม่เลือก)
-                deselectedEPs.push(idx);
-                // ถ้าเอาออกหมดทุก EP → reset กลับมาทั้งหมด
-                if (deselectedEPs.length >= MAP_GROUPS.length) deselectedEPs = [];
+                epFilterMode = 'all';
+                pickedEPs = [];
+            }
+        } else {
+            if (epFilterMode === 'all') {
+                // จาก all → เข้า pick mode โดยเอา EP ที่กดออก (เลือกที่เหลือ)
+                epFilterMode = 'pick';
+                pickedEPs = MAP_GROUPS.map((_, i) => i).filter(i => i !== idx);
+            } else {
+                // pick mode → toggle EP นั้น
+                const pos = pickedEPs.indexOf(idx);
+                if (pos >= 0) {
+                    pickedEPs.splice(pos, 1);
+                } else {
+                    pickedEPs.push(idx);
+                }
+                // ถ้าเลือกครบทุก EP → กลับเป็น all
+                if (pickedEPs.length >= MAP_GROUPS.length) {
+                    epFilterMode = 'all';
+                    pickedEPs = [];
+                }
             }
         }
-        localStorage.setItem('deselectedEPs', JSON.stringify(deselectedEPs));
+        localStorage.setItem('epFilterMode', epFilterMode);
+        localStorage.setItem('pickedEPs', JSON.stringify(pickedEPs));
         renderEPFilter();
         document.getElementById('tableContent').innerHTML = '';
         renderTable();
     }
 
     function isMapVisible(mapNumber) {
-        if (deselectedEPs.length === 0) return true;
+        if (epFilterMode === 'all') return true;
         const idx = MAP_GROUPS.findIndex(g => mapNumber >= g.min && mapNumber <= g.max);
-        return !deselectedEPs.includes(idx);
+        return pickedEPs.includes(idx);
     }
 
     // โหมดการเรียง: 'ep' = แบ่งตาม EP, 'fade' = เรียงตาม Fade, 'time' = เรียงตามเวลา
