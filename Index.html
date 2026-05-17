@@ -1297,11 +1297,14 @@ tbody tr[id^="row-"] { cursor: pointer; }
         return selectedEPs.includes(idx);
     }
 
-    // โหมดการเรียง: 'ep' = แบ่งตาม EP, 'fade' = เรียงตาม Fade (เดิม)
+    // โหมดการเรียง: 'ep' = แบ่งตาม EP, 'fade' = เรียงตาม Fade, 'time' = เรียงตามเวลา
     let sortMode = 'ep';
 
     function toggleSortMode() {
-        sortMode = sortMode === 'ep' ? 'fade' : 'ep';
+        if (sortMode === 'ep') sortMode = 'fade';
+        else if (sortMode === 'fade') sortMode = 'time';
+        else sortMode = 'ep';
+
         const icon = document.getElementById('sortIcon');
         const label = document.getElementById('sortLabel');
         const btn = document.getElementById('sortToggle');
@@ -1310,12 +1313,18 @@ tbody tr[id^="row-"] { cursor: pointer; }
             label.textContent = 'แบ่งตาม EP';
             btn.style.borderColor = '#d4a84b';
             btn.style.color = '#d4a84b';
-        } else {
+        } else if (sortMode === 'fade') {
             icon.textContent = '🔥';
             label.textContent = 'เรียงตาม Fade';
             btn.style.borderColor = '#c0564e';
             btn.style.color = '#c0564e';
+        } else {
+            icon.textContent = '⏱';
+            label.textContent = 'เรียงตามเวลา';
+            btn.style.borderColor = '#6a9fd8';
+            btn.style.color = '#6a9fd8';
         }
+        document.getElementById('tableContent').innerHTML = '';
         renderTable();
     }
 
@@ -1385,7 +1394,7 @@ function renderTable() {
             if (mapDiff !== 0) return mapDiff;
             return parseInt(a.Channel) - parseInt(b.Channel);
         });
-    } else {
+    } else if (sortMode === 'fade') {
         // เรียงตาม Fade มากไปน้อย → เวลา (โหมดเดิม)
         list.sort((a, b) => {
             // dead ขึ้นก่อนเสมอ
@@ -1397,6 +1406,14 @@ function renderTable() {
             }
             if (a.Fade > 0) return -1;
             if (b.Fade > 0) return 1;
+            return new Date(a.TimeMer) - new Date(b.TimeMer);
+        });
+    } else {
+        // เรียงตามเวลา — ใกล้ถึงก่อนขึ้นก่อน
+        list.sort((a, b) => {
+            // dead ลงล่างสุด
+            if (a.Status === 'dead' && b.Status !== 'dead') return 1;
+            if (a.Status !== 'dead' && b.Status === 'dead') return -1;
             return new Date(a.TimeMer) - new Date(b.TimeMer);
         });
     }
