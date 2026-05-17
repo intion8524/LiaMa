@@ -535,17 +535,10 @@ tbody tr.row-removing {
     th { padding: 5px 4px; font-size: 11px; }
     td { padding: 6px 4px; font-size: 12px; }
 
-    /* ซ่อน 3 คอลัมน์ปุ่มแยก */
-    th.col-bosson, th.col-dead, th.col-delete,
-    td.col-bosson, td.col-dead, td.col-delete { display: none; }
-
     .fade-container { width: 85%; max-width: 200px; height: 26px; }
     .fade-box { font-size: 12px; }
 
     .boss-icon { font-size: 18px; }
-
-    /* แสดงปุ่ม action bar ในแถว */
-    .row-action-bar { display: flex !important; }
 
     /* MapNumber — ยังคงเด่น */
     .map-number strong { font-size: 16px; }
@@ -566,31 +559,17 @@ tbody tr.row-removing {
     .map-timer { font-size: 13px; }
 }
 
-/* Action bar ในแถว — ซ่อนตอนจอกว้าง */
+/* Action bar ในแถว — ซ่อนทุกจอ (ใช้ bottom sheet แทน) */
 .row-action-bar {
-    display: none;
-    gap: 6px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #3a3d48;
+    display: none !important;
 }
-.row-action-bar button {
-    padding: 5px 12px;
-    border: 1.5px solid #3a3d48;
-    border-radius: 20px;
-    background: #2a2d35;
-    color: #c0b89a;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 13px;
-    transition: background 0.2s, border-color 0.2s;
-}
-.row-action-bar button:hover {
-    background: #32353e;
-    border-color: #8b6914;
-}
+
+/* ซ่อน 3 คอลัมน์ปุ่มแยก — ใช้ bottom sheet แทน */
+th.col-bosson, th.col-dead, th.col-delete,
+td.col-bosson, td.col-dead, td.col-delete { display: none; }
+
+/* กดแถวเปิด bottom sheet */
+tbody tr[id^="row-"] { cursor: pointer; }
 
 /* Toast notification — ใต้ sticky-bar */
 #toast-container {
@@ -919,7 +898,6 @@ tbody tr.row-removing {
 
 /* จอแคบ: กดแถวเปิด bottom sheet แทน action bar */
 @media (max-width: 700px) {
-    .row-action-bar { display: none !important; }
     tbody tr[id^="row-"] { cursor: pointer; }
 }
 
@@ -2366,9 +2344,6 @@ const TIME_PRESETS = [
 ];
 
 function openBottomSheet(mapNumber, channel) {
-    // เฉพาะจอแคบ
-    if (window.innerWidth > 700) return;
-
     bsMap = parseInt(mapNumber);
     bsCh  = parseInt(channel);
     const item = cachedBossList.find(i => i.MapNumber == bsMap && i.Channel == bsCh);
@@ -2498,9 +2473,8 @@ function bsDelete() {
     deleteBoss(map, ch);
 }
 
-// กดแถวเปิด bottom sheet (จอแคบ)
+// กดแถวเปิด bottom sheet (ทุกขนาดจอ)
 document.addEventListener('click', (e) => {
-    if (window.innerWidth > 700) return;
     const tr = e.target.closest('tr[id^="row-"]');
     if (!tr) return;
     // ไม่เปิดถ้ากดปุ่ม fade box
