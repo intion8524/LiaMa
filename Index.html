@@ -858,19 +858,21 @@ tbody tr[id^="row-"] { cursor: pointer; }
 /* ===== Bottom Sheet (จอแคบ) ===== */
 #bottomSheet {
     position: fixed;
-    bottom: 0; left: 0; right: 0;
+    bottom: 0; left: 50%; 
+    transform: translateX(-50%) translateY(100%);
     z-index: 10000;
     background: linear-gradient(180deg, #2a2d35, #1e2028);
     border-top: 2px solid #8b6914;
     border-radius: 18px 18px 0 0;
     padding: 16px 16px 24px;
-    transform: translateY(100%);
     transition: transform 0.3s ease;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
     max-height: 70vh;
     overflow-y: auto;
+    width: 100%;
+    max-width: 420px;
 }
-#bottomSheet.open { transform: translateY(0); }
+#bottomSheet.open { transform: translateX(-50%) translateY(0); }
 #bottomSheet-overlay {
     position: fixed; inset: 0; z-index: 9999;
     background: rgba(0,0,0,0.5);
