@@ -1445,8 +1445,9 @@ function renderTable() {
     const tbody = document.querySelector('#tableContent tbody');
     const newOrderIds = list.map(i => `row-${i.MapNumber}-${i.Channel}`);
 
-    // ถ้ายังไม่มีตาราง → สร้างใหม่ทั้งหมด (ครั้งแรก)
-    if (!tbody) {
+    // ถ้ายังไม่มีตาราง หรือ time mode → สร้างใหม่ทั้งหมด (เพื่อให้เส้นเวลาถูกต้อง)
+    if (!tbody || sortMode === 'time') {
+        if (sortMode === 'time') document.getElementById('tableContent').innerHTML = '';
         let html = `
         <div style="overflow-x: auto;">
         <table>
@@ -1500,14 +1501,14 @@ function renderTable() {
                     groupItems.push(i);
                 } else {
                     // สำหรับ time mode — แทรกเส้น 30 นาที และ 20 นาที
-                    if (sortMode === 'time') {
+                    if (sortMode === 'time' && i.Status !== 'boss_on' && i.Status !== 'dead') {
                         const bossTime = new Date(i.TimeMer);
                         const elapsed = now - bossTime;
-                        if (!timeDivider30Inserted && elapsed < 30 * 60 * 1000) {
+                        if (!timeDivider30Inserted && elapsed >= 0 && elapsed < 30 * 60 * 1000) {
                             html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td></tr>`;
                             timeDivider30Inserted = true;
                         }
-                        if (!timeDivider20Inserted && elapsed < 20 * 60 * 1000) {
+                        if (!timeDivider20Inserted && elapsed >= 0 && elapsed < 20 * 60 * 1000) {
                             html += `<tr class="time-divider time-divider-20"><td colspan="5"><div class="time-divider-label" style="color:#d4a84b;">⏱ — เกิดมาแล้ว 20 นาที —</div></td></tr>`;
                             timeDivider20Inserted = true;
                         }
@@ -1645,16 +1646,16 @@ function renderTable() {
                 if (sortMode === 'time') {
                     const parts = id.split('-');
                     const item = cachedBossList.find(i => i.MapNumber == parts[1] && i.Channel == parts[2]);
-                    if (item) {
+                    if (item && item.Status !== 'boss_on' && item.Status !== 'dead') {
                         const elapsed = now - new Date(item.TimeMer);
-                        if (!timeDivDone30 && elapsed < 30 * 60 * 1000) {
+                        if (!timeDivDone30 && elapsed >= 0 && elapsed < 30 * 60 * 1000) {
                             const div30 = document.createElement('tr');
                             div30.className = 'time-divider';
                             div30.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td>`;
                             tbody.appendChild(div30);
                             timeDivDone30 = true;
                         }
-                        if (!timeDivDone20 && elapsed < 20 * 60 * 1000) {
+                        if (!timeDivDone20 && elapsed >= 0 && elapsed < 20 * 60 * 1000) {
                             const div20 = document.createElement('tr');
                             div20.className = 'time-divider time-divider-20';
                             div20.innerHTML = `<td colspan="5"><div class="time-divider-label" style="color:#d4a84b;">⏱ — เกิดมาแล้ว 20 นาที —</div></td>`;
