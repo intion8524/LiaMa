@@ -1466,7 +1466,8 @@ function renderTable() {
         } else {
             let lastGroup = null;
             let groupItems = [];
-            let timeDividerInserted = false;
+            let timeDivider30Inserted = false;
+            let timeDivider20Inserted = false;
             const flushGroup = () => {
                 let lastMap = null;
                 let mapCount = {};
@@ -1498,20 +1499,24 @@ function renderTable() {
                     }
                     groupItems.push(i);
                 } else {
-                    // สำหรับ time mode — แทรกเส้น 30 นาที (บอสที่เกิดมาเกิน 30 นาทีแล้ว)
-                    if (sortMode === 'time' && !timeDividerInserted) {
+                    // สำหรับ time mode — แทรกเส้น 30 นาที และ 20 นาที
+                    if (sortMode === 'time') {
                         const bossTime = new Date(i.TimeMer);
                         const elapsed = now - bossTime;
-                        // ถ้าบอสตัวนี้เกิดมาไม่ถึง 30 นาที แต่ตัวก่อนหน้าเกิน → แทรกเส้น
-                        if (elapsed < 30 * 60 * 1000) {
+                        if (!timeDivider30Inserted && elapsed < 30 * 60 * 1000) {
                             html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td></tr>`;
-                            timeDividerInserted = true;
+                            timeDivider30Inserted = true;
+                        }
+                        if (!timeDivider20Inserted && elapsed < 20 * 60 * 1000) {
+                            html += `<tr class="time-divider time-divider-20"><td colspan="5"><div class="time-divider-label" style="color:#d4a84b;">⏱ — เกิดมาแล้ว 20 นาที —</div></td></tr>`;
+                            timeDivider20Inserted = true;
                         }
                     }
                     html += buildRowHTML(i, now, '');
                 }
             });
-            timeDividerInserted = false;
+            timeDivider30Inserted = false;
+            timeDivider20Inserted = false;
             flushGroup();
         }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
@@ -1631,23 +1636,30 @@ function renderTable() {
             });
         });
     } else {
-        let timeDivDone = false;
+        let timeDivDone30 = false;
+        let timeDivDone20 = false;
         newOrderIds.forEach(id => {
             const tr = document.getElementById(id);
             if (tr) {
                 tr.classList.remove('group-block', 'group-block-start', 'group-block-end');
-                // แทรกเส้น 30 นาทีสำหรับ time mode
-                if (sortMode === 'time' && !timeDivDone) {
+                if (sortMode === 'time') {
                     const parts = id.split('-');
                     const item = cachedBossList.find(i => i.MapNumber == parts[1] && i.Channel == parts[2]);
                     if (item) {
                         const elapsed = now - new Date(item.TimeMer);
-                        if (elapsed < 30 * 60 * 1000) {
-                            const divider = document.createElement('tr');
-                            divider.className = 'time-divider';
-                            divider.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td>`;
-                            tbody.appendChild(divider);
-                            timeDivDone = true;
+                        if (!timeDivDone30 && elapsed < 30 * 60 * 1000) {
+                            const div30 = document.createElement('tr');
+                            div30.className = 'time-divider';
+                            div30.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td>`;
+                            tbody.appendChild(div30);
+                            timeDivDone30 = true;
+                        }
+                        if (!timeDivDone20 && elapsed < 20 * 60 * 1000) {
+                            const div20 = document.createElement('tr');
+                            div20.className = 'time-divider time-divider-20';
+                            div20.innerHTML = `<td colspan="5"><div class="time-divider-label" style="color:#d4a84b;">⏱ — เกิดมาแล้ว 20 นาที —</div></td>`;
+                            tbody.appendChild(div20);
+                            timeDivDone20 = true;
                         }
                     }
                 }
