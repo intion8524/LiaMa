@@ -2412,6 +2412,16 @@ function updateTimers() {
             if (indCd) indCd.textContent = getCountdown(i.BossStartTime) || '00:00';
         }
     });
+
+    // time mode: re-render ทุก 30 วินาทีเพื่อให้เส้นเวลาขยับตำแหน่ง
+    if (sortMode === 'time') {
+        if (!updateTimers._lastReorder) updateTimers._lastReorder = 0;
+        const nowMs = Date.now();
+        if (nowMs - updateTimers._lastReorder > 30000) {
+            updateTimers._lastReorder = nowMs;
+            renderTable();
+        }
+    }
 }
 
 // ===== Bottom Sheet =====
