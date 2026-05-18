@@ -592,6 +592,31 @@ td.col-bosson, td.col-dead, td.col-delete { display: none; }
     background: linear-gradient(90deg, transparent, #6a9fd8 40%, #6a9fd8 60%, transparent);
 }
 
+/* Time threshold bar */
+.time-threshold-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0;
+    margin-bottom: 6px;
+}
+.time-threshold-bar input {
+    width: 48px;
+    padding: 4px 6px;
+    border: 1.5px solid #6a9fd8;
+    border-radius: 8px;
+    background: #1e2028;
+    color: #6a9fd8;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+}
+.time-threshold-bar input:focus {
+    border-color: #8bbfe8;
+    box-shadow: 0 0 0 2px rgba(106,159,216,0.2);
+}
+
 /* กดแถวเปิด bottom sheet */
 tbody tr[id^="row-"] { cursor: pointer; }
 
@@ -1104,6 +1129,14 @@ tbody tr[id^="row-"] { cursor: pointer; }
     </div>
     <!-- EP Filter Chips -->
     <div id="epFilterBar" class="ep-filter-bar"></div>
+    <!-- Time threshold inputs (แสดงเฉพาะ time mode) -->
+    <div id="timeThresholdBar" class="time-threshold-bar" style="display:none;">
+        <span style="font-size:11px; color:#6a9fd8;">⏱ เส้นเวลา:</span>
+        <input type="number" id="timeLine1" value="20" min="1" max="120" onchange="saveTimeThresholds()">
+        <span style="font-size:11px; color:#8b7a5e;">และ</span>
+        <input type="number" id="timeLine2" value="30" min="1" max="120" onchange="saveTimeThresholds()">
+        <span style="font-size:11px; color:#8b7a5e;">นาที</span>
+    </div>
     <div id="tableContent"></div>
 </div>
 
@@ -1459,6 +1492,27 @@ tbody tr[id^="row-"] { cursor: pointer; }
             btn.style.borderColor = '#6a9fd8';
             btn.style.color = '#6a9fd8';
         }
+        // แสดง/ซ่อน time threshold bar
+        document.getElementById('timeThresholdBar').style.display = sortMode === 'time' ? 'flex' : 'none';
+        document.getElementById('tableContent').innerHTML = '';
+        renderTable();
+    }
+
+    // Time thresholds — โหลดจาก localStorage
+    let timeLine1 = parseInt(localStorage.getItem('timeLine1') || '20');
+    let timeLine2 = parseInt(localStorage.getItem('timeLine2') || '30');
+    document.getElementById('timeLine1').value = timeLine1;
+    document.getElementById('timeLine2').value = timeLine2;
+
+    function saveTimeThresholds() {
+        timeLine1 = parseInt(document.getElementById('timeLine1').value) || 20;
+        timeLine2 = parseInt(document.getElementById('timeLine2').value) || 30;
+        // ให้ line1 < line2 เสมอ
+        if (timeLine1 > timeLine2) { const tmp = timeLine1; timeLine1 = timeLine2; timeLine2 = tmp; }
+        document.getElementById('timeLine1').value = timeLine1;
+        document.getElementById('timeLine2').value = timeLine2;
+        localStorage.setItem('timeLine1', timeLine1);
+        localStorage.setItem('timeLine2', timeLine2);
         document.getElementById('tableContent').innerHTML = '';
         renderTable();
     }
@@ -1604,16 +1658,16 @@ function renderTable() {
                     }
                     groupItems.push(i);
                 } else {
-                    // สำหรับ time mode — แทรกเส้น 30 นาที และ 20 นาที
+                    // สำหรับ time mode — แทรกเส้นเวลาตาม threshold ที่ตั้งไว้
                     if (sortMode === 'time' && i.Status !== 'boss_on' && i.Status !== 'dead') {
                         const bossTime = new Date(i.TimeMer);
                         const elapsed = now - bossTime;
-                        if (!timeDivider30Inserted && elapsed >= 0 && elapsed < 30 * 60 * 1000) {
-                            html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td></tr>`;
+                        if (!timeDivider30Inserted && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
+                            html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td></tr>`;
                             timeDivider30Inserted = true;
                         }
-                        if (!timeDivider20Inserted && elapsed >= 0 && elapsed < 20 * 60 * 1000) {
-                            html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 20 นาที —</div></td></tr>`;
+                        if (!timeDivider20Inserted && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
+                            html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td></tr>`;
                             timeDivider20Inserted = true;
                         }
                     }
@@ -1752,17 +1806,17 @@ function renderTable() {
                     const item = cachedBossList.find(i => i.MapNumber == parts[1] && i.Channel == parts[2]);
                     if (item && item.Status !== 'boss_on' && item.Status !== 'dead') {
                         const elapsed = now - new Date(item.TimeMer);
-                        if (!timeDivDone30 && elapsed >= 0 && elapsed < 30 * 60 * 1000) {
+                        if (!timeDivDone30 && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
                             const div30 = document.createElement('tr');
                             div30.className = 'time-divider';
-                            div30.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว 30 นาที —</div></td>`;
+                            div30.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td>`;
                             tbody.appendChild(div30);
                             timeDivDone30 = true;
                         }
-                        if (!timeDivDone20 && elapsed >= 0 && elapsed < 20 * 60 * 1000) {
+                        if (!timeDivDone20 && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
                             const div20 = document.createElement('tr');
-                            div20.className = 'time-divider time-divider-20';
-                            div20.innerHTML = `<td colspan="5"><div class="time-divider-label" style="color:#d4a84b;">⏱ — เกิดมาแล้ว 20 นาที —</div></td>`;
+                            div20.className = 'time-divider';
+                            div20.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td>`;
                             tbody.appendChild(div20);
                             timeDivDone20 = true;
                         }
