@@ -595,6 +595,23 @@ td.col-bosson, td.col-dead, td.col-delete { display: none; }
 /* กดแถวเปิด bottom sheet */
 tbody tr[id^="row-"] { cursor: pointer; }
 
+/* EP Watermark — ลายน้ำมุมขวาบน */
+.ep-watermark {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.3px;
+    pointer-events: none;
+    user-select: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    background: rgba(255,255,255,0.05);
+}
+
 /* Toast notification — ใต้ sticky-bar */
 #toast-container {
     position: fixed;
@@ -1207,8 +1224,8 @@ tbody tr[id^="row-"] { cursor: pointer; }
     }
 
     function updateBossOnIndicator() {
-        const activeList = cachedBossList.filter(i => i.Status === 'boss_on');
-        const fade4List  = cachedBossList.filter(i => i.Fade >= 4 && i.Status === 'active');
+        const activeList = cachedBossList.filter(i => i.Status === 'boss_on' && isMapVisible(parseInt(i.MapNumber)));
+        const fade4List  = cachedBossList.filter(i => i.Fade >= 4 && i.Status === 'active' && isMapVisible(parseInt(i.MapNumber)));
 
         // --- Boss ON popup ---
         const listEl  = document.getElementById('bossOnList');
@@ -1258,7 +1275,7 @@ tbody tr[id^="row-"] { cursor: pointer; }
         }
 
         // --- Dead (รอกรอกเวลา) ---
-        const deadList = cachedBossList.filter(i => i.Status === 'dead');
+        const deadList = cachedBossList.filter(i => i.Status === 'dead' && isMapVisible(parseInt(i.MapNumber)));
         const deadPopup = document.getElementById('deadPopup');
         const deadListEl = document.getElementById('deadPopupList');
 
@@ -1470,14 +1487,7 @@ function createFadeBar(level, mapNumber, channel, bossOn = false, isDead = false
 async function cleanOldData() {
     const now = new Date();
     const nowBangkok = new Date(now.toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
-    const twoHoursAgo  = new Date(nowBangkok.getTime() - 2  * 60 * 60 * 1000);
-    const oneDayAgo    = new Date(nowBangkok.getTime() - 24 * 60 * 60 * 1000);
-
-    // active/boss_on ที่เวลาเกิน 2 ชั่วโมง → เปลี่ยนเป็น dead รอกรอกเวลาใหม่
-    await _db.from('BossList')
-        .update({ Status: 'dead', BossStartTime: null })
-        .lt('TimeMer', twoHoursAgo.toISOString())
-        .in('Status', ['active', 'boss_on']);
+    const oneDayAgo = new Date(nowBangkok.getTime() - 24 * 60 * 60 * 1000);
 
     // dead ที่ค้างนานกว่า 24 ชั่วโมง → ลบทิ้ง
     await _db.from('BossList')
@@ -1820,10 +1830,13 @@ function buildRowHTML(i, now, extraClass, isSubCh, isLastCh, hasSub = false) {
     const isDead   = status === 'dead';
     const isBossOn = status === 'boss_on';
     const deadBadge = isDead ? `<div class="dead-waiting-badge">☠️ รอเวลาเกิดใหม่</div>` : '';
+    const epName = getGroupName(parseInt(i.MapNumber));
+    const epWatermark = !isSubCh ? `<span class="ep-watermark">${epName}</span>` : '';
 
     return `
 <tr class="${rowClass}${isSubCh ? ' row-sub' + (isLastCh ? ' row-sub-last' : '') : (hasSub ? ' row-has-sub' : '')}${extraClass || ''}" id="row-${i.MapNumber}-${i.Channel}">
-    <td style="text-align:center;">
+    <td style="text-align:center; position:relative;">
+        ${epWatermark}
         ${isBossOn ? `<span class="boss-icon boss-active">💀</span>` : ''}
         ${mapLabel}
         ${deadBadge}
@@ -2552,6 +2565,7 @@ function openBottomSheet(mapNumber, channel) {
     let statusHtml = '';
     if (!isBossOn) statusHtml += `<button class="bs-btn bs-on" onclick="bsBossOn()">⚔️ Boss ON</button>`;
     if (isBossOn) statusHtml += `<button class="bs-btn bs-dead" onclick="bsMarkDead()">☠️ บอสตาย</button>`;
+    statusHtml += `<button class="bs-btn" onclick="bsResetNow()" style="border-color:#4caf7a;color:#4caf7a;">🔄 เริ่มนับใหม่</button>`;
     document.getElementById('bsStatusBtns').innerHTML = statusHtml;
 
     // Fade buttons — แบ่งเป็นแถวตามเลขหลัก
@@ -2669,6 +2683,29 @@ function bsDelete() {
     const map = bsMap, ch = bsCh;
     closeBottomSheet();
     deleteBoss(map, ch);
+}
+
+// เริ่มนับเวลาใหม่จากตอนนี้ (reset TimeMer เป็นปัจจุบัน)
+async function bsResetNow() {
+    if (bsMap === null) return;
+    const map = bsMap, ch = bsCh;
+    closeBottomSheet();
+
+    const nowTime = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
+    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
+    if (item) {
+        item.TimeMer = nowTime;
+        item.Status = 'active';
+        item.BossStartTime = null;
+        item.Fade = item.Fade || 0;
+    }
+    renderTable();
+
+    suppressNextToast = true;
+    await _db.from('BossList')
+        .update({ TimeMer: nowTime, Status: 'active', BossStartTime: null })
+        .eq('MapNumber', map).eq('Channel', ch);
+    showToast(`🔄 แมพ ${map} CH${ch} — เริ่มนับเวลาใหม่`, 'info');
 }
 
 // กดแถวเปิด bottom sheet (ทุกขนาดจอ)
