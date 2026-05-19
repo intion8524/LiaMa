@@ -1091,6 +1091,16 @@ tbody tr[id^="row-"] { cursor: pointer; }
                onmouseout="this.style.borderColor='#3a3d48';this.style.color='#8b7a5e'">
                 ⚙️ Setup
             </a>
+            <div id="modeToggle" onclick="toggleOnlineMode()" style="
+                display:flex;align-items:center;gap:6px;
+                padding:7px 14px;border-radius:20px;cursor:pointer;
+                border:1.5px solid #4caf7a;color:#4caf7a;
+                font-size:13px;font-weight:600;user-select:none;
+                transition:all 0.2s;
+            ">
+                <span id="modeIcon">🌐</span>
+                <span id="modeLabel">Online</span>
+            </div>
             <div id="sortToggle" onclick="toggleSortMode()" style="
                 display:flex; align-items:center; gap:6px;
                 padding:7px 14px; border-radius:20px; cursor:pointer;
@@ -1232,9 +1242,95 @@ tbody tr[id^="row-"] { cursor: pointer; }
 </div>
 
 <script>
-    const _db = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
+    // ===== Online/Offline Mode =====
+    let isOfflineMode = localStorage.getItem('appMode') === 'offline';
 
-    let cachedBossList = []; // เก็บข้อมูลจาก DB ครั้งสุดท้าย
+    // localStorage adapter สำหรับ offline mode
+    const OFFLINE_STORAGE_KEY = 'offlineBossList';
+    function getOfflineList() { return JSON.parse(localStorage.getItem(OFFLINE_STORAGE_KEY) || '[]'); }
+    function saveOfflineList(list) { localStorage.setItem(OFFLINE_STORAGE_KEY, JSON.stringify(list)); }
+    let _offlineNextId = parseInt(localStorage.getItem('offlineNextId') || '1');
+    function getOfflineNextId() { const id = _offlineNextId++; localStorage.setItem('offlineNextId', id); return id; }
+
+    class OfflineQuery {
+        constructor(table) { this._table = table; this._filters = []; this._updateData = null; this._insertData = null; this._isDelete = false; this._isSelect = false; this._isSingle = false; }
+        select() { this._isSelect = true; return this; }
+        order() { return this; }
+        insert(rows) { this._insertData = rows; return this._execute(); }
+        update(data) { this._updateData = data; return this; }
+        delete() { this._isDelete = true; return this; }
+        eq(col, val) { this._filters.push({ col, op: 'eq', val }); return this; }
+        neq(col, val) { this._filters.push({ col, op: 'neq', val }); return this; }
+        lt(col, val) { this._filters.push({ col, op: 'lt', val }); return this; }
+        in(col, vals) { this._filters.push({ col, op: 'in', val: vals }); return this; }
+        not(col, op, val) { this._filters.push({ col, op: 'not_' + op, val }); return this; }
+        maybeSingle() { this._isSingle = true; return this._execute(); }
+        _match(item) {
+            return this._filters.every(f => {
+                const v = item[f.col];
+                if (f.op === 'eq') return v == f.val;
+                if (f.op === 'neq') return v != f.val;
+                if (f.op === 'lt') return v < f.val;
+                if (f.op === 'in') return f.val.includes(v);
+                if (f.op === 'not_eq') return v != f.val;
+                return true;
+            });
+        }
+        _execute() {
+            if (this._table === 'EpisodeGroups') return Promise.resolve({ data: JSON.parse(localStorage.getItem('offlineEpisodeGroups') || '[]') });
+            if (this._table === 'MapBosses') return Promise.resolve({ data: JSON.parse(localStorage.getItem('offlineMapBosses') || '[]') });
+            let list = getOfflineList();
+            if (this._isSelect) { const f = this._isSingle ? list.filter(i => this._match(i)) : list; return Promise.resolve({ data: this._isSingle ? (f[0] || null) : f }); }
+            if (this._insertData) { this._insertData.forEach(r => { r.id = getOfflineNextId(); list.push(r); }); saveOfflineList(list); return Promise.resolve({ data: this._insertData }); }
+            if (this._updateData) { list.forEach(i => { if (this._match(i)) Object.assign(i, this._updateData); }); saveOfflineList(list); return Promise.resolve({ data: [] }); }
+            if (this._isDelete) { saveOfflineList(list.filter(i => !this._match(i))); return Promise.resolve({ data: [] }); }
+            return Promise.resolve({ data: null });
+        }
+        then(fn) { return this._execute().then(fn); }
+    }
+
+    const _offlineDb = { from(t) { return new OfflineQuery(t); }, channel() { return { on() { return this; }, subscribe() {} }; } };
+    const _onlineDb = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
+
+    let _db = isOfflineMode ? _offlineDb : _onlineDb;
+
+    function toggleOnlineMode() {
+        isOfflineMode = !isOfflineMode;
+        localStorage.setItem('appMode', isOfflineMode ? 'offline' : 'online');
+
+        // ถ้าสลับไป offline → copy ข้อมูลปัจจุบันลง localStorage
+        if (isOfflineMode && cachedBossList.length > 0) {
+            saveOfflineList(cachedBossList);
+        }
+
+        _db = isOfflineMode ? _offlineDb : _onlineDb;
+        updateModeUI();
+        document.getElementById('tableContent').innerHTML = '';
+        loadConfig().then(() => {
+            renderEPFilter();
+            showTable();
+        });
+    }
+
+    function updateModeUI() {
+        const icon = document.getElementById('modeIcon');
+        const label = document.getElementById('modeLabel');
+        const btn = document.getElementById('modeToggle');
+        if (isOfflineMode) {
+            icon.textContent = '💾';
+            label.textContent = 'Offline';
+            btn.style.borderColor = '#8b7a5e';
+            btn.style.color = '#8b7a5e';
+        } else {
+            icon.textContent = '🌐';
+            label.textContent = 'Online';
+            btn.style.borderColor = '#4caf7a';
+            btn.style.color = '#4caf7a';
+        }
+    }
+    updateModeUI();
+
+    let cachedBossList = []; // เก็บข้อมูลครั้งสุดท้าย
 
     // ===== Boss ON Indicator =====
 
@@ -1387,16 +1483,32 @@ tbody tr[id^="row-"] { cursor: pointer; }
     let BOSS_NAMES = {};
 
     async function loadConfig() {
-        const [epRes, bossRes] = await Promise.all([
-            _db.from('EpisodeGroups').select('*').order('sort_order'),
-            _db.from('MapBosses').select('*')
-        ]);
-        MAP_GROUPS = (epRes.data || []).map(e => ({
-            name: e.name, min: e.min_map, max: e.max_map
-        }));
-        BOSS_NAMES = Object.fromEntries(
-            (bossRes.data || []).map(b => [b.map_number, b.boss_name])
-        );
+        if (!isOfflineMode) {
+            // Online: ดึงจาก DB แล้ว cache ลง localStorage
+            const [epRes, bossRes] = await Promise.all([
+                _db.from('EpisodeGroups').select('*').order('sort_order'),
+                _db.from('MapBosses').select('*')
+            ]);
+            MAP_GROUPS = (epRes.data || []).map(e => ({
+                name: e.name, min: e.min_map, max: e.max_map
+            }));
+            BOSS_NAMES = Object.fromEntries(
+                (bossRes.data || []).map(b => [b.map_number, b.boss_name])
+            );
+            // cache ไว้ให้ offline ใช้
+            localStorage.setItem('offlineEpisodeGroups', JSON.stringify(epRes.data || []));
+            localStorage.setItem('offlineMapBosses', JSON.stringify(bossRes.data || []));
+        } else {
+            // Offline: อ่านจาก localStorage cache
+            const epData = JSON.parse(localStorage.getItem('offlineEpisodeGroups') || '[]');
+            const bossData = JSON.parse(localStorage.getItem('offlineMapBosses') || '[]');
+            MAP_GROUPS = epData.map(e => ({
+                name: e.name, min: e.min_map, max: e.max_map
+            }));
+            BOSS_NAMES = Object.fromEntries(
+                bossData.map(b => [b.map_number, b.boss_name])
+            );
+        }
     }
 
     function getGroupName(mapNumber) {
@@ -2187,11 +2299,11 @@ function calcTimeLabel(v) {
     return m > 0 ? `อีก ${h} ชั่วโมง ${m} นาที` : `อีก ${h} ชั่วโมง`;
 }
 
-    // ===== Realtime — แจ้งเตือนทุกคนเมื่อ DB เปลี่ยน =====
-    // ใช้ flag เพื่อไม่แสดง toast ของตัวเอง (เพราะ showToast เรียกไปแล้วก่อนส่ง DB)
+    // ===== Realtime — แจ้งเตือนทุกคนเมื่อ DB เปลี่ยน (เฉพาะ online) =====
     let suppressNextToast = false;
 
-    _db.channel('bossList-realtime')
+    if (!isOfflineMode) {
+    _onlineDb.channel('bossList-realtime')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'BossList' }, (payload) => {
             markRealtimeEvent();
             showTable();
@@ -2235,6 +2347,7 @@ function calcTimeLabel(v) {
             }
         })
         .subscribe();
+    } // end if (!isOfflineMode)
 
     let intervalCounter = 0;
     let lastRealtimeEvent = Date.now();
