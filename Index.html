@@ -637,6 +637,15 @@ tbody tr[id^="row-"] { cursor: pointer; }
     background: rgba(255,255,255,0.05);
 }
 
+/* Updated timestamp */
+.updated-ago {
+    font-size: 9px;
+    color: #5a5a5a;
+    text-align: center;
+    margin-top: 4px;
+    font-style: italic;
+}
+
 /* Toast notification — ใต้ sticky-bar */
 #toast-container {
     position: fixed;
@@ -2014,6 +2023,7 @@ function buildRowHTML(i, now, extraClass, isSubCh, isLastCh, hasSub = false) {
     <td>
         <div class="time-display" style="font-size:12px; margin-bottom:4px; text-align:center;">${isDead ? '☠️ ตายแล้ว' : timeStr + ' น. ' + statusIcon}</div>
         ${createFadeBar(i.Fade, i.MapNumber, i.Channel, isBossOn, isDead)}
+        <div class="updated-ago" id="upd-${i.MapNumber}-${i.Channel}">${getUpdatedAgo(i.UpdatedAt)}</div>
         <div class="row-action-bar">
             <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')" style="${isBossOn ? 'border-color:#ff4444;color:#ff4444;' : ''}">${isBossOn ? '⚔️ ON' : '⚔️ Boss ON'}</button>
             ${isBossOn ? `<button onclick="markDeadFromOn('${i.MapNumber}', '${i.Channel}')" style="border-color:#9b59b6;color:#c39bd3;">☠️ ตาย</button>` : ''}
@@ -2397,18 +2407,18 @@ async function setFade(mapNumber, channel, fadeLevel) {
     const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
     if (!item) return;
 
-    const nowTimeFade = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
-    // ถ้ามาจาก dead → reset เวลาเป็นปัจจุบัน เริ่มนับใหม่
+    const nowTimeFade = getNowISO();
     const wasDead = item.Status === 'dead';
 
     item.Fade = fadeLevel;
     item.Status = 'active';
+    item.UpdatedAt = nowTimeFade;
     if (wasDead) item.TimeMer = nowTimeFade;
     renderTable();
 
     suppressNextToast = true;
     await _db.from('BossList')
-        .update({ Fade: fadeLevel, Status: 'active', ...(wasDead ? { TimeMer: nowTimeFade } : {}) })
+        .update({ Fade: fadeLevel, Status: 'active', UpdatedAt: nowTimeFade, ...(wasDead ? { TimeMer: nowTimeFade } : {}) })
         .eq('MapNumber', map)
         .eq('Channel', ch);
     showToast(`🔥 แมพ ${map} CH${ch} — Fade ${fadeLevel}`, fadeLevel >= 4 ? 'fade4' : 'info');
@@ -2424,11 +2434,12 @@ async function markDeadFromOn(mapNumber, channel) {
 
     item.Status = 'dead';
     item.BossStartTime = null;
+    item.UpdatedAt = getNowISO();
     renderTable();
 
     suppressNextToast = true;
     await _db.from('BossList')
-        .update({ Status: 'dead', BossStartTime: null })
+        .update({ Status: 'dead', BossStartTime: null, UpdatedAt: getNowISO() })
         .eq('MapNumber', map).eq('Channel', ch);
     showToast(`☠️ แมพ ${map} CH${ch} — บอสตาย รอกรอกเวลาเกิดใหม่`, 'info');
 }
@@ -2446,16 +2457,17 @@ async function toggleBossOn(mapNumber, channel) {
     // ปุ่มนี้ทำหน้าที่ "Boss ON" เท่านั้น — ถ้า ON อยู่แล้วไม่ทำอะไร
     if (item.Status === 'boss_on') return;
 
-    const nowTime = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
+    const nowTime = getNowISO();
 
     item.Status = 'boss_on';
     item.Fade = 4;
     item.BossStartTime = nowTime;
+    item.UpdatedAt = nowTime;
     renderTable();
 
     suppressNextToast = true;
     await _db.from('BossList')
-        .update({ Status: 'boss_on', Fade: 4, BossStartTime: nowTime })
+        .update({ Status: 'boss_on', Fade: 4, BossStartTime: nowTime, UpdatedAt: nowTime })
         .eq('MapNumber', map).eq('Channel', ch);
     showToast(`⚔️ แมพ ${map} CH${ch} — Boss ON!`, 'bosson');
 }
@@ -2488,12 +2500,13 @@ async function inlineConfirmDead(mapNumber, channel, inputValue) {
         item.Status = 'waiting';
         item.BossStartTime = null;
         item.Fade = 0;
+        item.UpdatedAt = getNowISO();
     }
     renderTable();
 
     suppressNextToast = true;
     await _db.from('BossList')
-        .update({ TimeMer: newTime, Status: 'waiting', BossStartTime: null, Fade: 0 })
+        .update({ TimeMer: newTime, Status: 'waiting', BossStartTime: null, Fade: 0, UpdatedAt: getNowISO() })
         .eq('MapNumber', map)
         .eq('Channel', ch);
     showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว (${calcTimeLabel(inputValue)})`);
@@ -2643,6 +2656,25 @@ function getCountdown(startTime) {
     return `${m}:${s}`;
 }
 
+function getUpdatedAgo(updatedAt) {
+    if (!updatedAt) return '';
+    // รองรับทั้ง ISO string และ timestamp number
+    const updated = typeof updatedAt === 'number' ? updatedAt : new Date(updatedAt).getTime();
+    const nowMs = Date.now();
+    const diffMs = nowMs - updated;
+    if (diffMs < 0 || isNaN(diffMs)) return '🕐 0:00';
+    const totalSec = Math.floor(diffMs / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return `🕐 ${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    return `🕐 ${m}:${String(s).padStart(2,'0')}`;
+}
+
+function getNowISO() {
+    return new Date().toISOString();
+}
+
 function updateTimers() {
     const now = getNowBangkok();
     cachedBossList.forEach(i => {
@@ -2693,6 +2725,10 @@ function updateTimers() {
             const indCd = document.getElementById(`ind-cd-${i.MapNumber}-${i.Channel}`);
             if (indCd) indCd.textContent = getCountdown(i.BossStartTime) || '00:00';
         }
+
+        // อัปเดต "อัปเดต X นาทีที่แล้ว"
+        const updEl = document.getElementById(`upd-${i.MapNumber}-${i.Channel}`);
+        if (updEl) updEl.textContent = getUpdatedAgo(i.UpdatedAt);
     });
 
     // time mode: re-render ทุก 30 วินาทีเพื่อให้เส้นเวลาขยับตำแหน่ง
