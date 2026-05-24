@@ -755,131 +755,11 @@ tbody tr[id^="row-"] { cursor: pointer; }
     animation: rowPulse 1.2s ease forwards;
 }
 
-/* ===== Boss ON Indicator (ลอยซ้ายกลาง) ===== */
-#bossOnIndicator {
-    position: fixed;
-    left: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 9000;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: default;
-    user-select: none;
-}
-#bossOnIndicator .ind-icon {
-    font-size: 32px;
-    animation: indGlow 0.7s ease infinite alternate;
-    filter: drop-shadow(0 0 8px #ff4444);
-    line-height: 1;
-}
-#bossOnIndicator .ind-count {
-    background: #ff4444;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 20px;
-    padding: 2px 7px;
-    box-shadow: 0 0 8px rgba(255,68,68,0.6);
-    white-space: nowrap;
-}
-@keyframes indGlow {
-    from { filter: drop-shadow(0 0 4px #ff4444); transform: scale(1); }
-    to   { filter: drop-shadow(0 0 14px #ff1744); transform: scale(1.15); }
-}
-
-/* Popup รายการบอส ON — แสดงตลอด ไม่ต้องกด */
-#bossOnPopup {
-    position: fixed;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 9001;
-    background: linear-gradient(135deg, #2e1010, #1e2028);
-    border: 1.5px solid #ff4444;
-    border-radius: 10px;
-    padding: 6px 8px;
-    min-width: 140px;
-    max-width: 180px;
-    box-shadow: 0 4px 16px rgba(255,68,68,0.2), 0 2px 6px rgba(0,0,0,0.4);
-    display: none;
-    pointer-events: auto;
-}
-#bossOnPopup h4 {
-    margin: 0 0 6px;
-    color: #ff7070;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-#bossOnPopup .boss-on-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-#bossOnPopup .boss-on-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255,68,68,0.08);
-    border: 1px solid rgba(255,68,68,0.15);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 11px;
-    color: #f0c0c0;
-}
-#bossOnPopup .boss-on-row .map-label { font-weight: 700; color: #ff9a9a; font-size: 11px; }
-#bossOnPopup .boss-on-row .countdown { font-variant-numeric: tabular-nums; color: #ff6060; font-weight: 700; font-size: 11px; }
-#bossOnPopup .boss-on-row:hover { background: rgba(255,68,68,0.15); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
-@media (max-width: 700px) {
-    #bossOnIndicator { left: 10px; }
-    #bossOnPopup { left: 8px; min-width: 160px; max-width: 200px; }
-}
-
-/* ===== Fade 4 Indicator (ใต้ Boss ON) ===== */
-#fade4Indicator {
-    position: fixed;
-    left: 18px;
-    top: calc(50% + 90px);
-    z-index: 9000;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: default;
-    user-select: none;
-}
-#fade4Indicator .ind-icon {
-    font-size: 28px;
-    line-height: 1;
-    animation: fade4Glow 1s ease infinite alternate;
-    filter: drop-shadow(0 0 6px #d4a84b);
-}
-#fade4Indicator .ind-count {
-    background: linear-gradient(135deg, #b8943e, #8b6914);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 20px;
-    padding: 2px 7px;
-    box-shadow: 0 0 8px rgba(212,168,75,0.5);
-    white-space: nowrap;
-}
-@keyframes fade4Glow {
-    from { filter: drop-shadow(0 0 3px #d4a84b); transform: scale(1); }
-    to   { filter: drop-shadow(0 0 10px #f5c842); transform: scale(1.1); }
-}
-
-/* Popup Fade 4 — แสดงตลอด ไม่ต้องกด */
+/* ===== Fade 4 Popup ===== */
 #fade4Popup {
     position: fixed;
     left: 8px;
-    top: calc(50% + 90px);
+    top: 50%;
     transform: translateY(-50%);
     z-index: 9001;
     background: linear-gradient(135deg, #2e2810, #1e2028);
@@ -892,12 +772,58 @@ tbody tr[id^="row-"] { cursor: pointer; }
     display: none;
     pointer-events: auto;
 }
+#fade4Popup h4 { margin: 0 0 6px; color: #d4a84b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+#fade4Popup .fade4-list { display: flex; flex-direction: column; gap: 4px; }
+#fade4Popup .fade4-row { display: flex; justify-content: space-between; align-items: center; background: rgba(212,168,75,0.07); border: 1px solid rgba(212,168,75,0.15); border-radius: 6px; padding: 4px 8px; font-size: 11px; color: #e0d5c0; }
+#fade4Popup .fade4-row .map-label { font-weight: 700; color: #f5d98a; font-size: 11px; }
+#fade4Popup .fade4-row .fade-badge { background: #d4a84b; color: #1e2028; font-size: 10px; font-weight: 800; border-radius: 6px; padding: 2px 6px; }
+#fade4Popup .fade4-row:hover { background: rgba(212,168,75,0.14); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
 
-/* Dead Popup — สีม่วง (เล็กกว่า popup อื่น) */
+/* ===== Favorite Popup (แมพที่ติดดาว) ===== */
+#favPopup {
+    position: fixed;
+    left: 8px;
+    bottom: 20px;
+    z-index: 9001;
+    background: linear-gradient(135deg, rgba(173,216,230,0.15), rgba(220,200,255,0.1));
+    border: 1.5px solid rgba(135,206,235,0.5);
+    border-radius: 10px;
+    padding: 6px 8px;
+    min-width: 150px;
+    max-width: 200px;
+    box-shadow: 0 4px 16px rgba(135,206,235,0.15), 0 2px 6px rgba(0,0,0,0.3);
+    display: none;
+    pointer-events: auto;
+    backdrop-filter: blur(6px);
+}
+#favPopup h4 {
+    margin: 0 0 6px;
+    color: #87ceeb;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+#favPopup .fav-popup-list { display: flex; flex-direction: column; gap: 4px; }
+#favPopup .fav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(135,206,235,0.08);
+    border: 1px solid rgba(135,206,235,0.2);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #e0f0ff;
+}
+#favPopup .fav-row .map-label { font-weight: 700; color: #b0e0ff; font-size: 11px; }
+#favPopup .fav-row .fav-info { font-size: 10px; color: #87ceeb; font-weight: 600; }
+#favPopup .fav-row:hover { background: rgba(135,206,235,0.15); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
+
+/* Dead Popup — สีม่วง */
 #deadPopup {
     position: fixed;
     left: 8px;
-    top: calc(50% + 180px);
+    top: calc(50% + 100px);
     transform: translateY(-50%);
     z-index: 9001;
     background: linear-gradient(135deg, #1e1028, #1e2028);
@@ -932,42 +858,10 @@ tbody tr[id^="row-"] { cursor: pointer; }
 #deadPopup .dead-popup-row .map-label { font-weight: 700; color: #c39bd3; font-size: 11px; }
 #deadPopup .dead-popup-row .dead-badge { font-size: 10px; color: #9b59b6; }
 #deadPopup .dead-popup-row:hover { background: rgba(155,89,182,0.15); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
-#fade4Popup h4 {
-    margin: 0 0 6px;
-    color: #d4a84b;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-#fade4Popup .fade4-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-#fade4Popup .fade4-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(212,168,75,0.07);
-    border: 1px solid rgba(212,168,75,0.15);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 11px;
-    color: #e0d5c0;
-}
-#fade4Popup .fade4-row .map-label { font-weight: 700; color: #f5d98a; font-size: 11px; }
-#fade4Popup .fade4-row .fade-badge {
-    background: #d4a84b;
-    color: #1e2028;
-    font-size: 10px;
-    font-weight: 800;
-    border-radius: 6px;
-    padding: 2px 6px;
-}
-#fade4Popup .fade4-row:hover { background: rgba(212,168,75,0.14); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
+
 @media (max-width: 700px) {
-    #fade4Indicator { left: 10px; top: calc(50% + 80px); }
-    #fade4Popup { left: 8px; min-width: 160px; max-width: 200px; top: calc(50% + 80px); }
+    #favPopup { min-width: 130px; max-width: 170px; }
+    #deadPopup { min-width: 130px; max-width: 170px; top: calc(50% + 90px); }
 }
 
 /* ===== Bottom Sheet (จอแคบ) ===== */
@@ -1232,23 +1126,21 @@ tbody tr[id^="row-"] { cursor: pointer; }
 <!-- Toast container -->
 <div id="toast-container"></div>
 
-<!-- Boss ON Indicator (hidden — ใช้แค่ anchor สำหรับ JS) -->
-<div id="bossOnIndicator" style="display:none;"></div>
-<div id="bossOnPopup">
-    <h4>💀 Boss ON อยู่</h4>
-    <div class="boss-on-list" id="bossOnList"></div>
-</div>
-
-<!-- Fade 4 Indicator (hidden — ใช้แค่ anchor สำหรับ JS) -->
-<div id="fade4Indicator" style="display:none;"></div>
+<!-- Fade 4 Popup -->
 <div id="fade4Popup">
     <h4>🔥 Fade 4 อยู่</h4>
     <div class="fade4-list" id="fade4List"></div>
 </div>
 
+<!-- Favorite Popup (แมพที่ติดดาว + active/boss_on) -->
+<div id="favPopup">
+    <h4>⭐ แมพที่สนใจ</h4>
+    <div class="fav-popup-list" id="favPopupList"></div>
+</div>
+
 <!-- Dead Popup (รอกรอกเวลา) -->
 <div id="deadPopup">
-    <h4>⭐ รอกรอกเวลา</h4>
+    <h4>☠️ รอกรอกเวลา</h4>
     <div class="dead-popup-list" id="deadPopupList"></div>
 </div>
 
@@ -1363,42 +1255,27 @@ tbody tr[id^="row-"] { cursor: pointer; }
         setTimeout(() => tr.classList.remove('row-highlight'), 1300);
     }
 
-    function updateBossOnIndicator() {
-        const activeList = cachedBossList.filter(i => i.Status === 'boss_on' && isMapVisible(parseInt(i.MapNumber)));
-        const fade4List  = cachedBossList.filter(i => i.Fade >= 4 && i.Status === 'active' && isMapVisible(parseInt(i.MapNumber)));
+    // ===== Favorites =====
+    let favoriteMapKeys = JSON.parse(localStorage.getItem('favoriteMapKeys') || '[]'); // ["90-1", "101-1"]
 
-        // --- Boss ON popup ---
-        const listEl  = document.getElementById('bossOnList');
-        const popup   = document.getElementById('bossOnPopup');
+    function isFavorite(mapNumber, channel) {
+        return favoriteMapKeys.includes(`${mapNumber}-${channel}`);
+    }
+    function toggleFavorite(mapNumber, channel) {
+        const key = `${mapNumber}-${channel}`;
+        const idx = favoriteMapKeys.indexOf(key);
+        if (idx >= 0) favoriteMapKeys.splice(idx, 1);
+        else favoriteMapKeys.push(key);
+        localStorage.setItem('favoriteMapKeys', JSON.stringify(favoriteMapKeys));
+        updateSidePopups();
+        renderTable();
+    }
 
-        if (activeList.length === 0) {
-            popup.style.display = 'none';
-        } else {
-            popup.style.display = 'block';
-            listEl.innerHTML = activeList.map(i => {
-                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
-                const cd = getCountdown(i.BossStartTime);
-                return `
-                <div class="boss-on-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
-                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#c08080">${bossName}</span>` : ''}</span>
-                    <span class="countdown" id="ind-cd-${i.MapNumber}-${i.Channel}">${cd || '00:00'}</span>
-                </div>`;
-            }).join('');
-        }
-
-        // --- Fade 4 popup ---
-        // วางใต้ bossOn popup ถ้ามี หรือกลางจอถ้าไม่มี
+    function updateSidePopups() {
+        // --- Fade 4 popup (บนสุด) ---
+        const fade4List = cachedBossList.filter(i => i.Fade >= 4 && i.Status === 'active' && isMapVisible(parseInt(i.MapNumber)));
+        const f4Popup = document.getElementById('fade4Popup');
         const f4ListEl = document.getElementById('fade4List');
-        const f4Popup  = document.getElementById('fade4Popup');
-
-        if (activeList.length > 0) {
-            const bossRect = popup.getBoundingClientRect();
-            f4Popup.style.top = (bossRect.bottom + 10) + 'px';
-            f4Popup.style.transform = 'none';
-        } else {
-            f4Popup.style.top = '50%';
-            f4Popup.style.transform = 'translateY(-50%)';
-        }
 
         if (fade4List.length === 0) {
             f4Popup.style.display = 'none';
@@ -1408,21 +1285,51 @@ tbody tr[id^="row-"] { cursor: pointer; }
                 const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
                 return `
                 <div class="fade4-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
-                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
+                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
                     <span class="fade-badge">F${i.Fade}</span>
                 </div>`;
             }).join('');
         }
 
-        // --- Dead (รอกรอกเวลา) ---
+        // --- Favorite popup (ซ้ายล่าง) ---
+        const now = getNowBangkok();
+        const favList = cachedBossList.filter(i => {
+            if (!isFavorite(i.MapNumber, i.Channel)) return false;
+            if (!isMapVisible(parseInt(i.MapNumber))) return false;
+            // แสดงถ้า active, boss_on, หรือ waiting ที่เวลาผ่านมาแล้ว
+            if (i.Status === 'active' || i.Status === 'boss_on') return true;
+            if (i.Status === 'waiting' && new Date(i.TimeMer) <= now) return true;
+            return false;
+        });
+        const favPopup = document.getElementById('favPopup');
+        const favListEl = document.getElementById('favPopupList');
+
+        // วาง favPopup ซ้ายล่าง (fixed position ใน CSS แล้ว)
+
+        if (favList.length === 0) {
+            favPopup.style.display = 'none';
+        } else {
+            favPopup.style.display = 'block';
+            favListEl.innerHTML = favList.map(i => {
+                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
+                const statusLabel = i.Status === 'boss_on' ? '💀 ON' : `F${i.Fade}`;
+                return `
+                <div class="fav-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
+                    <span class="map-label">⭐ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
+                    <span class="fav-info">${statusLabel}</span>
+                </div>`;
+            }).join('');
+        }
+
+        // --- Dead popup (ล่างสุด) ---
         const deadList = cachedBossList.filter(i => i.Status === 'dead' && isMapVisible(parseInt(i.MapNumber)));
         const deadPopup = document.getElementById('deadPopup');
         const deadListEl = document.getElementById('deadPopupList');
 
-        // วางใต้ fade4 popup หรือ bossOn popup
-        const lastVisiblePopup = f4Popup.style.display !== 'none' ? f4Popup : (popup.style.display !== 'none' ? popup : null);
-        if (lastVisiblePopup) {
-            const rect = lastVisiblePopup.getBoundingClientRect();
+        // วางใต้ fade4 popup ถ้ามี
+        const lastVisible = f4Popup.style.display !== 'none' ? f4Popup : null;
+        if (lastVisible) {
+            const rect = lastVisible.getBoundingClientRect();
             deadPopup.style.top = (rect.bottom + 10) + 'px';
             deadPopup.style.transform = 'none';
         } else {
@@ -1438,12 +1345,15 @@ tbody tr[id^="row-"] { cursor: pointer; }
                 const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
                 return `
                 <div class="dead-popup-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
-                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:11px;font-weight:400;color:#8a6aaa">${bossName}</span>` : ''}</span>
+                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#8a6aaa">${bossName}</span>` : ''}</span>
                     <span class="dead-badge">☠️</span>
                 </div>`;
             }).join('');
         }
     }
+
+    // backward compat — เรียก updateSidePopups แทน updateBossOnIndicator
+    function updateBossOnIndicator() { updateSidePopups(); }
 
     // ===== Toast (stack ใต้ sticky-bar) =====
     function updateToastPosition() {
@@ -2162,7 +2072,8 @@ async function processCommand() {
             if (isSpacePattern) {
                 let map, ch;
                 if (spaceParts.length === 2) {
-                    map = parseInt(spaceParts[0]); ch = 1;
+                    // part แรกอาจเป็น "130.2" หรือ "130"
+                    ({ map, ch } = parseMapInput(spaceParts[0]));
                 } else {
                     map = parseInt(spaceParts[0]); ch = parseInt(spaceParts[1]);
                 }
@@ -2767,10 +2678,12 @@ function openBottomSheet(mapNumber, channel) {
 
     // Status buttons
     const isBossOn = item.Status === 'boss_on';
+    const isFav = isFavorite(bsMap, bsCh);
     let statusHtml = '';
     if (!isBossOn) statusHtml += `<button class="bs-btn bs-on" onclick="bsBossOn()">⚔️ Boss ON</button>`;
     if (isBossOn) statusHtml += `<button class="bs-btn bs-dead" onclick="bsMarkDead()">☠️ บอสตาย</button>`;
     statusHtml += `<button class="bs-btn" onclick="bsResetNow()" style="border-color:#4caf7a;color:#4caf7a;">🔄 เริ่มนับใหม่</button>`;
+    statusHtml += `<button class="bs-btn" onclick="bsToggleFav()" style="border-color:${isFav ? '#d4a84b' : '#3a3d48'};color:${isFav ? '#d4a84b' : '#8b7a5e'};">${isFav ? '⭐ ติดดาวแล้ว' : '☆ ติดดาว'}</button>`;
     document.getElementById('bsStatusBtns').innerHTML = statusHtml;
 
     // Fade buttons — แบ่งเป็นแถวตามเลขหลัก
@@ -2888,6 +2801,21 @@ function bsDelete() {
     const map = bsMap, ch = bsCh;
     closeBottomSheet();
     deleteBoss(map, ch);
+}
+
+function bsToggleFav() {
+    if (bsMap === null) return;
+    toggleFavorite(bsMap, bsCh);
+    // อัปเดตปุ่มใน bottom sheet ทันที
+    const isFav = isFavorite(bsMap, bsCh);
+    const btns = document.querySelectorAll('#bsStatusBtns .bs-btn');
+    btns.forEach(btn => {
+        if (btn.textContent.includes('ดาว')) {
+            btn.textContent = isFav ? '⭐ ติดดาวแล้ว' : '☆ ติดดาว';
+            btn.style.borderColor = isFav ? '#d4a84b' : '#3a3d48';
+            btn.style.color = isFav ? '#d4a84b' : '#8b7a5e';
+        }
+    });
 }
 
 // เริ่มนับเวลาใหม่จากตอนนี้ (reset TimeMer เป็นปัจจุบัน)
