@@ -5,9 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BossList Dashboard Pro</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-image: url('bg-main.webp'); background-size: cover; background-attachment: fixed; background-color: #1a1c24; }
-        .container { max-width: 900px; margin: auto; background: rgba(30,32,40,0.95); padding: 25px; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(139,105,20,0.3); }
-        h2 { margin-top: 0; color: #d4a84b; font-size: 1.4em; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(212,168,75,0.2); }
+        /* ===== Theme Variables ===== */
+        :root, body.theme-light {
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --card-alt: #f8f9fa;
+            --border: #e0e0e0;
+            --text: #333333;
+            --text-muted: #888888;
+            --text-faint: #aaaaaa;
+            --accent: #4a90d9;
+            --accent-light: rgba(74,144,217,0.1);
+            --danger: #e74c3c;
+            --danger-bg: #fff5f5;
+            --purple: #9b59b6;
+            --purple-bg: #faf5ff;
+            --success: #4caf7a;
+            --shadow: rgba(0,0,0,0.08);
+        }
+        body.theme-kiro {
+            --bg: #1b1e2b;
+            --card: #232738;
+            --card-alt: #2a2e42;
+            --border: #3a3f55;
+            --text: #e0e4f0;
+            --text-muted: #8890a8;
+            --text-faint: #5a6080;
+            --accent: #6c9fff;
+            --accent-light: rgba(108,159,255,0.12);
+            --danger: #ff6b6b;
+            --danger-bg: #2e1a1a;
+            --purple: #a78bfa;
+            --purple-bg: #1e1a2e;
+            --success: #4ade80;
+            --shadow: rgba(0,0,0,0.3);
+        }
+        body.theme-gold {
+            --bg: #1a1c24;
+            --card: rgba(30,32,40,0.95);
+            --card-alt: #2a2d35;
+            --border: #3a3d48;
+            --text: #e0d5c0;
+            --text-muted: #8b7a5e;
+            --text-faint: #5a5040;
+            --accent: #d4a84b;
+            --accent-light: rgba(212,168,75,0.12);
+            --danger: #ff4444;
+            --danger-bg: #2e1515;
+            --purple: #9b59b6;
+            --purple-bg: #1e1a2a;
+            --success: #4caf7a;
+            --shadow: rgba(0,0,0,0.4);
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background: var(--bg); transition: background 0.3s; }
+        .container { max-width: 900px; margin: auto; background: var(--card); padding: 25px; border-radius: 18px; box-shadow: 0 2px 20px var(--shadow); border: 1px solid var(--border); }
+        h2 { margin-top: 0; color: var(--text); font-size: 1.4em; letter-spacing: -0.5px; }
         
         /* สไตล์ช่อง Input */
         .sticky-bar {
@@ -21,39 +74,22 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: linear-gradient(135deg, rgba(26,28,36,0.92) 0%, rgba(36,30,20,0.95) 100%);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1.5px solid rgba(212,168,75,0.5);
+            background: var(--card);
+            border: 1.5px solid var(--border);
             border-radius: 16px;
             padding: 10px 14px;
-            box-shadow:
-                0 4px 24px rgba(0,0,0,0.45),
-                0 1px 0 rgba(212,168,75,0.12) inset,
-                0 0 0 1px rgba(255,255,255,0.03) inset,
-                0 0 12px rgba(212,168,75,0.08);
-            animation: barGlow 3s ease infinite alternate;
-        }
-        @keyframes barGlow {
-            from { box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 8px rgba(212,168,75,0.05); }
-            to   { box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 16px rgba(212,168,75,0.15); }
+            box-shadow: 0 2px 8px var(--shadow);
         }
         .sticky-bar-inner::before {
             content: '⚔️';
             font-size: 18px;
             flex-shrink: 0;
-            filter: drop-shadow(0 0 6px rgba(212,168,75,0.5));
-            animation: iconPulse 2s ease infinite;
-        }
-        @keyframes iconPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
         }
         .sticky-bar-inner input {
             flex: 1;
-            background: rgba(255,255,255,0.06);
-            border: 1.5px solid rgba(212,168,75,0.35);
-            color: #e0d5c0;
+            background: var(--card-alt);
+            border: 1.5px solid var(--border);
+            color: var(--text);
             border-radius: 10px;
             padding: 10px 14px;
             font-size: 15px;
@@ -62,39 +98,39 @@
             min-width: 0;
         }
         .sticky-bar-inner input:focus {
-            border-color: #d4a84b;
-            background: rgba(212,168,75,0.1);
-            box-shadow: 0 0 0 3px rgba(212,168,75,0.15), 0 0 12px rgba(212,168,75,0.1);
+            border-color: var(--accent);
+            background: var(--card);
+            box-shadow: 0 0 0 3px var(--accent-light);
         }
-        .sticky-bar-inner input::placeholder { color: #7a6a4a; }
+        .sticky-bar-inner input::placeholder { color: var(--text-faint); }
         @media (max-width: 700px) {
             .sticky-bar { padding: 10px 0; }
             .sticky-bar-inner { padding: 8px 10px; border-radius: 12px; }
             .sticky-bar-inner::before { font-size: 15px; }
         }
-        input { flex: 1; padding: 14px 16px; border: 2px solid #3a3d48; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; box-sizing: border-box; background: #2a2d35; color: #e0d5c0; }
-        input:focus { border-color: #d4a84b; background: #32353e; box-shadow: 0 0 0 3px rgba(212,168,75,0.15); }
+        input { flex: 1; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; box-sizing: border-box; background: var(--card-alt); color: var(--text); }
+        input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 3px var(--accent-light); }
         .modal-content input { width: 100%; box-sizing: border-box; }
-        button { padding: 14px 28px; background: linear-gradient(135deg, #b8943e, #8b6914); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 8px rgba(139,105,20,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-        button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212,168,75,0.4); }
+        button { padding: 14px 28px; background: var(--accent); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 8px var(--shadow); }
+        button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
         button:active { transform: translateY(0); }
 
         /* สไตล์ตาราง */
         table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
-        th { padding: 8px 10px; color: #8b7a5e; text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        td { padding: 8px 8px; background: #2a2d35; text-align: center; border-top: 1px solid #3a3d48; border-bottom: 1px solid #3a3d48; color: #e0d5c0; font-size: 13px; }
-        td:first-child { border-left: 1px solid #3a3d48; border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
-        td:last-child { border-right: 1px solid #3a3d48; border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        th { padding: 8px 10px; color: var(--text-muted); text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        td { padding: 8px 8px; background: var(--card); text-align: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; }
+        td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
 
         /* แถวสีเทา (ยังไม่ถึงเวลา) */
-        .row-waiting { opacity: 0.35; filter: grayscale(80%); }
-        .row-waiting td { background: #22242c; color: #555; }
+        .row-waiting { opacity: 0.4; }
+        .row-waiting td { background: var(--card-alt); color: var(--text-faint); }
         /* แถวสีเข้ม (ถึงเวลาแล้ว) */
-        .row-active td { background: #2a2d35; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
-        .row-active td:first-child { border-left: 3px solid #d4a84b; }
+        .row-active td { background: var(--card); box-shadow: 0 1px 4px var(--shadow); }
+        .row-active td:first-child { border-left: 3px solid var(--accent); }
         /* แถวรอเวลาเกิดใหม่ */
-        .row-dead td { background: #1e1a2a; }
-        .row-dead td:first-child { border-left: 3px solid #9b59b6; }
+        .row-dead td { background: var(--purple-bg); }
+        .row-dead td:first-child { border-left: 3px solid var(--purple); }
         .row-dead .dead-waiting-badge {
             display: inline-flex;
             align-items: center;
@@ -115,12 +151,12 @@
         }
 
         /* สไตล์ Fade Progress Bar */
-        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 220px; margin: auto; background-color: #3a3d48; border-radius: 12px; overflow: hidden; height: 30px; border: 2px solid #4a4d58; }
+        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 220px; margin: auto; background-color: var(--card-alt); border-radius: 12px; overflow: hidden; height: 30px; border: 2px solid var(--border); }
         /* wrapper ครอบ fade-container เพื่อให้ label ทศนิยมลอยออกมาได้ */
         .fade-wrapper { position: relative; display: flex; justify-content: center; }
         .fade-wrapper.has-decimal { padding-top: 18px; }
-        .row-active .fade-container { border-color: #8b6914; box-shadow: 0 0 0 1px rgba(212,168,75,0.15); }
-        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #555; cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid rgba(255,255,255,0.05); }
+        .row-active .fade-container { border-color: var(--accent); }
+        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text-faint); cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid var(--border); }
         .fade-box:last-child { border-right: none; }
         .fade-box.active { color: white; }
         .f1.active { background-color: #5c4a1e; color: #d4a84b; }
@@ -171,23 +207,23 @@
     display: inline-block;
 }
 /* เลขแมพ — เด่นชัดเสมอ */
-.map-number strong { font-size: 17px; color: #e8d5a0; letter-spacing: 0.3px; }
-.boss-name { font-size: 10px; color: #8b7a5e; font-weight: 400; margin-top: 1px; }
-.timer { font-size: 11px; }
-.map-timer { font-size: 11px; }
+.map-number strong { font-size: 17px; color: var(--text); letter-spacing: 0.3px; }
+.boss-name { font-size: 10px; color: var(--text-muted); font-weight: 400; margin-top: 1px; }
+.timer { font-size: 11px; color: var(--accent); }
+.map-timer { font-size: 11px; color: var(--accent); }
 
 .boss-active {
-    color: #f44336;
+    color: var(--danger);
     animation: bossGlow 1s infinite alternate;
 }
 
 .command-guide {
-    background: #2a2d35;
+    background: var(--card-alt);
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
-    border-left: 5px solid #8b6914;
-    color: #c0b89a;
+    border-left: 5px solid var(--accent);
+    color: var(--text-muted);
     display: none; /* ซ่อนเริ่มต้น เปิดด้วยปุ่ม toggle */
 }
 .command-guide.open { display: block; }
@@ -198,9 +234,9 @@
     margin-bottom: 14px;
     padding: 6px 12px;
     border-radius: 20px;
-    border: 1.5px solid #3a3d48;
-    background: #2a2d35;
-    color: #8b7a5e;
+    border: 1.5px solid var(--border);
+    background: var(--card-alt);
+    color: var(--text-muted);
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
@@ -314,20 +350,20 @@
 /* แถวหลักที่มี sub ตามมา — ตัดมุมล่างซ้ายออก ให้เส้นต่อลงไป */
 tr.row-has-sub td:first-child {
     border-bottom-left-radius: 0 !important;
-    border-left: 3px solid #8b6914 !important;
+    border-left: 3px solid var(--accent) !important;
     border-bottom: none !important;
 }
-tr.row-has-sub.row-waiting td:first-child { border-left-color: #3a3d48 !important; }
-tr.row-has-sub.row-dead    td:first-child { border-left-color: #7d3c98 !important; }
+tr.row-has-sub.row-waiting td:first-child { border-left-color: var(--border) !important; }
+tr.row-has-sub.row-dead    td:first-child { border-left-color: var(--purple) !important; }
 
 /* แถว sub-channel — เส้นซ้ายต่อเนื่อง พื้นหลังต่าง */
 tr.row-sub td {
-    background: #232630 !important;
+    background: var(--card-alt) !important;
     padding-top: 8px !important;
     padding-bottom: 8px !important;
 }
 tr.row-sub td:first-child {
-    border-left: 3px solid #5a4a1e !important;
+    border-left: 3px solid var(--border) !important;
     border-top: none !important;
     border-radius: 0 !important;
 }
@@ -343,19 +379,19 @@ tr.row-sub.row-sub-last td:last-child {
 
 /* สีเส้นตาม status */
 tr.row-sub.row-active td:first-child,
-tr.row-has-sub.row-active td:first-child { border-left-color: #8b6914 !important; }
+tr.row-has-sub.row-active td:first-child { border-left-color: var(--accent) !important; }
 
 tr.row-sub.row-dead td:first-child,
-tr.row-has-sub.row-dead td:first-child   { border-left-color: #7d3c98 !important; }
+tr.row-has-sub.row-dead td:first-child   { border-left-color: var(--purple) !important; }
 
 /* CH Badge pill */
 .ch-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(139,105,20,0.15);
-    border: 1px solid rgba(139,105,20,0.35);
-    color: #a08040;
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    color: var(--accent);
     font-size: 12px;
     font-weight: 700;
     border-radius: 20px;
@@ -627,14 +663,14 @@ tbody tr[id^="row-"] { cursor: pointer; }
     right: 6px;
     font-size: 9px;
     font-weight: 700;
-    color: rgba(255,255,255,0.45);
+    color: var(--text-faint);
     letter-spacing: 0.3px;
     pointer-events: none;
     user-select: none;
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid var(--border);
     border-radius: 4px;
     padding: 1px 5px;
-    background: rgba(255,255,255,0.05);
+    background: var(--card-alt);
 }
 
 /* Updated timestamp */
@@ -864,6 +900,83 @@ tbody tr[id^="row-"] { cursor: pointer; }
     #deadPopup { min-width: 130px; max-width: 170px; top: calc(50% + 90px); }
 }
 
+/* ===== Grid View ===== */
+.grid-ep-section { margin-bottom: 16px; }
+.grid-ep-header {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    padding: 8px 12px; margin-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+}
+.grid-map-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 0 4px; margin-bottom: 4px; }
+.grid-cell {
+    background: var(--card-alt); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 6px 4px;
+    text-align: center; cursor: pointer;
+    transition: all 0.15s; position: relative;
+    width: 100%;
+    min-height: 80px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.grid-cell:hover { border-color: #8b6914; transform: translateY(-1px); }
+.grid-cell:active { transform: scale(0.97); }
+.grid-cell .gc-map { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.2; }
+.grid-cell .gc-fade { font-size: 9px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+.grid-cell .gc-fade-bar {
+    width: 80%; height: 4px; margin: 3px auto 0;
+    background: #3a3d48; border-radius: 3px; overflow: hidden;
+}
+.grid-cell .gc-fade-bar .gc-fade-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.3s;
+}
+/* Fade bar colors by level */
+.gc-fade-fill.fl-1 { background: #5c4a1e; }
+.gc-fade-fill.fl-2 { background: #8b6914; }
+.gc-fade-fill.fl-3 { background: #b8943e; }
+.gc-fade-fill.fl-4 { background: #ff4444; }
+.grid-cell .gc-time { font-size: 11px; color: var(--accent); margin-top: 2px; font-variant-numeric: tabular-nums; font-weight: 600; }
+.grid-cell .gc-star { position: absolute; top: 2px; right: 3px; font-size: 8px; }
+.grid-cell.gc-active { border-color: var(--accent); background: var(--card); }
+.grid-cell.gc-active .gc-map { color: var(--accent); }
+.grid-cell.gc-active .gc-fade { color: var(--accent); }
+.grid-cell.gc-bosson { border-color: var(--danger); background: var(--danger-bg); }
+.grid-cell.gc-bosson .gc-map { color: var(--danger); }
+.grid-cell.gc-dead { border-color: var(--purple); background: var(--purple-bg); }
+.grid-cell.gc-dead .gc-map { color: var(--purple); }
+.grid-cell.gc-waiting { opacity: 0.4; }
+.grid-sub-row { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 4px 6px 16px; }
+.grid-sub-cell {
+    background: #1e2028; border: 1px solid #3a3d48;
+    border-radius: 6px; padding: 5px 4px;
+    font-size: 10px; color: #8b7a5e; cursor: pointer; transition: all 0.15s;
+    text-align: center; width: 100%; margin-top: 3px; box-sizing: border-box;
+    font-weight: 600;
+}
+.grid-sub-cell:hover { border-color: var(--accent); color: var(--accent); }
+.grid-sub-cell.gc-active { border-color: var(--accent); color: var(--accent); }
+.grid-sub-cell.gc-bosson { border-color: var(--danger); color: var(--danger); }
+.grid-sub-cell.gc-dead { border-color: var(--purple); color: var(--purple); }
+
+/* ปุ่ม + เพิ่ม CH */
+.grid-add-ch {
+    width: 100%;
+    margin-top: 4px;
+    padding: 3px 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-faint);
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.grid-add-ch:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+}
+
 /* ===== Bottom Sheet (จอแคบ) ===== */
 #bottomSheet {
     position: fixed;
@@ -924,10 +1037,10 @@ tbody tr[id^="row-"] { cursor: pointer; }
 .ep-chip {
     flex-shrink: 0;
     padding: 6px 14px;
-    border: 1.5px solid #3a3d48;
+    border: 1.5px solid var(--border);
     border-radius: 20px;
-    background: #1e2028;
-    color: #8b7a5e;
+    background: var(--card-alt);
+    color: var(--text-muted);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -937,10 +1050,10 @@ tbody tr[id^="row-"] { cursor: pointer; }
 }
 .ep-chip:active { transform: scale(0.95); }
 .ep-chip.active {
-    border-color: #d4a84b;
-    background: rgba(212,168,75,0.15);
-    color: #d4a84b;
-    box-shadow: 0 0 8px rgba(212,168,75,0.2);
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+    box-shadow: 0 0 8px var(--accent-light);
 }
 
 /* ปุ่มเลื่อนหน้าจอ — ลอยขวาล่าง */
@@ -1010,14 +1123,24 @@ tbody tr[id^="row-"] { cursor: pointer; }
         <div id="sortToggle" onclick="toggleSortMode()" style="
             display:flex; align-items:center; gap:5px;
             padding:5px 12px; border-radius:20px; cursor:pointer;
-            border:1.5px solid #d4a84b; color:#d4a84b;
+            border:1.5px solid #4caf7a; color:#4caf7a;
             font-size:12px; font-weight:600; user-select:none;
             transition:all 0.2s;
         ">
-            <span id="sortIcon">📋</span>
-            <span id="sortLabel">แบ่งตาม EP</span>
+            <span id="sortIcon">⊞</span>
+            <span id="sortLabel">Grid View</span>
         </div>
         <button class="guide-toggle" onclick="toggleGuide()" id="guideToggleBtn" style="margin:0;">❓ วิธีใช้คำสั่ง</button>
+        <div id="themeToggle" onclick="cycleTheme()" style="
+            display:flex;align-items:center;gap:5px;
+            padding:5px 12px;border-radius:20px;cursor:pointer;
+            border:1.5px solid var(--border);color:var(--text-muted);
+            font-size:12px;font-weight:600;user-select:none;
+            transition:all 0.2s;
+        ">
+            <span id="themeIcon">🎨</span>
+            <span id="themeLabel">Theme</span>
+        </div>
     </div>
     <div class="command-guide" id="commandGuide">
         <h3>รูปแบบคำสั่งที่รองรับ:</h3>
@@ -1233,6 +1356,22 @@ tbody tr[id^="row-"] { cursor: pointer; }
     }
     updateModeUI();
 
+    // ===== Theme Switcher =====
+    const THEMES = ['theme-light', 'theme-kiro', 'theme-gold'];
+    const THEME_LABELS = { 'theme-light': '☀️ Light', 'theme-kiro': '🌙 Kiro', 'theme-gold': '✨ Gold' };
+    let currentTheme = localStorage.getItem('appTheme') || 'theme-light';
+    document.body.className = currentTheme;
+    function cycleTheme() {
+        const idx = THEMES.indexOf(currentTheme);
+        currentTheme = THEMES[(idx + 1) % THEMES.length];
+        document.body.className = currentTheme;
+        localStorage.setItem('appTheme', currentTheme);
+        document.getElementById('themeLabel').textContent = THEME_LABELS[currentTheme].split(' ')[1];
+        document.getElementById('themeIcon').textContent = THEME_LABELS[currentTheme].split(' ')[0];
+    }
+    document.getElementById('themeLabel').textContent = THEME_LABELS[currentTheme].split(' ')[1];
+    document.getElementById('themeIcon').textContent = THEME_LABELS[currentTheme].split(' ')[0];
+
     let cachedBossList = []; // เก็บข้อมูลครั้งสุดท้าย
 
     // ===== Boss ON Indicator =====
@@ -1272,6 +1411,14 @@ tbody tr[id^="row-"] { cursor: pointer; }
     }
 
     function updateSidePopups() {
+        // ซ่อนทั้งหมดใน grid mode
+        if (sortMode === 'grid') {
+            document.getElementById('fade4Popup').style.display = 'none';
+            document.getElementById('favPopup').style.display = 'none';
+            document.getElementById('deadPopup').style.display = 'none';
+            return;
+        }
+
         // --- Fade 4 popup (บนสุด) ---
         const fade4List = cachedBossList.filter(i => i.Fade >= 4 && i.Status === 'active' && isMapVisible(parseInt(i.MapNumber)));
         const f4Popup = document.getElementById('fade4Popup');
@@ -1372,23 +1519,7 @@ tbody tr[id^="row-"] { cursor: pointer; }
     // อัปเดตซ้ำสั้นๆ เผื่อ layout ยังไม่ settle
     setTimeout(updateToastPosition, 300);
     function showToast(msg, type = 'info') {
-        const container = document.getElementById('toast-container');
-        const el = document.createElement('div');
-        el.className = `toast-item toast-${type}`;
-        el.innerHTML = `<span class="toast-dot"></span><span>${msg}</span>`;
-        container.appendChild(el);
-
-        // slide in
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => el.classList.add('show'));
-        });
-
-        // ค้าง 4 วินาที แล้ว slide out
-        setTimeout(() => {
-            el.classList.remove('show');
-            el.classList.add('hiding');
-            el.addEventListener('transitionend', () => el.remove(), { once: true });
-        }, 4000);
+        // ปิด toast — ไม่แสดงแจ้งเตือนแล้ว
     }
 
     // ===== Toggle คำแนะนำ =====
@@ -1498,32 +1629,25 @@ tbody tr[id^="row-"] { cursor: pointer; }
         return pickedEPs.includes(idx);
     }
 
-    // โหมดการเรียง: 'ep' = แบ่งตาม EP, 'fade' = เรียงตาม Fade, 'time' = เรียงตามเวลา
-    let sortMode = 'ep';
+    // โหมดการเรียง: 'grid' = Grid View, 'time' = เรียงตามเวลา
+    let sortMode = 'grid';
 
     function toggleSortMode() {
-        if (sortMode === 'ep') sortMode = 'fade';
-        else if (sortMode === 'fade') sortMode = 'time';
-        else sortMode = 'ep';
+        sortMode = sortMode === 'grid' ? 'time' : 'grid';
 
         const icon = document.getElementById('sortIcon');
         const label = document.getElementById('sortLabel');
         const btn = document.getElementById('sortToggle');
-        if (sortMode === 'ep') {
-            icon.textContent = '📋';
-            label.textContent = 'แบ่งตาม EP';
-            btn.style.borderColor = '#d4a84b';
-            btn.style.color = '#d4a84b';
-        } else if (sortMode === 'fade') {
-            icon.textContent = '🔥';
-            label.textContent = 'เรียงตาม Fade';
-            btn.style.borderColor = '#c0564e';
-            btn.style.color = '#c0564e';
+        if (sortMode === 'grid') {
+            icon.textContent = '⊞';
+            label.textContent = 'Grid View';
+            btn.style.borderColor = 'var(--success)';
+            btn.style.color = 'var(--success)';
         } else {
             icon.textContent = '⏱';
             label.textContent = 'เรียงตามเวลา';
-            btn.style.borderColor = '#6a9fd8';
-            btn.style.color = '#6a9fd8';
+            btn.style.borderColor = 'var(--accent)';
+            btn.style.color = 'var(--accent)';
         }
         // แสดง/ซ่อน time threshold bar
         document.getElementById('timeThresholdBar').style.display = sortMode === 'time' ? 'flex' : 'none';
@@ -1597,41 +1721,112 @@ function renderTable() {
     // บันทึก scroll position ก่อน render เพื่อป้องกัน browser reset
     const scrollY = window.scrollY;
 
-    // 🔥 sort ตาม sortMode
-    if (sortMode === 'ep') {
-        // แบ่งตาม EP → ภายในกลุ่มเรียงตามเลข Map น้อยไปมาก
-        list.sort((a, b) => {
-            const groupA = MAP_GROUPS.findIndex(g => a.MapNumber >= g.min && a.MapNumber <= g.max);
-            const groupB = MAP_GROUPS.findIndex(g => b.MapNumber >= g.min && b.MapNumber <= g.max);
-            const gi = (groupA === -1 ? 999 : groupA) - (groupB === -1 ? 999 : groupB);
-            if (gi !== 0) return gi;
-            const mapDiff = parseInt(a.MapNumber) - parseInt(b.MapNumber);
-            if (mapDiff !== 0) return mapDiff;
-            return parseInt(a.Channel) - parseInt(b.Channel);
-        });
-    } else if (sortMode === 'fade') {
-        // เรียงตาม Fade มากไปน้อย → เวลา (โหมดเดิม)
-        list.sort((a, b) => {
-            // dead ขึ้นก่อนเสมอ
-            if (a.Status === 'dead' && b.Status !== 'dead') return -1;
-            if (a.Status !== 'dead' && b.Status === 'dead') return 1;
-            if (a.Fade > 0 && b.Fade > 0) {
-                if (a.Fade === b.Fade) return parseInt(b.MapNumber) - parseInt(a.MapNumber);
-                return b.Fade - a.Fade;
+    // ===== Grid Mode — render แยก =====
+    if (sortMode === 'grid') {
+        // ซ่อน popup ด้านข้างใน grid mode
+        document.getElementById('fade4Popup').style.display = 'none';
+        document.getElementById('favPopup').style.display = 'none';
+        document.getElementById('deadPopup').style.display = 'none';
+
+        function fadeStars(fade) {
+            const full = Math.floor(fade);
+            const hasHalf = (fade - full) >= 0.3;
+            let stars = '';
+            for (let i = 1; i <= 4; i++) {
+                if (i <= full) stars += '★';
+                else if (i === full + 1 && hasHalf) stars += '☆';
+                else stars += '<span style="opacity:0.2">★</span>';
             }
-            if (a.Fade > 0) return -1;
-            if (b.Fade > 0) return 1;
-            return new Date(a.TimeMer) - new Date(b.TimeMer);
+            return stars;
+        }
+
+        let html = '';
+        MAP_GROUPS.forEach(g => {
+            const groupItems = list.filter(i => parseInt(i.MapNumber) >= g.min && parseInt(i.MapNumber) <= g.max);
+            if (groupItems.length === 0) return;
+
+            // หา unique maps ใน group
+            const mapNums = [...new Set(groupItems.map(i => parseInt(i.MapNumber)))].sort((a,b) => a-b);
+
+            html += `<div class="grid-ep-section"><div class="grid-ep-header">☸ ${g.name}</div>`;
+            html += `<div class="grid-map-row">`;
+            mapNums.forEach(mapNum => {
+                // CH1 เป็นหลัก
+                const ch1 = groupItems.find(i => parseInt(i.MapNumber) === mapNum && parseInt(i.Channel) === 1);
+                const item = ch1 || groupItems.find(i => parseInt(i.MapNumber) === mapNum);
+                if (!item) return;
+
+                const status = item.Status || 'waiting';
+                const statusClass = status === 'boss_on' ? 'gc-bosson' : status === 'dead' ? 'gc-dead' : (status === 'active' || new Date(item.TimeMer) <= now) ? 'gc-active' : 'gc-waiting';
+                const fadeLabel = (status === 'active' || (status === 'waiting' && new Date(item.TimeMer) <= now)) ? `${item.Fade}` : (item.Fade > 0 ? `${item.Fade}` : '');
+                const bossTime = new Date(item.TimeMer);
+                let timeLabel = '';
+                if (status !== 'dead' && status !== 'boss_on') {
+                    const diff = now - bossTime;
+                    if (diff >= 0) { const m = Math.floor(diff/60000); const s = Math.floor((diff%60000)/1000); timeLabel = `${m}:${String(s).padStart(2,'0')}`; }
+                    else { const absDiff = -diff; const m = Math.floor(absDiff/60000); const s = Math.floor((absDiff%60000)/1000); timeLabel = `-${m}:${String(s).padStart(2,'0')}`; }
+                }
+                if (status === 'boss_on') timeLabel = '💀';
+                const star = isFavorite(item.MapNumber, item.Channel) ? '⭐' : '';
+
+                // หา sub-channels ของแมพนี้
+                const subs = groupItems.filter(i => parseInt(i.MapNumber) === mapNum && parseInt(i.Channel) > 1);
+
+                html += `<div style="min-width:0;">`;
+                html += `<div class="grid-cell ${statusClass}" onclick="openBottomSheet('${item.MapNumber}','${item.Channel}')">
+                    ${star ? `<span class="gc-star">${star}</span>` : ''}
+                    <div class="gc-map">${mapNum}</div>
+                    <div class="gc-fade" style="font-size:11px; letter-spacing:1px;">${fadeStars(item.Fade)}</div>
+                    ${fadeLabel ? `<div class="gc-fade" style="font-size:9px;">${fadeLabel}</div>` : ''}
+                    <div class="gc-time" id="gc-timer-${item.MapNumber}-${item.Channel}">${timeLabel}</div>
+                </div>`;
+                // Sub-channels ใต้ cell ของตัวเอง — render เหมือน cell หลัก
+                if (subs.length > 0) {
+                    subs.forEach(sub => {
+                        const st = sub.Status || 'waiting';
+                        const sc = st === 'boss_on' ? 'gc-bosson' : st === 'dead' ? 'gc-dead' : (st === 'active' || new Date(sub.TimeMer) <= now) ? 'gc-active' : 'gc-waiting';
+                        const subFade = (st === 'active' || (st === 'waiting' && new Date(sub.TimeMer) <= now)) ? `${sub.Fade}` : (sub.Fade > 0 ? `${sub.Fade}` : '');
+                        const subBossTime = new Date(sub.TimeMer);
+                        let subTime = '';
+                        if (st !== 'dead' && st !== 'boss_on') {
+                            const d = now - subBossTime;
+                            if (d >= 0) { const m2 = Math.floor(d/60000); const s2 = Math.floor((d%60000)/1000); subTime = `${m2}:${String(s2).padStart(2,'0')}`; }
+                            else { const ad = -d; const m2 = Math.floor(ad/60000); const s2 = Math.floor((ad%60000)/1000); subTime = `-${m2}:${String(s2).padStart(2,'0')}`; }
+                        }
+                        if (st === 'boss_on') subTime = '💀';
+                        html += `<div class="grid-cell ${sc}" onclick="openBottomSheet('${sub.MapNumber}','${sub.Channel}')" style="margin-top:4px; min-height:60px; padding:4px 3px;">
+                            <div class="gc-map" style="font-size:12px;"><span style="opacity:0.4;font-size:9px;">CH</span> ${sub.Channel}</div>
+                            <div class="gc-fade" style="font-size:10px; letter-spacing:1px;">${fadeStars(sub.Fade)}</div>
+                            ${subFade ? `<div class="gc-fade" style="font-size:8px;">${subFade}</div>` : ''}
+                            <div class="gc-time" id="gc-timer-${sub.MapNumber}-${sub.Channel}">${subTime}</div>
+                        </div>`;
+                    });
+                }
+                // ปุ่ม + เพิ่ม CH
+                const maxCh = Math.max(...groupItems.filter(gi => parseInt(gi.MapNumber) === mapNum).map(gi => parseInt(gi.Channel)), 0);
+                html += `<div class="grid-add-ch" onclick="addChannel(${mapNum}, ${maxCh + 1})">+</div>`;
+                html += `</div>`;
+            });
+            // เติมช่องว่างให้ครบ 5 ช่อง
+            for (let empty = mapNums.length; empty < 5; empty++) {
+                html += `<div style="min-width:0;"></div>`;
+            }
+            html += `</div>`;
         });
-    } else {
-        // เรียงตามเวลา — ใกล้ถึงก่อนขึ้นก่อน
-        list.sort((a, b) => {
-            // dead ลงล่างสุด
-            if (a.Status === 'dead' && b.Status !== 'dead') return 1;
-            if (a.Status !== 'dead' && b.Status === 'dead') return -1;
-            return new Date(a.TimeMer) - new Date(b.TimeMer);
-        });
+
+        document.getElementById('tableContent').innerHTML = html || '<div class="empty-state"><span>🎮</span>ยังไม่มีบอส</div>';
+        updateBossOnIndicator();
+        if (window.scrollY !== scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
+        return;
     }
+
+    // 🔥 sort — เรียงตามเวลา (time mode เท่านั้นที่เข้ามาถึงตรงนี้)
+    list.sort((a, b) => {
+        // dead ลงล่างสุด
+        if (a.Status === 'dead' && b.Status !== 'dead') return 1;
+        if (a.Status !== 'dead' && b.Status === 'dead') return -1;
+        return new Date(a.TimeMer) - new Date(b.TimeMer);
+    });
 
     const tbody = document.querySelector('#tableContent tbody');
     const newOrderIds = list.map(i => `row-${i.MapNumber}-${i.Channel}`);
@@ -1656,60 +1851,35 @@ function renderTable() {
         if (list.length === 0) {
             html += `<tr><td colspan="5"><div class="empty-state"><span>🎮</span>ยังไม่มีบอส — พิมพ์คำสั่งด้านบนเพื่อเริ่มต้น</div></td></tr>`;
         } else {
-            let lastGroup = null;
-            let groupItems = [];
             let timeDivider30Inserted = false;
             let timeDivider20Inserted = false;
-            const flushGroup = () => {
-                let lastMap = null;
-                let mapCount = {};
-                // นับจำนวน CH ต่อ map ก่อน
-                groupItems.forEach(gi => {
-                    const m = String(gi.MapNumber);
-                    mapCount[m] = (mapCount[m] || 0) + 1;
-                });
-                let mapSeen = {};
-                groupItems.forEach((gi, idx) => {
-                    const m = String(gi.MapNumber);
-                    const extra = sortMode === 'ep' ? ` group-block${idx === 0 ? ' group-block-start' : ''}${idx === groupItems.length - 1 ? ' group-block-end' : ''}` : '';
-                    const isSubCh = (m === lastMap);
-                    mapSeen[m] = (mapSeen[m] || 0) + 1;
-                    const isLastCh = mapSeen[m] === mapCount[m];
-                    const hasSub = !isSubCh && mapCount[m] > 1;
-                    html += buildRowHTML(gi, now, extra, isSubCh, isLastCh, hasSub);
-                    lastMap = m;
-                });
-                groupItems = [];
-            };
+            let lastMap = null;
+            let mapCount = {};
+            list.forEach(i => { const m = String(i.MapNumber); mapCount[m] = (mapCount[m] || 0) + 1; });
+            let mapSeen = {};
+
             list.forEach(i => {
-                if (sortMode === 'ep') {
-                    const group = getGroupName(parseInt(i.MapNumber));
-                    if (group !== lastGroup) {
-                        flushGroup();
-                        html += `<tr class="group-divider"><td colspan="5"><span class="group-divider-label"><span class="ep-deco-left">⚓</span><span class="ep-line"></span><span class="ep-title">☸ ${group} ☸</span><span class="ep-line"></span><span class="ep-deco-right">🏴‍☠️</span></span></td></tr>`;
-                        lastGroup = group;
+                // แทรกเส้นเวลาตาม threshold
+                if (i.Status !== 'boss_on' && i.Status !== 'dead') {
+                    const bossTime = new Date(i.TimeMer);
+                    const elapsed = now - bossTime;
+                    if (!timeDivider30Inserted && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
+                        html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td></tr>`;
+                        timeDivider30Inserted = true;
                     }
-                    groupItems.push(i);
-                } else {
-                    // สำหรับ time mode — แทรกเส้นเวลาตาม threshold ที่ตั้งไว้
-                    if (sortMode === 'time' && i.Status !== 'boss_on' && i.Status !== 'dead') {
-                        const bossTime = new Date(i.TimeMer);
-                        const elapsed = now - bossTime;
-                        if (!timeDivider30Inserted && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
-                            html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td></tr>`;
-                            timeDivider30Inserted = true;
-                        }
-                        if (!timeDivider20Inserted && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
-                            html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td></tr>`;
-                            timeDivider20Inserted = true;
-                        }
+                    if (!timeDivider20Inserted && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
+                        html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td></tr>`;
+                        timeDivider20Inserted = true;
                     }
-                    html += buildRowHTML(i, now, '');
                 }
+                const m = String(i.MapNumber);
+                mapSeen[m] = (mapSeen[m] || 0) + 1;
+                const isSubCh = (m === lastMap);
+                const isLastCh = mapSeen[m] === mapCount[m];
+                const hasSub = !isSubCh && mapCount[m] > 1;
+                html += buildRowHTML(i, now, '', isSubCh, isLastCh, hasSub);
+                lastMap = m;
             });
-            timeDivider30Inserted = false;
-            timeDivider20Inserted = false;
-            flushGroup();
         }
         document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
         updateBossOnIndicator();
@@ -1789,76 +1959,36 @@ function renderTable() {
         }
     });
 
-    // 5) จัดลำดับแถวตาม sort ใหม่ + แทรก divider + group block
-    // ลบ divider เก่าออกก่อน
-    tbody.querySelectorAll('.group-divider').forEach(tr => tr.remove());
+    // 5) จัดลำดับแถวตาม sort ใหม่ + แทรก time divider
     tbody.querySelectorAll('.time-divider').forEach(tr => tr.remove());
 
-    // สร้าง group map เพื่อหา first/last ของแต่ละกลุ่ม
-    if (sortMode === 'ep') {
-        const groups = [];
-        let lastGroup = null;
-        let currentGroup = [];
-        newOrderIds.forEach(id => {
-            const mapNum = parseInt(id.split('-')[1]);
-            const group = getGroupName(mapNum);
-            if (group !== lastGroup) {
-                if (currentGroup.length > 0) groups.push({ name: lastGroup, ids: currentGroup });
-                currentGroup = [id];
-                lastGroup = group;
-            } else {
-                currentGroup.push(id);
-            }
-        });
-        if (currentGroup.length > 0) groups.push({ name: lastGroup, ids: currentGroup });
-
-        groups.forEach(g => {
-            const divider = document.createElement('tr');
-            divider.className = 'group-divider';
-            divider.innerHTML = `<td colspan="5"><span class="group-divider-label"><span class="ep-deco-left">⚓</span><span class="ep-line"></span><span class="ep-title">☸ ${g.name} ☸</span><span class="ep-line"></span><span class="ep-deco-right">🏴‍☠️</span></span></td>`;
-            tbody.appendChild(divider);
-            g.ids.forEach((id, idx) => {
-                const tr = document.getElementById(id);
-                if (!tr) return;
-                tr.classList.remove('group-block', 'group-block-start', 'group-block-end');
-                tr.classList.add('group-block');
-                if (idx === 0) tr.classList.add('group-block-start');
-                if (idx === g.ids.length - 1) tr.classList.add('group-block-end');
-                tbody.appendChild(tr);
-            });
-        });
-    } else {
-        let timeDivDone30 = false;
-        let timeDivDone20 = false;
-        newOrderIds.forEach(id => {
-            const tr = document.getElementById(id);
-            if (tr) {
-                tr.classList.remove('group-block', 'group-block-start', 'group-block-end');
-                if (sortMode === 'time') {
-                    const parts = id.split('-');
-                    const item = cachedBossList.find(i => i.MapNumber == parts[1] && i.Channel == parts[2]);
-                    if (item && item.Status !== 'boss_on' && item.Status !== 'dead') {
-                        const elapsed = now - new Date(item.TimeMer);
-                        if (!timeDivDone30 && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
-                            const div30 = document.createElement('tr');
-                            div30.className = 'time-divider';
-                            div30.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td>`;
-                            tbody.appendChild(div30);
-                            timeDivDone30 = true;
-                        }
-                        if (!timeDivDone20 && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
-                            const div20 = document.createElement('tr');
-                            div20.className = 'time-divider';
-                            div20.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td>`;
-                            tbody.appendChild(div20);
-                            timeDivDone20 = true;
-                        }
-                    }
+    let timeDivDone30 = false;
+    let timeDivDone20 = false;
+    newOrderIds.forEach(id => {
+        const tr = document.getElementById(id);
+        if (tr) {
+            const parts = id.split('-');
+            const item = cachedBossList.find(i => i.MapNumber == parts[1] && i.Channel == parts[2]);
+            if (item && item.Status !== 'boss_on' && item.Status !== 'dead') {
+                const elapsed = now - new Date(item.TimeMer);
+                if (!timeDivDone30 && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
+                    const div30 = document.createElement('tr');
+                    div30.className = 'time-divider';
+                    div30.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td>`;
+                    tbody.appendChild(div30);
+                    timeDivDone30 = true;
                 }
-                tbody.appendChild(tr);
+                if (!timeDivDone20 && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
+                    const div20 = document.createElement('tr');
+                    div20.className = 'time-divider';
+                    div20.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td>`;
+                    tbody.appendChild(div20);
+                    timeDivDone20 = true;
+                }
             }
-        });
-    }
+            tbody.appendChild(tr);
+        }
+    });
 
     // 6) LAST + INVERT + PLAY: animate แถวไปตำแหน่งใหม่
     newOrderIds.forEach(id => {
@@ -2640,6 +2770,29 @@ function updateTimers() {
         // อัปเดต "อัปเดต X นาทีที่แล้ว"
         const updEl = document.getElementById(`upd-${i.MapNumber}-${i.Channel}`);
         if (updEl) updEl.textContent = getUpdatedAgo(i.UpdatedAt);
+
+        // อัปเดต grid timer
+        const gcTimer = document.getElementById(`gc-timer-${i.MapNumber}-${i.Channel}`);
+        if (gcTimer && status !== 'boss_on' && status !== 'dead') {
+            const bossTime2 = new Date(i.TimeMer);
+            const diff2 = now - bossTime2;
+            if (diff2 >= 0) {
+                const totalSec = Math.floor(diff2 / 1000);
+                const h = Math.floor(totalSec / 3600);
+                const m = Math.floor((totalSec % 3600) / 60);
+                const s = totalSec % 60;
+                gcTimer.textContent = h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
+                gcTimer.style.color = '';
+            } else {
+                const absDiff = -diff2;
+                const totalSec = Math.floor(absDiff / 1000);
+                const h = Math.floor(totalSec / 3600);
+                const m = Math.floor((totalSec % 3600) / 60);
+                const s = totalSec % 60;
+                gcTimer.textContent = h > 0 ? `-${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `-${m}:${String(s).padStart(2,'0')}`;
+                gcTimer.style.color = '#6a9fd8';
+            }
+        }
     });
 
     // time mode: re-render ทุก 30 วินาทีเพื่อให้เส้นเวลาขยับตำแหน่ง
@@ -2816,6 +2969,22 @@ function bsToggleFav() {
             btn.style.color = isFav ? '#d4a84b' : '#8b7a5e';
         }
     });
+}
+
+// เพิ่ม CH ใหม่ให้แมพ
+async function addChannel(mapNumber, newCh) {
+    const nowTime = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
+    await _db.from('BossList').insert([{
+        MapNumber: mapNumber,
+        Channel: newCh,
+        TimeMer: nowTime,
+        Fade: 0,
+        Status: 'active',
+        UpdatedAt: new Date().toISOString()
+    }]);
+    suppressNextToast = true;
+    showTable();
+    showToast(`➕ แมพ ${mapNumber} CH${newCh} — เพิ่มแล้ว`, 'info');
 }
 
 // เริ่มนับเวลาใหม่จากตอนนี้ (reset TimeMer เป็นปัจจุบัน)
