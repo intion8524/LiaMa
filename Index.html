@@ -1,3083 +1,476 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BossList Dashboard Pro</title>
-    <style>
-        /* ===== Theme Variables ===== */
-        :root, body.theme-light {
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --card-alt: #f8f9fa;
-            --border: #e0e0e0;
-            --text: #333333;
-            --text-muted: #888888;
-            --text-faint: #aaaaaa;
-            --accent: #4a90d9;
-            --accent-light: rgba(74,144,217,0.1);
-            --danger: #e74c3c;
-            --danger-bg: #fff5f5;
-            --purple: #9b59b6;
-            --purple-bg: #faf5ff;
-            --success: #4caf7a;
-            --shadow: rgba(0,0,0,0.08);
-        }
-        body.theme-kiro {
-            --bg: #1b1e2b;
-            --card: #232738;
-            --card-alt: #2a2e42;
-            --border: #3a3f55;
-            --text: #e0e4f0;
-            --text-muted: #8890a8;
-            --text-faint: #5a6080;
-            --accent: #6c9fff;
-            --accent-light: rgba(108,159,255,0.12);
-            --danger: #ff6b6b;
-            --danger-bg: #2e1a1a;
-            --purple: #a78bfa;
-            --purple-bg: #1e1a2e;
-            --success: #4ade80;
-            --shadow: rgba(0,0,0,0.3);
-        }
-        body.theme-gold {
-            --bg: #1a1c24;
-            --card: rgba(30,32,40,0.95);
-            --card-alt: #2a2d35;
-            --border: #3a3d48;
-            --text: #e0d5c0;
-            --text-muted: #8b7a5e;
-            --text-faint: #5a5040;
-            --accent: #d4a84b;
-            --accent-light: rgba(212,168,75,0.12);
-            --danger: #ff4444;
-            --danger-bg: #2e1515;
-            --purple: #9b59b6;
-            --purple-bg: #1e1a2a;
-            --success: #4caf7a;
-            --shadow: rgba(0,0,0,0.4);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BossList Offline</title>
+<style>
+/* ===== Theme Variables ===== */
+:root, body.theme-light {
+    --bg: #f0f2f5; --card: #ffffff; --card-alt: #f8f9fa;
+    --border: #e0e0e0; --text: #333; --text-muted: #888;
+    --text-faint: #aaa; --accent: #4a90d9;
+    --accent-light: rgba(74,144,217,0.1);
+    --danger: #e74c3c; --danger-bg: #fff5f5;
+    --purple: #9b59b6; --purple-bg: #faf5ff;
+    --success: #4caf7a; --shadow: rgba(0,0,0,0.08);
+}
+body.theme-kiro {
+    --bg: #1b1e2b; --card: #232738; --card-alt: #2a2e42;
+    --border: #3a3f55; --text: #e0e4f0; --text-muted: #8890a8;
+    --text-faint: #5a6080; --accent: #6c9fff;
+    --accent-light: rgba(108,159,255,0.12);
+    --danger: #ff6b6b; --danger-bg: #2e1a1a;
+    --purple: #a78bfa; --purple-bg: #1e1a2e;
+    --success: #4ade80; --shadow: rgba(0,0,0,0.3);
+}
+body.theme-gold {
+    --bg: #1a1c24; --card: #1e2028; --card-alt: #2a2d35;
+    --border: #3a3d48; --text: #e0d5c0; --text-muted: #8b7a5e;
+    --text-faint: #5a5040; --accent: #d4a84b;
+    --accent-light: rgba(212,168,75,0.12);
+    --danger: #ff4444; --danger-bg: #2e1515;
+    --purple: #9b59b6; --purple-bg: #1e1a2a;
+    --success: #4caf7a; --shadow: rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+.container { max-width: 900px; margin: auto; }
 
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background: var(--bg); transition: background 0.3s; }
-        .container { max-width: 900px; margin: auto; background: var(--card); padding: 25px; border-radius: 18px; box-shadow: 0 2px 20px var(--shadow); border: 1px solid var(--border); }
-        h2 { margin-top: 0; color: var(--text); font-size: 1.4em; letter-spacing: -0.5px; }
-        
-        /* สไตล์ช่อง Input */
-        .sticky-bar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 14px 0 14px;
-            margin: -4px -2px 0;
-        }
-        .sticky-bar-inner {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--card);
-            border: 1.5px solid var(--border);
-            border-radius: 16px;
-            padding: 10px 14px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }
-        .sticky-bar-inner::before {
-            content: '⚔️';
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-        .sticky-bar-inner input {
-            flex: 1;
-            background: var(--card-alt);
-            border: 1.5px solid var(--border);
-            color: var(--text);
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 15px;
-            outline: none;
-            transition: 0.25s;
-            min-width: 0;
-        }
-        .sticky-bar-inner input:focus {
-            border-color: var(--accent);
-            background: var(--card);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        .sticky-bar-inner input::placeholder { color: var(--text-faint); }
-        @media (max-width: 700px) {
-            .sticky-bar { padding: 10px 0; }
-            .sticky-bar-inner { padding: 8px 10px; border-radius: 12px; }
-            .sticky-bar-inner::before { font-size: 15px; }
-        }
-        input { flex: 1; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; box-sizing: border-box; background: var(--card-alt); color: var(--text); }
-        input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 3px var(--accent-light); }
-        .modal-content input { width: 100%; box-sizing: border-box; }
-        button { padding: 14px 28px; background: var(--accent); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 8px var(--shadow); }
-        button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
-        button:active { transform: translateY(0); }
+/* Header */
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.header h1 { font-size: 1.2em; }
+.toolbar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.tool-btn {
+    padding: 5px 12px; border-radius: 20px; cursor: pointer;
+    border: 1.5px solid var(--border); color: var(--text-muted);
+    font-size: 12px; font-weight: 600; user-select: none; transition: all 0.15s;
+    background: none;
+}
+.tool-btn:hover { border-color: var(--accent); color: var(--accent); }
+.tool-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
 
-        /* สไตล์ตาราง */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
-        th { padding: 8px 10px; color: var(--text-muted); text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        td { padding: 8px 8px; background: var(--card); text-align: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; }
-        td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
-        td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
-
-        /* แถวสีเทา (ยังไม่ถึงเวลา) */
-        .row-waiting { opacity: 0.4; }
-        .row-waiting td { background: var(--card-alt); color: var(--text-faint); }
-        /* แถวสีเข้ม (ถึงเวลาแล้ว) */
-        .row-active td { background: var(--card); box-shadow: 0 1px 4px var(--shadow); }
-        .row-active td:first-child { border-left: 3px solid var(--accent); }
-        /* แถวรอเวลาเกิดใหม่ */
-        .row-dead td { background: var(--purple-bg); }
-        .row-dead td:first-child { border-left: 3px solid var(--purple); }
-        .row-dead .dead-waiting-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(155,89,182,0.15);
-            border: 1px solid rgba(155,89,182,0.4);
-            color: #c39bd3;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 4px 10px;
-            margin-top: 4px;
-            animation: deadPulse 1.5s ease infinite alternate;
-        }
-        @keyframes deadPulse {
-            from { border-color: rgba(155,89,182,0.3); color: #a569bd; }
-            to   { border-color: rgba(155,89,182,0.7); color: #d7bde2; }
-        }
-
-        /* สไตล์ Fade Progress Bar */
-        .fade-container { display: flex; gap: 0; justify-content: center; width: 90%; max-width: 220px; margin: auto; background-color: var(--card-alt); border-radius: 12px; overflow: hidden; height: 30px; border: 2px solid var(--border); }
-        /* wrapper ครอบ fade-container เพื่อให้ label ทศนิยมลอยออกมาได้ */
-        .fade-wrapper { position: relative; display: flex; justify-content: center; }
-        .fade-wrapper.has-decimal { padding-top: 18px; }
-        .row-active .fade-container { border-color: var(--accent); }
-        .fade-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text-faint); cursor: pointer; transition: background-color 0.3s; background-color: transparent; border-right: 1px solid var(--border); }
-        .fade-box:last-child { border-right: none; }
-        .fade-box.active { color: white; }
-        .f1.active { background-color: #5c4a1e; color: #d4a84b; }
-        .f2.active { background-color: #8b6914; color: #fff; }
-        .f3.active { background-color: #b8943e; color: #fff; }
-        .f4.active { background-color: #d4a84b; color: #1e2028; font-weight: 800; }
-
-        /* Boss ON — ทับสีทั้ง bar เป็นโทนแดง */
-        .fade-bosson { border-color: #c0392b !important; background-color: #2a1010 !important; }
-        .fade-bosson .f1.active { background-color: #6b1a1a; color: #ff9a9a; }
-        .fade-bosson .f2.active { background-color: #922b21; color: #fff; }
-        .fade-bosson .f3.active { background-color: #c0392b; color: #fff; }
-        .fade-bosson .f4.active { background-color: #ff4444; color: #fff; font-weight: 800; box-shadow: 0 0 10px rgba(255,68,68,0.6); animation: bossBarPulse 0.8s ease infinite alternate; }
-        @keyframes bossBarPulse {
-            from { background-color: #ff4444; box-shadow: 0 0 6px rgba(255,68,68,0.5); }
-            to   { background-color: #ff1744; box-shadow: 0 0 16px rgba(255,23,68,0.8); }
-        }
-
-        /* Dead — ทับสีทั้ง bar เป็นโทนม่วง */
-        .fade-dead { border-color: #7d3c98 !important; background-color: #1a1020 !important; }
-        .fade-dead .f1.active { background-color: #4a235a; color: #d7bde2; }
-        .fade-dead .f2.active { background-color: #6c3483; color: #fff; }
-        .fade-dead .f3.active { background-color: #8e44ad; color: #fff; }
-        .fade-dead .f4.active { background-color: #9b59b6; color: #fff; font-weight: 800; }
-        .fade-dead .fade-box { color: #4a235a; }
-
-        /* Label ทศนิยมลอยเหนือ fade bar */
-        .fade-decimal-label {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #b8943e, #8b6914);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 800;
-            border-radius: 6px;
-            padding: 1px 7px;
-            white-space: nowrap;
-            pointer-events: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-            letter-spacing: 0.3px;
-        }
-
-        .hour-slot { background: none !important; text-align: left !important; color: #d4a84b; font-weight: bold; font-size: 1.1em; padding-top: 20px !important; }
-    .boss-icon {
-    font-size: 20px;
-    display: inline-block;
-}
-/* เลขแมพ — เด่นชัดเสมอ */
-.map-number strong { font-size: 17px; color: var(--text); letter-spacing: 0.3px; }
-.boss-name { font-size: 10px; color: var(--text-muted); font-weight: 400; margin-top: 1px; }
-.timer { font-size: 11px; color: var(--accent); }
-.map-timer { font-size: 11px; color: var(--accent); }
-
-.boss-active {
-    color: var(--danger);
-    animation: bossGlow 1s infinite alternate;
-}
-
-.command-guide {
-    background: var(--card-alt);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border-left: 5px solid var(--accent);
-    color: var(--text-muted);
-    display: none; /* ซ่อนเริ่มต้น เปิดด้วยปุ่ม toggle */
-}
-.command-guide.open { display: block; }
-.guide-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 14px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: var(--card-alt);
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s;
-    width: fit-content;
-    user-select: none;
-}
-.guide-toggle:hover { border-color: #8b6914; color: #d4a84b; }
-
-.command-guide h3 {
-    margin-top: 0;
-    color: #d4a84b;
-    font-size: 18px;
-}
-
-.command-guide ul {
-    list-style: none;
-    padding: 0;
-}
-
-.command-guide li {
-    margin-bottom: 8px;
-    padding: 5px 0;
-    border-bottom: 1px solid #3a3d48;
-    line-height: 1.5;
-}
-
-.command-guide li:last-child {
-    border-bottom: none;
-    font-style: italic;
-    color: #8b7a5e;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    backdrop-filter: blur(4px);
-    animation: modalFadeIn 0.2s ease;
-}
-
-@keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.modal-content {
-    background: #2a2d35;
-    border-radius: 16px;
-    padding: 24px;
-    width: 340px;
-    max-width: 90%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    animation: modalSlideIn 0.25s ease;
-    border: 1px solid #8b6914;
-    color: #e0d5c0;
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(20px) scale(0.97); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 18px;
-    color: #d4a84b;
-}
-
-.modal-content p {
-    margin: 0 0 8px;
-    font-size: 14px;
-    color: #c0b89a;
-}
-
-@keyframes bossGlow {
-    0% {
-        text-shadow: 0 0 5px #f44336, 0 0 10px #f44336;
-        transform: scale(1);
-    }
-    100% {
-        text-shadow: 0 0 20px #ff1744, 0 0 30px #ff1744;
-        transform: scale(1.25);
-    }
-}
-
-.timer {
-    font-size: 14px;
-    font-weight: 700;
-    color: #d4a84b;
-    text-align: center;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    font-variant-numeric: tabular-nums;
-}
-
-/* Sub-channel style */
-.ch-sub { color: #8b7a5e; font-size: 13px; }
-.ch-sub .ch-branch { color: #5a5040; margin-right: 2px; }
-
-/* ========== Group border — เส้นซ้ายครอบกลุ่ม CH ========== */
-
-/* แถวหลักที่มี sub ตามมา — ตัดมุมล่างซ้ายออก ให้เส้นต่อลงไป */
-tr.row-has-sub td:first-child {
-    border-bottom-left-radius: 0 !important;
-    border-left: 3px solid var(--accent) !important;
-    border-bottom: none !important;
-}
-tr.row-has-sub.row-waiting td:first-child { border-left-color: var(--border) !important; }
-tr.row-has-sub.row-dead    td:first-child { border-left-color: var(--purple) !important; }
-
-/* แถว sub-channel — เส้นซ้ายต่อเนื่อง พื้นหลังต่าง */
-tr.row-sub td {
-    background: var(--card-alt) !important;
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-}
-tr.row-sub td:first-child {
-    border-left: 3px solid var(--border) !important;
-    border-top: none !important;
-    border-radius: 0 !important;
-}
-tr.row-sub td:last-child  { border-radius: 0 !important; }
-
-/* แถว sub สุดท้าย — ปิดมุมล่าง */
-tr.row-sub.row-sub-last td:first-child {
-    border-bottom-left-radius: 10px !important;
-}
-tr.row-sub.row-sub-last td:last-child {
-    border-bottom-right-radius: 10px !important;
-}
-
-/* สีเส้นตาม status */
-tr.row-sub.row-active td:first-child,
-tr.row-has-sub.row-active td:first-child { border-left-color: var(--accent) !important; }
-
-tr.row-sub.row-dead td:first-child,
-tr.row-has-sub.row-dead td:first-child   { border-left-color: var(--purple) !important; }
-
-/* CH Badge pill */
-.ch-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--accent-light);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-size: 12px;
-    font-weight: 700;
-    border-radius: 20px;
-    padding: 2px 10px;
-    letter-spacing: 0.5px;
-}
-tr.row-sub.row-active .ch-badge {
-    background: rgba(212,168,75,0.12);
-    border-color: rgba(212,168,75,0.4);
-    color: #d4a84b;
-}
-tr.row-sub.row-dead .ch-badge {
-    background: rgba(155,89,182,0.12);
-    border-color: rgba(155,89,182,0.4);
-    color: #c39bd3;
-}
-.boss-name { font-size: 10px; color: #8b7a5e; font-weight: 400; margin-top: 1px; }
-.group-divider td {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 28px 0 10px !important;
-}
-.group-divider-label {
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: #d4a84b;
-    background: linear-gradient(135deg, #1e2028 0%, #2a2d35 40%, #1e2028 100%);
-    padding: 16px 20px;
-    border-radius: 14px;
-    border: 2px solid #8b6914;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(212,168,75,0.1), inset 0 -1px 0 rgba(0,0,0,0.3);
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    text-shadow: 0 0 8px rgba(212,168,75,0.3);
-    overflow: hidden;
-}
-/* เส้นทองด้านบน */
-.group-divider-label::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #d4a84b, transparent);
-}
-/* ลายคลื่นทะเลจาง ๆ ด้านล่าง */
-.group-divider-label::after {
-    content: '〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰';
-    position: absolute;
-    bottom: 2px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 10px;
-    color: rgba(212,168,75,0.12);
-    letter-spacing: 2px;
-    pointer-events: none;
-    overflow: hidden;
-    white-space: nowrap;
-}
-.group-divider-label .ep-icon {
-    display: none;
-}
-/* ไอคอนซ้าย-ขวา */
-.group-divider-label .ep-deco-left,
-.group-divider-label .ep-deco-right {
-    flex-shrink: 0;
-    font-size: 24px;
-    filter: drop-shadow(0 0 4px rgba(212,168,75,0.4));
-}
-/* ชื่อ EP ตรงกลาง */
-.group-divider-label .ep-title {
-    flex-shrink: 0;
-    text-align: center;
-    white-space: nowrap;
-    padding: 0 4px;
-}
-/* เส้นคั่นทอง */
-.group-divider-label .ep-line {
-    flex: 1;
-    min-width: 10px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #8b6914 40%, #d4a84b 50%, #8b6914 60%, transparent);
-    margin: 0 10px;
-}
-
-/* === Responsive สำหรับหัว EP === */
-@media (max-width: 700px) {
-    .group-divider-label {
-        font-size: 18px;
-        padding: 12px 14px;
-        border-radius: 10px;
-    }
-    .group-divider-label .ep-deco-left,
-    .group-divider-label .ep-deco-right {
-        font-size: 20px;
-    }
-    .group-divider-label .ep-line {
-        margin: 0 6px;
-    }
-}
-
-/* กรอบกลุ่ม EP — ครอบแถวในกลุ่มเดียวกัน */
-.group-block-start td { border-top: 2px solid #3a3d48 !important; }
-.group-block-start td:first-child { border-top-left-radius: 14px !important; }
-.group-block-start td:last-child { border-top-right-radius: 14px !important; }
-.group-block-end td { border-bottom: 2px solid #3a3d48 !important; }
-.group-block-end td:first-child { border-bottom-left-radius: 14px !important; }
-.group-block-end td:last-child { border-bottom-right-radius: 14px !important; }
-.group-block td:first-child { border-left: 2px solid #3a3d48 !important; }
-.group-block td:last-child { border-right: 2px solid #3a3d48 !important; }
-
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #5a5040;
-    font-size: 15px;
-}
-.empty-state span { font-size: 40px; display: block; margin-bottom: 10px; }
-
-/* ปุ่มจอกว้าง */
-.btn-action {
-    padding: 7px 14px;
-    border: 1.5px solid #3a3d48;
-    border-radius: 20px;
-    background: #2a2d35;
-    color: #c0b89a;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 13px;
-    transition: all 0.2s;
-}
-.btn-action:hover { background: #32353e; border-color: #8b6914; transform: translateY(-1px); }
-.btn-action.btn-on { border-color: #d4a84b; color: #d4a84b; background: rgba(212,168,75,0.1); box-shadow: 0 0 8px rgba(212,168,75,0.35), 0 0 0 1px rgba(212,168,75,0.2); }
-.btn-action.btn-on:hover { box-shadow: 0 0 14px rgba(212,168,75,0.55), 0 0 0 1px rgba(212,168,75,0.35); }
-.btn-action.btn-dead { border-color: #6a9fd8; color: #6a9fd8; }
-.btn-action.btn-delete { border-color: #c0564e; color: #c0564e; }
-/* label เหนือช่องกรอกเวลาบอสตาย */
-.dead-input-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.dead-input-label { font-size: 10px; color: #5a7a9a; letter-spacing: 0.3px; white-space: nowrap; }
-
-/* FLIP animation สำหรับเลื่อนแถวสมูท */
-tbody tr {
-    transition: transform 0.4s ease, opacity 0.4s ease;
-}
-tbody tr.row-entering {
-    opacity: 0;
-    transform: translateX(-30px);
-}
-tbody tr.row-removing {
-    opacity: 0;
-    transform: translateX(30px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* === Responsive === */
-@media (max-width: 700px) {
-    body { padding: 8px; }
-    .container { padding: 12px; border-radius: 10px; }
-    h2 { font-size: 1.2em; }
-
-    .command-guide { margin-bottom: 10px; }
-
-    .input-group { gap: 6px; margin-bottom: 15px; }
-    .input-group input { padding: 10px; font-size: 14px; }
-    .input-group button { padding: 10px 16px; font-size: 14px; }
-
-    table { border-spacing: 0 3px; }
-    th { padding: 5px 4px; font-size: 11px; }
-    td { padding: 6px 4px; font-size: 12px; }
-
-    .fade-container { width: 85%; max-width: 200px; height: 26px; }
-    .fade-box { font-size: 12px; }
-
-    .boss-icon { font-size: 18px; }
-
-    /* MapNumber — ยังคงเด่น */
-    .map-number strong { font-size: 16px; }
-    .map-timer { font-size: 11px; }
-
-    /* ซ่อนเวลาตั้ง เพราะมี timer นับอยู่แล้ว */
-    .time-display { display: none; }
-}
-
-/* จอแคบมาก */
-@media (max-width: 450px) {
-    .container { padding: 8px; }
-    th { padding: 4px 2px; font-size: 11px; }
-    td { padding: 5px 2px; font-size: 11px; }
-    .fade-container { width: 80%; max-width: 180px; height: 24px; }
-    .fade-box { font-size: 11px; }
-    .map-number strong { font-size: 15px; }
-    .map-timer { font-size: 13px; }
-}
-
-/* Action bar ในแถว — ซ่อนทุกจอ (ใช้ bottom sheet แทน) */
-.row-action-bar {
-    display: none !important;
-}
-
-/* ซ่อน 3 คอลัมน์ปุ่มแยก — ใช้ bottom sheet แทน */
-th.col-bosson, th.col-dead, th.col-delete,
-td.col-bosson, td.col-dead, td.col-delete { display: none; }
-
-/* เส้นแบ่ง 30 นาที (time mode) */
-.time-divider td {
-    background: none !important;
-    border: none !important;
-    padding: 12px 0 !important;
-}
-.time-divider-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #6a9fd8;
-    letter-spacing: 0.5px;
-}
-.time-divider-label::before,
-.time-divider-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #6a9fd8 40%, #6a9fd8 60%, transparent);
-}
-
-/* Time threshold bar */
-.time-threshold-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 0;
-    margin-bottom: 6px;
-}
-.time-threshold-bar input {
-    width: 48px;
-    padding: 4px 6px;
-    border: 1.5px solid #6a9fd8;
-    border-radius: 8px;
-    background: #1e2028;
-    color: #6a9fd8;
-    font-size: 13px;
-    font-weight: 700;
-    text-align: center;
-    outline: none;
-}
-.time-threshold-bar input:focus {
-    border-color: #8bbfe8;
-    box-shadow: 0 0 0 2px rgba(106,159,216,0.2);
-}
-
-/* กดแถวเปิด bottom sheet */
-tbody tr[id^="row-"] { cursor: pointer; }
-
-/* EP Watermark — ลายน้ำมุมขวาบน */
-.ep-watermark {
-    position: absolute;
-    top: 3px;
-    right: 6px;
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--text-faint);
-    letter-spacing: 0.3px;
-    pointer-events: none;
-    user-select: none;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px 5px;
-    background: var(--card-alt);
-}
-
-/* Updated timestamp */
-.updated-ago {
-    font-size: 9px;
-    color: #5a5a5a;
-    text-align: center;
-    margin-top: 4px;
-    font-style: italic;
-}
-
-/* Toast notification — ใต้ sticky-bar */
-#toast-container {
-    position: fixed;
-    top: 0; /* JS จะ set ค่าจริง */
-    right: 20px;
-    z-index: 99998; /* ต่ำกว่า sticky-bar (100) นิดนึง แต่สูงกว่าอื่น */
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-    pointer-events: none;
-}
-.toast-item {
-    background: linear-gradient(135deg, #2a2d35, #1e2028);
-    border: 1.5px solid #8b6914;
-    color: #e0d5c0;
-    padding: 10px 18px 10px 14px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(212,168,75,0.08) inset;
-    opacity: 0;
-    transform: translateX(30px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    max-width: 320px;
-}
-.toast-item.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-.toast-item.hiding {
-    opacity: 0;
-    transform: translateX(30px);
-}
-.toast-item.toast-success { border-color: #4caf7a; }
-.toast-item.toast-success .toast-dot { background: #4caf7a; }
-.toast-item.toast-error   { border-color: #c0564e; }
-.toast-item.toast-error   .toast-dot { background: #c0564e; }
-.toast-item.toast-info    { border-color: #8b6914; }
-.toast-item.toast-info    .toast-dot { background: #d4a84b; }
-
-/* Fade 4 — สีส้มทอง เด่นกว่าปกติ */
-.toast-item.toast-fade4 {
-    border-color: #d4a84b;
-    background: linear-gradient(135deg, #2e2810, #1e2028);
-    color: #f5d98a;
-    font-size: 15px;
-    font-weight: 700;
-    border-width: 2px;
-    box-shadow: 0 4px 24px rgba(212,168,75,0.35), 0 0 0 1px rgba(212,168,75,0.15);
-}
-.toast-item.toast-fade4 .toast-dot {
-    background: #d4a84b;
-    width: 9px; height: 9px;
-    animation: dotPulse 0.8s ease infinite alternate;
-}
-
-/* Boss ON — สีแดง urgent มาก */
-.toast-item.toast-bosson {
-    border-color: #ff4444;
-    background: linear-gradient(135deg, #2e1010, #1e2028);
-    color: #ff9a9a;
-    font-size: 15px;
-    font-weight: 700;
-    border-width: 2px;
-    box-shadow: 0 4px 28px rgba(255,68,68,0.4), 0 0 0 1px rgba(255,68,68,0.2);
-    animation: toastBossFlash 0.5s ease 2;
-}
-.toast-item.toast-bosson .toast-dot {
-    background: #ff4444;
-    width: 10px; height: 10px;
-    animation: dotPulse 0.5s ease infinite alternate;
-}
-
-@keyframes dotPulse {
-    from { box-shadow: 0 0 4px currentColor; transform: scale(1); }
-    to   { box-shadow: 0 0 10px currentColor; transform: scale(1.3); }
-}
-@keyframes toastBossFlash {
-    0%, 100% { box-shadow: 0 4px 28px rgba(255,68,68,0.4); }
-    50%       { box-shadow: 0 4px 36px rgba(255,68,68,0.75), 0 0 20px rgba(255,68,68,0.4); }
-}
-.toast-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: #d4a84b;
-    box-shadow: 0 0 6px currentColor;
-}
-@media (max-width: 700px) {
-    #toast-container { right: 8px; left: 8px; align-items: stretch; }
-    .toast-item { max-width: 100%; font-size: 13px; }
-}
-
-/* Row highlight เมื่อถูกอัปเดตจากคนอื่น */
-@keyframes rowPulse {
-    0%   { box-shadow: inset 0 0 0 2px rgba(212,168,75,0); }
-    30%  { box-shadow: inset 0 0 0 2px rgba(212,168,75,0.8); }
-    100% { box-shadow: inset 0 0 0 2px rgba(212,168,75,0); }
-}
-.row-highlight td {
-    animation: rowPulse 1.2s ease forwards;
-}
-
-/* ===== Fade 4 Popup ===== */
-#fade4Popup {
-    position: fixed;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 9001;
-    background: linear-gradient(135deg, #2e2810, #1e2028);
-    border: 1.5px solid #d4a84b;
-    border-radius: 10px;
-    padding: 6px 8px;
-    min-width: 140px;
-    max-width: 180px;
-    box-shadow: 0 4px 16px rgba(212,168,75,0.2), 0 2px 6px rgba(0,0,0,0.4);
-    display: none;
-    pointer-events: auto;
-}
-#fade4Popup h4 { margin: 0 0 6px; color: #d4a84b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-#fade4Popup .fade4-list { display: flex; flex-direction: column; gap: 4px; }
-#fade4Popup .fade4-row { display: flex; justify-content: space-between; align-items: center; background: rgba(212,168,75,0.07); border: 1px solid rgba(212,168,75,0.15); border-radius: 6px; padding: 4px 8px; font-size: 11px; color: #e0d5c0; }
-#fade4Popup .fade4-row .map-label { font-weight: 700; color: #f5d98a; font-size: 11px; }
-#fade4Popup .fade4-row .fade-badge { background: #d4a84b; color: #1e2028; font-size: 10px; font-weight: 800; border-radius: 6px; padding: 2px 6px; }
-#fade4Popup .fade4-row:hover { background: rgba(212,168,75,0.14); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
-
-/* ===== Favorite Popup (แมพที่ติดดาว) ===== */
-#favPopup {
-    position: fixed;
-    left: 8px;
-    bottom: 20px;
-    z-index: 9001;
-    background: linear-gradient(135deg, rgba(173,216,230,0.15), rgba(220,200,255,0.1));
-    border: 1.5px solid rgba(135,206,235,0.5);
-    border-radius: 10px;
-    padding: 6px 8px;
-    min-width: 150px;
-    max-width: 200px;
-    box-shadow: 0 4px 16px rgba(135,206,235,0.15), 0 2px 6px rgba(0,0,0,0.3);
-    display: none;
-    pointer-events: auto;
-    backdrop-filter: blur(6px);
-}
-#favPopup h4 {
-    margin: 0 0 6px;
-    color: #87ceeb;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-#favPopup .fav-popup-list { display: flex; flex-direction: column; gap: 4px; }
-#favPopup .fav-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(135,206,235,0.08);
-    border: 1px solid rgba(135,206,235,0.2);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 11px;
-    color: #e0f0ff;
-}
-#favPopup .fav-row .map-label { font-weight: 700; color: #b0e0ff; font-size: 11px; }
-#favPopup .fav-row .fav-info { font-size: 10px; color: #87ceeb; font-weight: 600; }
-#favPopup .fav-row:hover { background: rgba(135,206,235,0.15); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
-
-/* Dead Popup — สีม่วง */
-#deadPopup {
-    position: fixed;
-    left: 8px;
-    top: calc(50% + 100px);
-    transform: translateY(-50%);
-    z-index: 9001;
-    background: linear-gradient(135deg, #1e1028, #1e2028);
-    border: 1.5px solid #9b59b6;
-    border-radius: 10px;
-    padding: 6px 8px;
-    min-width: 140px;
-    max-width: 180px;
-    box-shadow: 0 4px 16px rgba(155,89,182,0.2), 0 2px 6px rgba(0,0,0,0.4);
-    display: none;
-    pointer-events: auto;
-}
-#deadPopup h4 {
-    margin: 0 0 6px;
-    color: #c39bd3;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-#deadPopup .dead-popup-list { display: flex; flex-direction: column; gap: 4px; }
-#deadPopup .dead-popup-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(155,89,182,0.08);
-    border: 1px solid rgba(155,89,182,0.15);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 11px;
-    color: #d7bde2;
-}
-#deadPopup .dead-popup-row .map-label { font-weight: 700; color: #c39bd3; font-size: 11px; }
-#deadPopup .dead-popup-row .dead-badge { font-size: 10px; color: #9b59b6; }
-#deadPopup .dead-popup-row:hover { background: rgba(155,89,182,0.15); cursor: pointer; transform: translateX(2px); transition: all 0.15s; }
-
-@media (max-width: 700px) {
-    #favPopup { min-width: 130px; max-width: 170px; }
-    #deadPopup { min-width: 130px; max-width: 170px; top: calc(50% + 90px); }
-}
-
-/* ===== Grid View ===== */
-.grid-ep-section { margin-bottom: 16px; }
-.grid-ep-header {
-    font-size: 14px; font-weight: 700; color: var(--text);
-    padding: 8px 12px; margin-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-}
-.grid-map-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 0 4px; margin-bottom: 4px; }
+/* EP Filter */
+.ep-filter { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.ep-chip {
+    padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600;
+    border: 1.5px solid var(--border); color: var(--text-muted); cursor: pointer;
+    user-select: none; transition: all 0.15s;
+}
+.ep-chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+/* Grid */
+.grid-section { margin-bottom: 14px; }
+.grid-header { font-size: 13px; font-weight: 700; color: var(--text); padding: 6px 0; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+.grid-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 4px; }
 .grid-cell {
-    background: var(--card-alt); border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 6px 4px;
-    text-align: center; cursor: pointer;
-    transition: all 0.15s; position: relative;
-    width: 100%;
-    min-height: 80px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--card-alt); border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 6px 4px; text-align: center; cursor: pointer; transition: all 0.15s;
+    min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
 }
-.grid-cell:hover { border-color: #8b6914; transform: translateY(-1px); }
-.grid-cell:active { transform: scale(0.97); }
-.grid-cell .gc-map { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.2; }
-.grid-cell .gc-fade { font-size: 9px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
-.grid-cell .gc-fade-bar {
-    width: 80%; height: 4px; margin: 3px auto 0;
-    background: #3a3d48; border-radius: 3px; overflow: hidden;
-}
-.grid-cell .gc-fade-bar .gc-fade-fill {
-    height: 100%; border-radius: 3px;
-    transition: width 0.3s;
-}
-/* Fade bar colors by level */
-.gc-fade-fill.fl-1 { background: #5c4a1e; }
-.gc-fade-fill.fl-2 { background: #8b6914; }
-.gc-fade-fill.fl-3 { background: #b8943e; }
-.gc-fade-fill.fl-4 { background: #ff4444; }
-.grid-cell .gc-time { font-size: 11px; color: var(--accent); margin-top: 2px; font-variant-numeric: tabular-nums; font-weight: 600; }
-.grid-cell .gc-star { position: absolute; top: 2px; right: 3px; font-size: 8px; }
+.grid-cell:hover { border-color: var(--accent); transform: translateY(-1px); }
+.grid-cell .gc-map { font-size: 17px; font-weight: 800; color: var(--text); }
+.grid-cell .gc-stars { font-size: 11px; margin-top: 2px; letter-spacing: 1px; }
+.grid-cell .gc-fade { font-size: 9px; color: var(--text-muted); }
+.grid-cell .gc-time { font-size: 11px; color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.grid-cell .gc-heart { position: absolute; top: 2px; right: 4px; font-size: 10px; }
 .grid-cell.gc-active { border-color: var(--accent); background: var(--card); }
-.grid-cell.gc-active .gc-map { color: var(--accent); }
-.grid-cell.gc-active .gc-fade { color: var(--accent); }
 .grid-cell.gc-bosson { border-color: var(--danger); background: var(--danger-bg); }
 .grid-cell.gc-bosson .gc-map { color: var(--danger); }
 .grid-cell.gc-dead { border-color: var(--purple); background: var(--purple-bg); }
 .grid-cell.gc-dead .gc-map { color: var(--purple); }
 .grid-cell.gc-waiting { opacity: 0.4; }
-.grid-sub-row { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 4px 6px 16px; }
-.grid-sub-cell {
-    background: #1e2028; border: 1px solid #3a3d48;
-    border-radius: 6px; padding: 5px 4px;
-    font-size: 10px; color: #8b7a5e; cursor: pointer; transition: all 0.15s;
-    text-align: center; width: 100%; margin-top: 3px; box-sizing: border-box;
-    font-weight: 600;
-}
-.grid-sub-cell:hover { border-color: var(--accent); color: var(--accent); }
-.grid-sub-cell.gc-active { border-color: var(--accent); color: var(--accent); }
-.grid-sub-cell.gc-bosson { border-color: var(--danger); color: var(--danger); }
-.grid-sub-cell.gc-dead { border-color: var(--purple); color: var(--purple); }
-
-/* ปุ่ม + เพิ่ม CH */
-.grid-add-ch {
-    width: 100%;
-    margin-top: 4px;
-    padding: 3px 0;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-faint);
-    border: 1.5px dashed var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-.grid-add-ch:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-light);
-}
-
-/* ===== Bottom Sheet (จอแคบ) ===== */
+.grid-add { width: 100%; margin-top: 4px; padding: 3px; text-align: center; font-size: 14px; color: var(--text-faint); border: 1.5px dashed var(--border); border-radius: 8px; cursor: pointer; }
+.grid-add:hover { border-color: var(--accent); color: var(--accent); }
+/* Bottom Sheet */
+#bsOverlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.5); display: none; }
+#bsOverlay.open { display: block; }
 #bottomSheet {
-    position: fixed;
-    bottom: 0; left: 50%; 
-    transform: translateX(-50%) translateY(100%);
-    z-index: 10000;
-    background: linear-gradient(180deg, #2a2d35, #1e2028);
-    border-top: 2px solid #8b6914;
-    border-radius: 18px 18px 0 0;
-    padding: 16px 16px 24px;
-    transition: transform 0.3s ease;
-    box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
-    max-height: 70vh;
-    overflow-y: auto;
-    width: 100%;
-    max-width: 420px;
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+    z-index: 10000; background: var(--card); border-top: 2px solid var(--accent);
+    border-radius: 18px 18px 0 0; padding: 16px; width: 100%; max-width: 420px;
+    max-height: 70vh; overflow-y: auto; transition: transform 0.3s; box-shadow: 0 -4px 20px var(--shadow);
 }
 #bottomSheet.open { transform: translateX(-50%) translateY(0); }
-#bottomSheet-overlay {
-    position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,0.5);
-    display: none; backdrop-filter: blur(2px);
-}
-#bottomSheet-overlay.open { display: block; }
-#bottomSheet .bs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #3a3d48; }
-#bottomSheet .bs-title { font-size: 16px; font-weight: 700; color: #d4a84b; }
-#bottomSheet .bs-close { font-size: 20px; color: #8b7a5e; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
-#bottomSheet .bs-close:hover { background: #3a3d48; }
-#bottomSheet .bs-section { margin-bottom: 14px; }
-#bottomSheet .bs-section-title { font-size: 11px; color: #8b7a5e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-#bottomSheet .bs-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
-#bottomSheet .bs-btn { padding: 8px 14px; border: 1.5px solid #3a3d48; border-radius: 10px; background: #1e2028; color: #e0d5c0; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: center; min-width: 44px; }
-#bottomSheet .bs-btn:active { transform: scale(0.95); }
-#bottomSheet .bs-btn.bs-on { border-color: #ff4444; color: #ff4444; }
-#bottomSheet .bs-btn.bs-dead { border-color: #9b59b6; color: #c39bd3; }
-#bottomSheet .bs-btn.bs-delete { border-color: #c0564e; color: #c0564e; }
-#bottomSheet .bs-btn.bs-fade { border-color: #8b6914; color: #d4a84b; }
-#bottomSheet .bs-btn.bs-fade.active { background: #8b6914; color: #fff; }
-
-/* Star Fade Selector */
-.bs-star-row { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 14px 0; }
-.bs-star {
-    cursor: pointer; transition: all 0.15s; user-select: none;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-}
-.bs-star .star-icon { transition: transform 0.15s, color 0.15s, filter 0.15s; }
-.bs-star .star-icon.big { font-size: 42px; color: var(--border); }
-.bs-star .star-icon.small { font-size: 28px; color: var(--border); }
-.bs-star .star-icon.active.big { color: #f5c842; filter: drop-shadow(0 0 6px rgba(245,200,66,0.6)); animation: starPulse 2s ease infinite; }
-.bs-star .star-icon.active.small { color: #f5c842; opacity: 0.75; filter: drop-shadow(0 0 4px rgba(245,200,66,0.4)); }
-@keyframes starPulse {
-    0%, 100% { filter: drop-shadow(0 0 4px rgba(245,200,66,0.5)); transform: scale(1); }
-    50% { filter: drop-shadow(0 0 10px rgba(245,200,66,0.8)); transform: scale(1.05); }
-}
-.bs-star .star-label { font-size: 10px; color: var(--text-faint); }
-.bs-star:hover .star-icon { transform: scale(1.2); }
-
-/* Status buttons layout — 2 กลุ่มซ้าย-ขวา */
-.bs-status-wrap {
-    display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
-}
+.bs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.bs-title { font-size: 15px; font-weight: 700; }
+.bs-close { font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; }
+.bs-section { margin-bottom: 14px; }
+.bs-section-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.bs-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.bs-btn { padding: 6px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: none; color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.bs-btn:active { transform: scale(0.95); }
+.bs-btn.bs-on { border-color: var(--danger); color: var(--danger); }
+.bs-btn.bs-dead { border-color: var(--purple); color: var(--purple); }
+.bs-btn.bs-delete { border-color: var(--danger); color: var(--danger); }
+.bs-status-wrap { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .bs-status-group { display: flex; gap: 6px; }
+.bs-star-row { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 12px 0; }
+.bs-star { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.bs-star .star-icon { transition: all 0.15s; }
+.bs-star .star-icon.big { font-size: 38px; color: var(--border); }
+.bs-star .star-icon.small { font-size: 24px; color: var(--border); }
+.bs-star .star-icon.active { color: #f5c842; filter: drop-shadow(0 0 4px rgba(245,200,66,0.6)); }
+.bs-star .star-label { font-size: 9px; color: var(--text-faint); }
+.bs-star:hover .star-icon { transform: scale(1.2); }
+.bs-input-row { display: flex; gap: 8px; margin-top: 8px; }
+.bs-input-row input { flex: 1; padding: 8px 12px; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--card-alt); color: var(--text); font-size: 14px; outline: none; }
+.bs-input-row button { padding: 8px 16px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
+/* Setup Modal */
+#setupModal { position: fixed; inset: 0; z-index: 20000; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; }
+#setupModal.open { display: flex; }
+.setup-content { background: var(--card); border-radius: 16px; padding: 20px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 40px var(--shadow); }
+.setup-content h2 { margin-bottom: 12px; font-size: 16px; }
+.setup-ep { margin-bottom: 14px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; }
+.setup-ep-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.setup-ep-header input { width: 120px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--card-alt); color: var(--text); font-size: 13px; }
+.setup-map-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.setup-map-row input { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--card-alt); color: var(--text); font-size: 12px; }
+.setup-map-row input.map-num { width: 50px; }
+.setup-map-row input.map-name { flex: 1; }
+.setup-btn { padding: 4px 10px; border: 1px dashed var(--border); border-radius: 6px; background: none; color: var(--text-muted); font-size: 11px; cursor: pointer; }
+.setup-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Wheel Picker */
-.wheel-picker-wrap { display: flex; gap: 8px; align-items: center; justify-content: center; margin: 10px 0; }
-.wheel-col { position: relative; width: 80px; height: 120px; overflow: hidden; border: 1.5px solid var(--border); border-radius: 12px; background: var(--card-alt); }
-.wheel-col::before, .wheel-col::after { content: ''; position: absolute; left: 0; right: 0; height: 40px; z-index: 1; pointer-events: none; }
-.wheel-col::before { top: 0; background: linear-gradient(to bottom, var(--card-alt), transparent); }
-.wheel-col::after { bottom: 0; background: linear-gradient(to top, var(--card-alt), transparent); }
-.wheel-highlight { position: absolute; top: 40px; left: 4px; right: 4px; height: 40px; border: 1.5px solid var(--accent); border-radius: 8px; pointer-events: none; z-index: 2; }
-.wheel-scroll { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-.wheel-scroll::-webkit-scrollbar { display: none; }
-.wheel-item { height: 40px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; font-size: 18px; font-weight: 700; color: var(--text-muted); transition: color 0.15s; }
-.wheel-item.selected { color: var(--text); }
-.wheel-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
-#bottomSheet .bs-btn.bs-time { border-color: #6a9fd8; color: #6a9fd8; }
-#bottomSheet .bs-input-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-#bottomSheet .bs-input-row input { flex: 1; padding: 8px 12px; border: 1.5px solid #6a9fd8; border-radius: 10px; background: #1e2028; color: #6a9fd8; font-size: 14px; outline: none; }
-#bottomSheet .bs-input-row button { padding: 8px 16px; border-radius: 10px; border: none; background: #6a9fd8; color: #1e2028; font-weight: 700; font-size: 13px; cursor: pointer; }
-
-/* จอแคบ: กดแถวเปิด bottom sheet แทน action bar */
-@media (max-width: 700px) {
-    tbody tr[id^="row-"] { cursor: pointer; }
-}
-
-/* EP Filter Chips */
-.ep-filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 10px 0;
-    margin-bottom: 8px;
-}
-
-.ep-chip {
-    flex-shrink: 0;
-    padding: 6px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 20px;
-    background: var(--card-alt);
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.15s;
-    white-space: nowrap;
-}
-.ep-chip:active { transform: scale(0.95); }
-.ep-chip.active {
-    border-color: var(--accent);
-    background: var(--accent-light);
-    color: var(--accent);
-    box-shadow: 0 0 8px var(--accent-light);
-}
-
-/* ปุ่มเลื่อนหน้าจอ — ลอยขวาล่าง */
-.scroll-btns {
-    position: fixed;
-    right: 12px;
-    bottom: 20px;
-    z-index: 8000;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.scroll-btns button {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    backdrop-filter: blur(8px);
-    transition: all 0.15s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.scroll-btns button:hover {
-    border-color: rgba(255,255,255,0.6);
-    background: rgba(255,255,255,0.2);
-}
-.scroll-btns button:active { transform: scale(0.9); }
-
-    </style>
+/* Scroll buttons */
+.scroll-btns { position: fixed; right: 12px; bottom: 20px; z-index: 8000; display: flex; flex-direction: column; gap: 6px; }
+.scroll-btns button { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.12); color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+</style>
 </head>
-<body>
-
+<body class="theme-kiro">
 <div class="container">
-    <!-- Header -->
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-        <h2 style="margin:0;">🏴‍☠️ BossList Live Tracker</h2>
-        <a href="setup.html" style="
-            display:flex;align-items:center;gap:6px;
-            padding:5px 12px;border-radius:20px;cursor:pointer;
-            border:1.5px solid #3a3d48;color:#8b7a5e;
-            font-size:12px;font-weight:600;text-decoration:none;
-            transition:all 0.2s;
-        " onmouseover="this.style.borderColor='#8b6914';this.style.color='#d4a84b'"
-           onmouseout="this.style.borderColor='#3a3d48';this.style.color='#8b7a5e'">
-            ⚙️ Setup
-        </a>
-    </div>
-    <!-- Toolbar -->
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-        <div id="modeToggle" onclick="toggleOnlineMode()" style="
-            display:flex;align-items:center;gap:5px;
-            padding:5px 12px;border-radius:20px;cursor:pointer;
-            border:1.5px solid #4caf7a;color:#4caf7a;
-            font-size:12px;font-weight:600;user-select:none;
-            transition:all 0.2s;
-        ">
-            <span id="modeIcon">🌐</span>
-            <span id="modeLabel">Online</span>
-        </div>
-        <div id="sortToggle" onclick="toggleSortMode()" style="
-            display:flex; align-items:center; gap:5px;
-            padding:5px 12px; border-radius:20px; cursor:pointer;
-            border:1.5px solid #4caf7a; color:#4caf7a;
-            font-size:12px; font-weight:600; user-select:none;
-            transition:all 0.2s;
-        ">
-            <span id="sortIcon">⊞</span>
-            <span id="sortLabel">Grid View</span>
-        </div>
-        <button class="guide-toggle" onclick="toggleGuide()" id="guideToggleBtn" style="margin:0;">❓ วิธีใช้คำสั่ง</button>
-        <div id="themeToggle" onclick="cycleTheme()" style="
-            display:flex;align-items:center;gap:5px;
-            padding:5px 12px;border-radius:20px;cursor:pointer;
-            border:1.5px solid var(--border);color:var(--text-muted);
-            font-size:12px;font-weight:600;user-select:none;
-            transition:all 0.2s;
-        ">
-            <span id="themeIcon">🎨</span>
-            <span id="themeLabel">Theme</span>
+    <div class="header">
+        <h1>🏴‍☠️ BossList</h1>
+        <div style="display:flex;gap:6px;">
+            <button class="tool-btn" onclick="openSetup()">⚙️ Setup</button>
+            <button class="tool-btn" onclick="cycleTheme()" id="themeBtn">🌙 Kiro</button>
         </div>
     </div>
-    <div class="command-guide" id="commandGuide">
-        <h3>รูปแบบคำสั่งที่รองรับ:</h3>
-        <ul>
-            <li>1) 80.1 หรือ 80-1 = ตั้งเวลาบอสแมพ 80 ช่อง 1 (เวลาปัจจุบัน + 0 นาที)</li>
-            <li>2) 80.1+1.20 = ตั้งเวลาบอสแมพ 80 ช่อง 1 ที่ เวลาปัจจุบัน + 1 ชั่วโมง 20 นาที</li>
-            <li>3) 80.1+10 = ตั้งเวลาบอสแมพ 80 ช่อง 1 ที่ เวลาปัจจุบัน + 10 นาที</li>
-            <li>4) 80.1/2 = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 2 (พร้อมรอเฟดต่อ)</li>
-            <li>4.1) 80 2.7 = บอสแมพ 80 ช่อง 1 เฟด 2.7 (space แทน /)</li>
-            <li>4.2) 80 1 2.7 = บอสแมพ 80 ช่อง 1 เฟด 2.7 (ระบุช่องด้วย)</li>
-            <li>4.3) 80 +1.20 = ตั้งเวลาแมพ 80 ช่อง 1 อีก 1 ชั่วโมง 20 นาที</li>
-            <li>4.4) 80 1 +30 = ตั้งเวลาแมพ 80 ช่อง 1 อีก 30 นาที (ระบุช่องด้วย)</li>
-            <li>5) 80.1on = บอสแมพ 80 ช่อง 1 เกิดแล้ว เฟดที่ 4 และ Boss ON ทันที (เริ่มนับถอยหลัง 30 นาที)</li>
-            <li>5.1) 80 1 on = เหมือนข้อ 5 แต่ใช้ space แทน</li>
-            <li>หมายเหตุ: เลขหลังจุดหรือขีดกลางคือช่อง (channel) ถ้าไม่ใส่จะเป็นช่อง 1 โดยอัตโนมัติ</li>
-        </ul>
+    <div class="toolbar">
+        <button class="tool-btn active" id="viewBtn" onclick="toggleView()">⊞ Grid</button>
     </div>
-
-    <div class="sticky-bar">
-        <div class="sticky-bar-inner">
-            <input type="text" id="cmd" placeholder="พิมพ์คำสั่ง เช่น 80.1+1.20">
-            <button onclick="processCommand()">บันทึก</button>
-        </div>
-    </div>
-    <!-- EP Filter Chips -->
-    <div id="epFilterBar" class="ep-filter-bar"></div>
-    <!-- Time threshold inputs (แสดงเฉพาะ time mode) -->
-    <div id="timeThresholdBar" class="time-threshold-bar" style="display:none;">
-        <span style="font-size:11px; color:#6a9fd8;">⏱ เส้นเวลา:</span>
-        <input type="number" id="timeLine1" value="20" min="1" max="120" onchange="saveTimeThresholds()">
-        <span style="font-size:11px; color:#8b7a5e;">และ</span>
-        <input type="number" id="timeLine2" value="30" min="1" max="120" onchange="saveTimeThresholds()">
-        <span style="font-size:11px; color:#8b7a5e;">นาที</span>
-    </div>
-    <div id="tableContent"></div>
+    <div class="ep-filter" id="epFilter"></div>
+    <div id="content"></div>
 </div>
 
-<!-- ปุ่มเลื่อนหน้าจอ — อยู่นอก container เพื่อให้ fixed ทำงาน -->
-<div id="scrollBtns" class="scroll-btns">
-    <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="ขึ้นบนสุด">▲</button>
-    <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="ลงล่างสุด">▼</button>
-</div>
-
-<!-- Modal สำหรับแจ้งบอสตาย (อยู่นอก container เพื่อให้ fixed position ทำงานถูกต้อง) -->
-<div id="deadModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeDeadModal()">
-    <div class="modal-content">
-        <h3>บอสตายแล้ว</h3>
-        <p>กรุณาใส่เวลารอบอสใหม่ (1.20 ชั่วโมง หรือ 10 นาที ):</p>
-        <input id="deadModalInput" type="text" placeholder="1.20 หรือ 10" style="width: 100%; padding: 8px; margin: 10px 0;" onkeydown="if (event.key === 'Enter') confirmBossDead();" />
-        <div style="text-align: right; margin-top: 10px;">
-            <button onclick="closeDeadModal()" style="margin-right: 8px; background:none; color:#8b7a5e; box-shadow:none; border:1.5px solid #3a3d48;">ยกเลิก</button>
-            <button onclick="confirmBossDead()" style="background:#b8943e;color:#fff;">บันทึก</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal สำหรับลบบอส -->
-<div id="deleteModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeDeleteModal()">
-    <div class="modal-content">
-        <h3>ลบบอส</h3>
-        <p>คุณแน่ใจหรือไม่ที่จะลบข้อมูลบอสตัวนี้?</p>
-        <div style="text-align: right; margin-top: 10px;">
-            <button onclick="closeDeleteModal()" style="margin-right: 8px; background:none; color:#8b7a5e; box-shadow:none; border:1.5px solid #3a3d48;">ยกเลิก</button>
-            <button onclick="confirmDeleteBoss()" style="background:#c0564e;color:#fff;">ลบ</button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Bottom Sheet overlay + panel -->
-<div id="bottomSheet-overlay" onclick="closeBottomSheet()"></div>
+<!-- Bottom Sheet -->
+<div id="bsOverlay" onclick="closeBS()"></div>
 <div id="bottomSheet">
     <div class="bs-header">
-        <span class="bs-title" id="bsTitle">แมพ — CH—</span>
-        <span class="bs-close" onclick="closeBottomSheet()">✕</span>
+        <span class="bs-title" id="bsTitle">—</span>
+        <span class="bs-close" onclick="closeBS()">✕</span>
     </div>
     <div class="bs-section">
         <div class="bs-section-title">สถานะ</div>
-        <div class="bs-btn-row" id="bsStatusBtns"></div>
+        <div id="bsStatus"></div>
     </div>
     <div class="bs-section">
         <div class="bs-section-title">เฟด</div>
-        <div class="bs-star-row" id="bsStarFade"></div>
+        <div class="bs-star-row" id="bsStars"></div>
     </div>
     <div class="bs-section">
         <div class="bs-section-title">ตั้งเวลาเกิดใหม่</div>
         <div class="bs-input-row">
-            <input type="text" id="bsTimeInput" placeholder="เช่น 1.20 = 1ชม.20นาที หรือ 30 = 30นาที" style="border-color:var(--accent);" onkeydown="if(event.key==='Enter'){event.preventDefault();bsConfirmTime();}" />
-            <button onclick="bsConfirmTime()">ตั้งเวลา</button>
+            <input type="text" id="bsTimeInput" placeholder="เช่น 1.20 = 1ชม.20นาที หรือ 30" onkeydown="if(event.key==='Enter')bsSetTime()">
+            <button onclick="bsSetTime()">ตั้งเวลา</button>
         </div>
     </div>
-    <div class="bs-section" id="bsDeleteSection">
-        <div class="bs-btn-row">
-            <button class="bs-btn bs-delete" onclick="bsDelete()">🗑️ ลบบอส</button>
-        </div>
+    <div id="bsDeleteWrap" class="bs-section">
+        <button class="bs-btn bs-delete" onclick="bsDelete()">🗑️ ลบ CH</button>
     </div>
 </div>
 
-<!-- Toast container -->
-<div id="toast-container"></div>
-
-<!-- Fade 4 Popup -->
-<div id="fade4Popup">
-    <h4>🔥 Fade 4 อยู่</h4>
-    <div class="fade4-list" id="fade4List"></div>
+<!-- Setup Modal -->
+<div id="setupModal" onclick="if(event.target===this)closeSetup()">
+    <div class="setup-content">
+        <h2>⚙️ ตั้งค่า EP & แมพ</h2>
+        <div id="setupList"></div>
+        <button class="setup-btn" onclick="addEP()" style="margin-top:10px;">+ เพิ่ม EP</button>
+        <div style="text-align:right;margin-top:14px;">
+            <button class="bs-btn" onclick="saveSetup()" style="border-color:var(--success);color:var(--success);padding:8px 20px;">💾 บันทึก</button>
+        </div>
+    </div>
 </div>
 
-<!-- Favorite Popup (แมพที่ถูกใจ + active/boss_on) -->
-<div id="favPopup">
-    <h4>❤️ แมพที่สนใจ</h4>
-    <div class="fav-popup-list" id="favPopupList"></div>
+<!-- Scroll buttons -->
+<div class="scroll-btns">
+    <button onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+    <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})">▼</button>
 </div>
-
-<!-- Dead Popup (รอกรอกเวลา) -->
-<div id="deadPopup">
-    <h4>☠️ รอกรอกเวลา</h4>
-    <div class="dead-popup-list" id="deadPopupList"></div>
-</div>
-
 <script>
-    // ===== Online/Offline Mode =====
-    let isOfflineMode = localStorage.getItem('appMode') === 'offline';
+// ===== Storage =====
+const KEYS = { config: 'appConfig', bossList: 'appBossList', favs: 'appFavs', theme: 'appTheme', epFilter: 'appEpFilter' };
+function load(key, def) { try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; } }
+function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
-    // localStorage adapter สำหรับ offline mode
-    const OFFLINE_STORAGE_KEY = 'offlineBossList';
-    function getOfflineList() { return JSON.parse(localStorage.getItem(OFFLINE_STORAGE_KEY) || '[]'); }
-    function saveOfflineList(list) { localStorage.setItem(OFFLINE_STORAGE_KEY, JSON.stringify(list)); }
-    let _offlineNextId = parseInt(localStorage.getItem('offlineNextId') || '1');
-    function getOfflineNextId() { const id = _offlineNextId++; localStorage.setItem('offlineNextId', id); return id; }
+// ===== Config (EP & Maps) =====
+let config = load(KEYS.config, [
+    { name: 'EP 9', maps: [{num:75,name:''},{num:76,name:''},{num:77,name:''},{num:78,name:''},{num:79,name:''}] },
+    { name: 'EP10', maps: [{num:80,name:''},{num:81,name:''},{num:82,name:''},{num:83,name:''}] },
+    { name: 'EP11', maps: [{num:85,name:''},{num:86,name:''},{num:87,name:''},{num:88,name:''},{num:89,name:''}] },
+    { name: 'EP12', maps: [{num:90,name:''},{num:91,name:''},{num:92,name:''},{num:93,name:''}] },
+    { name: 'EP13', maps: [{num:95,name:''},{num:98,name:''},{num:101,name:''},{num:103,name:''}] },
+    { name: 'EP14', maps: [{num:105,name:''},{num:107,name:''},{num:109,name:''},{num:111,name:''},{num:113,name:''}] },
+    { name: 'EP 15', maps: [{num:115,name:''},{num:118,name:''},{num:120,name:''},{num:123,name:''}] },
+]);
 
-    class OfflineQuery {
-        constructor(table) { this._table = table; this._filters = []; this._updateData = null; this._insertData = null; this._isDelete = false; this._isSelect = false; this._isSingle = false; }
-        select() { this._isSelect = true; return this; }
-        order() { return this; }
-        insert(rows) { this._insertData = rows; return this._execute(); }
-        update(data) { this._updateData = data; return this; }
-        delete() { this._isDelete = true; return this; }
-        eq(col, val) { this._filters.push({ col, op: 'eq', val }); return this; }
-        neq(col, val) { this._filters.push({ col, op: 'neq', val }); return this; }
-        lt(col, val) { this._filters.push({ col, op: 'lt', val }); return this; }
-        in(col, vals) { this._filters.push({ col, op: 'in', val: vals }); return this; }
-        not(col, op, val) { this._filters.push({ col, op: 'not_' + op, val }); return this; }
-        maybeSingle() { this._isSingle = true; return this._execute(); }
-        _match(item) {
-            return this._filters.every(f => {
-                const v = item[f.col];
-                if (f.op === 'eq') return v == f.val;
-                if (f.op === 'neq') return v != f.val;
-                if (f.op === 'lt') return v < f.val;
-                if (f.op === 'in') return f.val.includes(v);
-                if (f.op === 'not_eq') return v != f.val;
-                return true;
+// ===== Boss Data =====
+let bossList = load(KEYS.bossList, []);
+let favs = load(KEYS.favs, []);
+let nextId = parseInt(localStorage.getItem('appNextId') || '1');
+function getNextId() { const id = nextId++; localStorage.setItem('appNextId', String(id)); return id; }
+function saveBossList() { save(KEYS.bossList, bossList); }
+
+// ===== Theme =====
+const THEMES = ['theme-light','theme-kiro','theme-gold'];
+const THEME_NAMES = ['☀️ Light','🌙 Kiro','✨ Gold'];
+let themeIdx = THEMES.indexOf(load(KEYS.theme, 'theme-kiro'));
+if (themeIdx < 0) themeIdx = 1;
+document.body.className = THEMES[themeIdx];
+document.getElementById('themeBtn').textContent = THEME_NAMES[themeIdx];
+function cycleTheme() {
+    themeIdx = (themeIdx + 1) % THEMES.length;
+    document.body.className = THEMES[themeIdx];
+    save(KEYS.theme, THEMES[themeIdx]);
+    document.getElementById('themeBtn').textContent = THEME_NAMES[themeIdx];
+}
+// ===== EP Filter =====
+let epFilter = load(KEYS.epFilter, null); // null = all
+function renderEPFilter() {
+    const el = document.getElementById('epFilter');
+    const allActive = epFilter === null;
+    let html = `<span class="ep-chip ${allActive?'active':''}" onclick="setEPFilter(null)">ทั้งหมด</span>`;
+    config.forEach((ep, idx) => {
+        const active = allActive || (epFilter && epFilter.includes(idx));
+        html += `<span class="ep-chip ${active?'active':''}" onclick="toggleEP(${idx})">${ep.name}</span>`;
+    });
+    el.innerHTML = html;
+}
+function setEPFilter(v) { epFilter = v; save(KEYS.epFilter, epFilter); renderEPFilter(); render(); }
+function toggleEP(idx) {
+    if (epFilter === null) { epFilter = config.map((_,i)=>i).filter(i=>i!==idx); }
+    else { const p = epFilter.indexOf(idx); if(p>=0) epFilter.splice(p,1); else epFilter.push(idx); if(epFilter.length>=config.length) epFilter=null; }
+    save(KEYS.epFilter, epFilter); renderEPFilter(); render();
+}
+function isEPVisible(idx) { return epFilter === null || epFilter.includes(idx); }
+
+// ===== View Mode =====
+let viewMode = 'grid';
+function toggleView() {
+    viewMode = viewMode === 'grid' ? 'time' : 'grid';
+    document.getElementById('viewBtn').textContent = viewMode === 'grid' ? '⊞ Grid' : '⏱ เวลา';
+    render();
+}
+
+// ===== Helpers =====
+function getNow() { return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'})); }
+function calcTime(v) {
+    const d = new Date();
+    if (v.includes('.')) { const [h,m]=v.split('.'); d.setHours(d.getHours()+parseInt(h)); d.setMinutes(d.getMinutes()+parseInt(m||0)); }
+    else { d.setMinutes(d.getMinutes()+parseInt(v)); }
+    return d.toISOString();
+}
+function formatElapsed(ms) {
+    if (ms < 0) { const a=-ms; const s=Math.floor(a/1000); const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); const sec=s%60; return h>0?`-${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`-${m}:${String(sec).padStart(2,'0')}`; }
+    const s=Math.floor(ms/1000); const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); const sec=s%60;
+    return h>0?`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`${m}:${String(sec).padStart(2,'0')}`;
+}
+function fadeStars(fade) {
+    let s=''; const full=Math.floor(fade); const half=(fade-full)>=0.3;
+    for(let i=1;i<=4;i++){if(i<=full)s+='<span style="color:#f5c842;filter:drop-shadow(0 0 4px rgba(245,200,66,0.6))">★</span>';else if(i===full+1&&half)s+='<span style="color:#f5c842;opacity:0.6">☆</span>';else s+='<span style="opacity:0.2">★</span>';}
+    return s;
+}
+function isFav(map,ch) { return favs.includes(`${map}-${ch}`); }
+function toggleFav(map,ch) { const k=`${map}-${ch}`; const i=favs.indexOf(k); if(i>=0)favs.splice(i,1);else favs.push(k); save(KEYS.favs,favs); }
+// ===== Render =====
+function render() {
+    const now = getNow();
+    const el = document.getElementById('content');
+    if (viewMode === 'grid') { renderGrid(el, now); } else { renderTime(el, now); }
+}
+
+function renderGrid(el, now) {
+    let html = '';
+    config.forEach((ep, epIdx) => {
+        if (!isEPVisible(epIdx)) return;
+        const items = bossList.filter(b => ep.maps.some(m => m.num == b.MapNumber));
+        html += `<div class="grid-section"><div class="grid-header">☸ ${ep.name}</div><div class="grid-row">`;
+        ep.maps.forEach(m => {
+            const ch1 = items.find(b => b.MapNumber == m.num && b.Channel == 1);
+            const item = ch1 || items.find(b => b.MapNumber == m.num);
+            if (!item) {
+                // แมพว่าง — แสดงเลขจางๆ
+                html += `<div style="min-width:0;"><div class="grid-cell gc-waiting" onclick="createBoss(${m.num},1)"><div class="gc-map">${m.num}</div><div class="gc-fade" style="font-size:9px;">กดเพื่อเริ่ม</div></div></div>`;
+                return;
+            }
+            const st = item.Status||'waiting'; const bt = new Date(item.TimeMer);
+            const sc = st==='boss_on'?'gc-bosson':st==='dead'?'gc-dead':(st==='active'||bt<=now)?'gc-active':'gc-waiting';
+            const elapsed = now - bt;
+            const timeStr = st!=='dead'&&st!=='boss_on' ? formatElapsed(elapsed) : (st==='boss_on'?'💀':'');
+            const heart = isFav(item.MapNumber,item.Channel)?'❤️':'';
+            const subs = items.filter(b => b.MapNumber==m.num && b.Channel>1);
+
+            html += `<div style="min-width:0;">`;
+            html += `<div class="grid-cell ${sc}" onclick="openBS(${item.MapNumber},${item.Channel})">`;
+            html += `${heart?`<span class="gc-heart">${heart}</span>`:''}`;
+            html += `<div class="gc-map">${m.num}</div>`;
+            html += `<div class="gc-stars">${fadeStars(item.Fade||0)}</div>`;
+            html += `<div class="gc-fade">${item.Fade||0}</div>`;
+            html += `<div class="gc-time" id="gt-${item.MapNumber}-${item.Channel}">${timeStr}</div>`;
+            html += `</div>`;
+            // Sub channels
+            subs.forEach(sub => {
+                const sst=sub.Status||'waiting'; const ssc=sst==='boss_on'?'gc-bosson':sst==='dead'?'gc-dead':sst==='active'?'gc-active':'gc-waiting';
+                const se=now-new Date(sub.TimeMer); const st2=sst!=='dead'&&sst!=='boss_on'?formatElapsed(se):(sst==='boss_on'?'💀':'');
+                html+=`<div class="grid-cell ${ssc}" onclick="openBS(${sub.MapNumber},${sub.Channel})" style="margin-top:4px;min-height:55px;padding:4px 3px;">`;
+                html+=`<div class="gc-map" style="font-size:11px;"><span style="opacity:0.4;font-size:8px;">CH</span> ${sub.Channel}</div>`;
+                html+=`<div class="gc-stars" style="font-size:9px;">${fadeStars(sub.Fade||0)}</div>`;
+                html+=`<div class="gc-time" id="gt-${sub.MapNumber}-${sub.Channel}" style="font-size:10px;">${st2}</div></div>`;
             });
-        }
-        _execute() {
-            if (this._table === 'EpisodeGroups') return Promise.resolve({ data: JSON.parse(localStorage.getItem('offlineEpisodeGroups') || '[]') });
-            if (this._table === 'MapBosses') return Promise.resolve({ data: JSON.parse(localStorage.getItem('offlineMapBosses') || '[]') });
-            let list = getOfflineList();
-            if (this._isSelect) { const f = this._isSingle ? list.filter(i => this._match(i)) : list; return Promise.resolve({ data: this._isSingle ? (f[0] || null) : f }); }
-            if (this._insertData) { this._insertData.forEach(r => { r.id = getOfflineNextId(); list.push(r); }); saveOfflineList(list); return Promise.resolve({ data: this._insertData }); }
-            if (this._updateData) { list.forEach(i => { if (this._match(i)) Object.assign(i, this._updateData); }); saveOfflineList(list); return Promise.resolve({ data: [] }); }
-            if (this._isDelete) { saveOfflineList(list.filter(i => !this._match(i))); return Promise.resolve({ data: [] }); }
-            return Promise.resolve({ data: null });
-        }
-        then(fn) { return this._execute().then(fn); }
-    }
-
-    const _offlineDb = { from(t) { return new OfflineQuery(t); }, channel() { return { on() { return this; }, subscribe() {} }; } };
-    const _onlineDb = supabase.createClient('https://xzzanhmsxlkvhmeubsac.supabase.co', 'sb_publishable_yoKH-yeP_emN5fugeo-hZA_1TP1D1p2');
-
-    let _db = isOfflineMode ? _offlineDb : _onlineDb;
-
-    function toggleOnlineMode() {
-        isOfflineMode = !isOfflineMode;
-        localStorage.setItem('appMode', isOfflineMode ? 'offline' : 'online');
-
-        // ถ้าสลับไป offline → copy ข้อมูลปัจจุบันลง localStorage
-        if (isOfflineMode && cachedBossList.length > 0) {
-            saveOfflineList(cachedBossList);
-        }
-
-        _db = isOfflineMode ? _offlineDb : _onlineDb;
-        updateModeUI();
-        document.getElementById('tableContent').innerHTML = '';
-        loadConfig().then(() => {
-            renderEPFilter();
-            showTable();
-        });
-    }
-
-    function updateModeUI() {
-        const icon = document.getElementById('modeIcon');
-        const label = document.getElementById('modeLabel');
-        const btn = document.getElementById('modeToggle');
-        if (isOfflineMode) {
-            icon.textContent = '💾';
-            label.textContent = 'Offline';
-            btn.style.borderColor = '#8b7a5e';
-            btn.style.color = '#8b7a5e';
-        } else {
-            icon.textContent = '🌐';
-            label.textContent = 'Online';
-            btn.style.borderColor = '#4caf7a';
-            btn.style.color = '#4caf7a';
-        }
-    }
-    updateModeUI();
-
-    // ===== Theme Switcher =====
-    const THEMES = ['theme-light', 'theme-kiro', 'theme-gold'];
-    const THEME_LABELS = { 'theme-light': '☀️ Light', 'theme-kiro': '🌙 Kiro', 'theme-gold': '✨ Gold' };
-    let currentTheme = localStorage.getItem('appTheme') || 'theme-light';
-    document.body.className = currentTheme;
-    function cycleTheme() {
-        const idx = THEMES.indexOf(currentTheme);
-        currentTheme = THEMES[(idx + 1) % THEMES.length];
-        document.body.className = currentTheme;
-        localStorage.setItem('appTheme', currentTheme);
-        document.getElementById('themeLabel').textContent = THEME_LABELS[currentTheme].split(' ')[1];
-        document.getElementById('themeIcon').textContent = THEME_LABELS[currentTheme].split(' ')[0];
-    }
-    document.getElementById('themeLabel').textContent = THEME_LABELS[currentTheme].split(' ')[1];
-    document.getElementById('themeIcon').textContent = THEME_LABELS[currentTheme].split(' ')[0];
-
-    let cachedBossList = []; // เก็บข้อมูลครั้งสุดท้าย
-
-    // ===== Boss ON Indicator =====
-
-    function scrollToMap(mapNumber, channel) {
-
-        const rowId = `row-${mapNumber}-${channel}`;
-        const tr = document.getElementById(rowId);
-        if (!tr) return;
-
-        // scroll ให้แถวอยู่ที่ ~25% จากบนจอ (เหนือ popup ที่อยู่กลางจอ)
-        const rowTop = tr.getBoundingClientRect().top + window.scrollY;
-        const offset = window.innerHeight * 0.25;
-        window.scrollTo({ top: rowTop - offset, behavior: 'smooth' });
-
-        // flash highlight
-        tr.classList.remove('row-highlight');
-        void tr.offsetWidth;
-        tr.classList.add('row-highlight');
-        setTimeout(() => tr.classList.remove('row-highlight'), 1300);
-    }
-
-    // ===== Favorites =====
-    let favoriteMapKeys = JSON.parse(localStorage.getItem('favoriteMapKeys') || '[]'); // ["90-1", "101-1"]
-
-    function isFavorite(mapNumber, channel) {
-        return favoriteMapKeys.includes(`${mapNumber}-${channel}`);
-    }
-    function toggleFavorite(mapNumber, channel) {
-        const key = `${mapNumber}-${channel}`;
-        const idx = favoriteMapKeys.indexOf(key);
-        if (idx >= 0) favoriteMapKeys.splice(idx, 1);
-        else favoriteMapKeys.push(key);
-        localStorage.setItem('favoriteMapKeys', JSON.stringify(favoriteMapKeys));
-        updateSidePopups();
-        renderTable();
-    }
-
-    function updateSidePopups() {
-        // ซ่อนทั้งหมดใน grid mode
-        if (sortMode === 'grid') {
-            document.getElementById('fade4Popup').style.display = 'none';
-            document.getElementById('favPopup').style.display = 'none';
-            document.getElementById('deadPopup').style.display = 'none';
-            return;
-        }
-
-        // --- Fade 4 popup (บนสุด) ---
-        const fade4List = cachedBossList.filter(i => i.Fade >= 4 && i.Status === 'active' && isMapVisible(parseInt(i.MapNumber)));
-        const f4Popup = document.getElementById('fade4Popup');
-        const f4ListEl = document.getElementById('fade4List');
-
-        if (fade4List.length === 0) {
-            f4Popup.style.display = 'none';
-        } else {
-            f4Popup.style.display = 'block';
-            f4ListEl.innerHTML = fade4List.map(i => {
-                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
-                return `
-                <div class="fade4-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
-                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
-                    <span class="fade-badge">F${i.Fade}</span>
-                </div>`;
-            }).join('');
-        }
-
-        // --- Favorite popup (ซ้ายล่าง) ---
-        const now = getNowBangkok();
-        const favList = cachedBossList.filter(i => {
-            if (!isFavorite(i.MapNumber, i.Channel)) return false;
-            if (!isMapVisible(parseInt(i.MapNumber))) return false;
-            // แสดงถ้า active, boss_on, หรือ waiting ที่เวลาผ่านมาแล้ว
-            if (i.Status === 'active' || i.Status === 'boss_on') return true;
-            if (i.Status === 'waiting' && new Date(i.TimeMer) <= now) return true;
-            return false;
-        });
-        const favPopup = document.getElementById('favPopup');
-        const favListEl = document.getElementById('favPopupList');
-
-        // วาง favPopup ซ้ายล่าง (fixed position ใน CSS แล้ว)
-
-        if (favList.length === 0) {
-            favPopup.style.display = 'none';
-        } else {
-            favPopup.style.display = 'block';
-            favListEl.innerHTML = favList.map(i => {
-                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
-                const statusLabel = i.Status === 'boss_on' ? '💀 ON' : `F${i.Fade}`;
-                return `
-                <div class="fav-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
-                    <span class="map-label">❤️ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
-                    <span class="fav-info">${statusLabel}</span>
-                </div>`;
-            }).join('');
-        }
-
-        // --- Dead popup (ล่างสุด) ---
-        const deadList = cachedBossList.filter(i => i.Status === 'dead' && isMapVisible(parseInt(i.MapNumber)));
-        const deadPopup = document.getElementById('deadPopup');
-        const deadListEl = document.getElementById('deadPopupList');
-
-        // วางใต้ fade4 popup ถ้ามี
-        const lastVisible = f4Popup.style.display !== 'none' ? f4Popup : null;
-        if (lastVisible) {
-            const rect = lastVisible.getBoundingClientRect();
-            deadPopup.style.top = (rect.bottom + 10) + 'px';
-            deadPopup.style.transform = 'none';
-        } else {
-            deadPopup.style.top = '50%';
-            deadPopup.style.transform = 'translateY(-50%)';
-        }
-
-        if (deadList.length === 0) {
-            deadPopup.style.display = 'none';
-        } else {
-            deadPopup.style.display = 'block';
-            deadListEl.innerHTML = deadList.map(i => {
-                const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
-                return `
-                <div class="dead-popup-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
-                    <span class="map-label">แมพ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#8a6aaa">${bossName}</span>` : ''}</span>
-                    <span class="dead-badge">☠️</span>
-                </div>`;
-            }).join('');
-        }
-    }
-
-    // backward compat — เรียก updateSidePopups แทน updateBossOnIndicator
-    function updateBossOnIndicator() { updateSidePopups(); }
-
-    // ===== Toast (stack ใต้ sticky-bar) =====
-    function updateToastPosition() {
-        const bar = document.querySelector('.sticky-bar');
-        const container = document.getElementById('toast-container');
-        if (!bar || !container) return;
-        const rect = bar.getBoundingClientRect();
-        container.style.top = (rect.bottom + 8) + 'px';
-    }
-
-    // อัปเดตตำแหน่งตอน scroll และ resize
-    window.addEventListener('scroll', updateToastPosition, { passive: true });
-    window.addEventListener('resize', updateToastPosition, { passive: true });
-    // อัปเดตครั้งแรก
-    updateToastPosition();
-    // อัปเดตซ้ำสั้นๆ เผื่อ layout ยังไม่ settle
-    setTimeout(updateToastPosition, 300);
-    function showToast(msg, type = 'info') {
-        // ปิด toast — ไม่แสดงแจ้งเตือนแล้ว
-    }
-
-    // ===== Toggle คำแนะนำ =====
-    function toggleGuide() {
-        const guide = document.getElementById('commandGuide');
-        const btn = document.getElementById('guideToggleBtn');
-        const isOpen = guide.classList.toggle('open');
-        btn.textContent = isOpen ? '✖ ปิดคำแนะนำ' : '❓ วิธีใช้คำสั่ง';
-    }
-
-    // ===== ตั้งค่ากลุ่ม Map (โหลดจาก DB) =====
-    let MAP_GROUPS = [];
-    let BOSS_NAMES = {};
-
-    async function loadConfig() {
-        if (!isOfflineMode) {
-            // Online: ดึงจาก DB แล้ว cache ลง localStorage
-            const [epRes, bossRes] = await Promise.all([
-                _db.from('EpisodeGroups').select('*').order('sort_order'),
-                _db.from('MapBosses').select('*')
-            ]);
-            MAP_GROUPS = (epRes.data || []).map(e => ({
-                name: e.name, min: e.min_map, max: e.max_map
-            }));
-            BOSS_NAMES = Object.fromEntries(
-                (bossRes.data || []).map(b => [b.map_number, b.boss_name])
-            );
-            // cache ไว้ให้ offline ใช้
-            localStorage.setItem('offlineEpisodeGroups', JSON.stringify(epRes.data || []));
-            localStorage.setItem('offlineMapBosses', JSON.stringify(bossRes.data || []));
-        } else {
-            // Offline: อ่านจาก localStorage cache
-            const epData = JSON.parse(localStorage.getItem('offlineEpisodeGroups') || '[]');
-            const bossData = JSON.parse(localStorage.getItem('offlineMapBosses') || '[]');
-            MAP_GROUPS = epData.map(e => ({
-                name: e.name, min: e.min_map, max: e.max_map
-            }));
-            BOSS_NAMES = Object.fromEntries(
-                bossData.map(b => [b.map_number, b.boss_name])
-            );
-        }
-    }
-
-    function getGroupName(mapNumber) {
-        const g = MAP_GROUPS.find(g => mapNumber >= g.min && mapNumber <= g.max);
-        return g ? g.name : 'อื่น ๆ';
-    }
-
-    // ===== EP Filter =====
-    // mode: 'all' = แสดงทั้งหมด, 'pick' = เลือกเฉพาะที่ติ๊ก
-    let epFilterMode = localStorage.getItem('epFilterMode') || 'all';
-    let pickedEPs = JSON.parse(localStorage.getItem('pickedEPs') || '[]');
-
-    function renderEPFilter() {
-        const bar = document.getElementById('epFilterBar');
-        if (!MAP_GROUPS.length) { bar.innerHTML = ''; return; }
-
-        const allActive = epFilterMode === 'all';
-        let html = `<span class="ep-chip ${allActive ? 'active' : ''}" onclick="toggleEPFilter(null)">ทั้งหมด</span>`;
-        MAP_GROUPS.forEach((g, idx) => {
-            const isActive = allActive || pickedEPs.includes(idx);
-            html += `<span class="ep-chip ${isActive ? 'active' : ''}" onclick="toggleEPFilter(${idx})">${g.name}</span>`;
-        });
-        bar.innerHTML = html;
-    }
-
-    function toggleEPFilter(idx) {
-        if (idx === null) {
-            // กด "ทั้งหมด" → toggle ระหว่าง all กับ pick (ไม่เลือกอะไรเลย)
-            if (epFilterMode === 'all') {
-                epFilterMode = 'pick';
-                pickedEPs = [];
-            } else {
-                epFilterMode = 'all';
-                pickedEPs = [];
-            }
-        } else {
-            if (epFilterMode === 'all') {
-                // จาก all → เข้า pick mode โดยเอา EP ที่กดออก (เลือกที่เหลือ)
-                epFilterMode = 'pick';
-                pickedEPs = MAP_GROUPS.map((_, i) => i).filter(i => i !== idx);
-            } else {
-                // pick mode → toggle EP นั้น
-                const pos = pickedEPs.indexOf(idx);
-                if (pos >= 0) {
-                    pickedEPs.splice(pos, 1);
-                } else {
-                    pickedEPs.push(idx);
-                }
-                // ถ้าเลือกครบทุก EP → กลับเป็น all
-                if (pickedEPs.length >= MAP_GROUPS.length) {
-                    epFilterMode = 'all';
-                    pickedEPs = [];
-                }
-            }
-        }
-        localStorage.setItem('epFilterMode', epFilterMode);
-        localStorage.setItem('pickedEPs', JSON.stringify(pickedEPs));
-        renderEPFilter();
-        document.getElementById('tableContent').innerHTML = '';
-        renderTable();
-    }
-
-    function isMapVisible(mapNumber) {
-        if (epFilterMode === 'all') return true;
-        const idx = MAP_GROUPS.findIndex(g => mapNumber >= g.min && mapNumber <= g.max);
-        return pickedEPs.includes(idx);
-    }
-
-    // โหมดการเรียง: 'grid' = Grid View, 'time' = เรียงตามเวลา
-    let sortMode = 'grid';
-
-    function toggleSortMode() {
-        sortMode = sortMode === 'grid' ? 'time' : 'grid';
-
-        const icon = document.getElementById('sortIcon');
-        const label = document.getElementById('sortLabel');
-        const btn = document.getElementById('sortToggle');
-        if (sortMode === 'grid') {
-            icon.textContent = '⊞';
-            label.textContent = 'Grid View';
-            btn.style.borderColor = 'var(--success)';
-            btn.style.color = 'var(--success)';
-        } else {
-            icon.textContent = '⏱';
-            label.textContent = 'เรียงตามเวลา';
-            btn.style.borderColor = 'var(--accent)';
-            btn.style.color = 'var(--accent)';
-        }
-        // แสดง/ซ่อน time threshold bar
-        document.getElementById('timeThresholdBar').style.display = sortMode === 'time' ? 'flex' : 'none';
-        document.getElementById('tableContent').innerHTML = '';
-        renderTable();
-    }
-
-    // Time thresholds — โหลดจาก localStorage
-    let timeLine1 = parseInt(localStorage.getItem('timeLine1') || '20');
-    let timeLine2 = parseInt(localStorage.getItem('timeLine2') || '30');
-    document.getElementById('timeLine1').value = timeLine1;
-    document.getElementById('timeLine2').value = timeLine2;
-
-    function saveTimeThresholds() {
-        timeLine1 = parseInt(document.getElementById('timeLine1').value) || 20;
-        timeLine2 = parseInt(document.getElementById('timeLine2').value) || 30;
-        // ให้ line1 < line2 เสมอ
-        if (timeLine1 > timeLine2) { const tmp = timeLine1; timeLine1 = timeLine2; timeLine2 = tmp; }
-        document.getElementById('timeLine1').value = timeLine1;
-        document.getElementById('timeLine2').value = timeLine2;
-        localStorage.setItem('timeLine1', timeLine1);
-        localStorage.setItem('timeLine2', timeLine2);
-        document.getElementById('tableContent').innerHTML = '';
-        renderTable();
-    }
-
-    const getNowBangkok = () => new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
-
-function createFadeBar(level, mapNumber, channel, bossOn = false, isDead = false) {
-    const floorLevel = Math.floor(level);
-    const isDecimal = level > 0 && level !== floorLevel;
-    const decimalLabel = isDecimal ? `<div class="fade-decimal-label">🔥 ${level}</div>` : '';
-    const bossClass = isDead ? ' fade-dead' : (bossOn ? ' fade-bosson' : '');
-
-    return `
-        <div class="fade-wrapper${isDecimal ? ' has-decimal' : ''}">
-            ${decimalLabel}
-            <div class="fade-container${bossClass}">
-                <div class="fade-box f1 ${level >= 1 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 1)">1</div>
-                <div class="fade-box f2 ${level >= 2 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 2)">2</div>
-                <div class="fade-box f3 ${level >= 3 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 3)">3</div>
-                <div class="fade-box f4 ${level >= 4 ? 'active' : ''}" onclick="setFade('${mapNumber}', '${channel}', 4)">4</div>
-            </div>
-        </div>
-    `;
-}
-
-async function cleanOldData() {
-    const now = new Date();
-    const nowBangkok = new Date(now.toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
-    const oneDayAgo = new Date(nowBangkok.getTime() - 24 * 60 * 60 * 1000);
-
-    // dead ที่ค้างนานกว่า 24 ชั่วโมง → ลบทิ้ง
-    await _db.from('BossList')
-        .delete()
-        .lt('TimeMer', oneDayAgo.toISOString())
-        .eq('Status', 'dead');
-}
-
-async function showTable() {
-    await cleanOldData();
-    const { data: list } = await _db.from('BossList').select('*');
-    cachedBossList = list || [];
-    renderTable();
-}
-
-function renderTable() {
-    // กรอง EP ที่เลือก
-    const list = cachedBossList.filter(i => isMapVisible(parseInt(i.MapNumber)));
-    const now = getNowBangkok();
-    // บันทึก scroll position ก่อน render เพื่อป้องกัน browser reset
-    const scrollY = window.scrollY;
-
-    // ===== Grid Mode — render แยก =====
-    if (sortMode === 'grid') {
-        // ซ่อน popup ด้านข้างใน grid mode
-        document.getElementById('fade4Popup').style.display = 'none';
-        document.getElementById('favPopup').style.display = 'none';
-        document.getElementById('deadPopup').style.display = 'none';
-
-        function fadeStars(fade) {
-            const full = Math.floor(fade);
-            const hasHalf = (fade - full) >= 0.3;
-            let stars = '';
-            for (let i = 1; i <= 4; i++) {
-                if (i <= full) stars += '<span style="color:#f5c842;filter:drop-shadow(0 0 4px rgba(245,200,66,0.6));">★</span>';
-                else if (i === full + 1 && hasHalf) stars += '<span style="color:#f5c842;opacity:0.6;">☆</span>';
-                else stars += '<span style="opacity:0.2;">★</span>';
-            }
-            return stars;
-        }
-
-        let html = '';
-        MAP_GROUPS.forEach(g => {
-            const groupItems = list.filter(i => parseInt(i.MapNumber) >= g.min && parseInt(i.MapNumber) <= g.max);
-            if (groupItems.length === 0) return;
-
-            // หา unique maps ใน group
-            const mapNums = [...new Set(groupItems.map(i => parseInt(i.MapNumber)))].sort((a,b) => a-b);
-
-            html += `<div class="grid-ep-section"><div class="grid-ep-header">☸ ${g.name}</div>`;
-            html += `<div class="grid-map-row">`;
-            mapNums.forEach(mapNum => {
-                // CH1 เป็นหลัก
-                const ch1 = groupItems.find(i => parseInt(i.MapNumber) === mapNum && parseInt(i.Channel) === 1);
-                const item = ch1 || groupItems.find(i => parseInt(i.MapNumber) === mapNum);
-                if (!item) return;
-
-                const status = item.Status || 'waiting';
-                const statusClass = status === 'boss_on' ? 'gc-bosson' : status === 'dead' ? 'gc-dead' : (status === 'active' || new Date(item.TimeMer) <= now) ? 'gc-active' : 'gc-waiting';
-                const fadeLabel = (status === 'active' || (status === 'waiting' && new Date(item.TimeMer) <= now)) ? `${item.Fade}` : (item.Fade > 0 ? `${item.Fade}` : '');
-                const bossTime = new Date(item.TimeMer);
-                let timeLabel = '';
-                if (status !== 'dead' && status !== 'boss_on') {
-                    const diff = now - bossTime;
-                    if (diff >= 0) { const m = Math.floor(diff/60000); const s = Math.floor((diff%60000)/1000); timeLabel = `${m}:${String(s).padStart(2,'0')}`; }
-                    else { const absDiff = -diff; const m = Math.floor(absDiff/60000); const s = Math.floor((absDiff%60000)/1000); timeLabel = `-${m}:${String(s).padStart(2,'0')}`; }
-                }
-                if (status === 'boss_on') timeLabel = '💀';
-                const star = isFavorite(item.MapNumber, item.Channel) ? '❤️' : '';
-
-                // หา sub-channels ของแมพนี้
-                const subs = groupItems.filter(i => parseInt(i.MapNumber) === mapNum && parseInt(i.Channel) > 1);
-
-                html += `<div style="min-width:0;">`;
-                html += `<div class="grid-cell ${statusClass}" onclick="openBottomSheet('${item.MapNumber}','${item.Channel}')">
-                    ${star ? `<span class="gc-star">${star}</span>` : ''}
-                    <div class="gc-map">${mapNum}</div>
-                    <div class="gc-fade" style="font-size:11px; letter-spacing:1px;">${fadeStars(item.Fade)}</div>
-                    ${fadeLabel ? `<div class="gc-fade" style="font-size:9px;">${fadeLabel}</div>` : ''}
-                    <div class="gc-time" id="gc-timer-${item.MapNumber}-${item.Channel}">${timeLabel}</div>
-                </div>`;
-                // Sub-channels ใต้ cell ของตัวเอง — render เหมือน cell หลัก
-                if (subs.length > 0) {
-                    subs.forEach(sub => {
-                        const st = sub.Status || 'waiting';
-                        const sc = st === 'boss_on' ? 'gc-bosson' : st === 'dead' ? 'gc-dead' : (st === 'active' || new Date(sub.TimeMer) <= now) ? 'gc-active' : 'gc-waiting';
-                        const subFade = (st === 'active' || (st === 'waiting' && new Date(sub.TimeMer) <= now)) ? `${sub.Fade}` : (sub.Fade > 0 ? `${sub.Fade}` : '');
-                        const subBossTime = new Date(sub.TimeMer);
-                        let subTime = '';
-                        if (st !== 'dead' && st !== 'boss_on') {
-                            const d = now - subBossTime;
-                            if (d >= 0) { const m2 = Math.floor(d/60000); const s2 = Math.floor((d%60000)/1000); subTime = `${m2}:${String(s2).padStart(2,'0')}`; }
-                            else { const ad = -d; const m2 = Math.floor(ad/60000); const s2 = Math.floor((ad%60000)/1000); subTime = `-${m2}:${String(s2).padStart(2,'0')}`; }
-                        }
-                        if (st === 'boss_on') subTime = '💀';
-                        html += `<div class="grid-cell ${sc}" onclick="openBottomSheet('${sub.MapNumber}','${sub.Channel}')" style="margin-top:4px; min-height:60px; padding:4px 3px;">
-                            <div class="gc-map" style="font-size:12px;"><span style="opacity:0.4;font-size:9px;">CH</span> ${sub.Channel}</div>
-                            <div class="gc-fade" style="font-size:10px; letter-spacing:1px;">${fadeStars(sub.Fade)}</div>
-                            ${subFade ? `<div class="gc-fade" style="font-size:8px;">${subFade}</div>` : ''}
-                            <div class="gc-time" id="gc-timer-${sub.MapNumber}-${sub.Channel}">${subTime}</div>
-                        </div>`;
-                    });
-                }
-                // ปุ่ม + เพิ่ม CH
-                const maxCh = Math.max(...groupItems.filter(gi => parseInt(gi.MapNumber) === mapNum).map(gi => parseInt(gi.Channel)), 0);
-                html += `<div class="grid-add-ch" onclick="addChannel(${mapNum}, ${maxCh + 1})">+</div>`;
-                html += `</div>`;
-            });
-            // เติมช่องว่างให้ครบ 5 ช่อง
-            for (let empty = mapNums.length; empty < 5; empty++) {
-                html += `<div style="min-width:0;"></div>`;
-            }
+            html += `<div class="grid-add" onclick="addCH(${m.num})">+</div>`;
             html += `</div>`;
         });
-
-        document.getElementById('tableContent').innerHTML = html || '<div class="empty-state"><span>🎮</span>ยังไม่มีบอส</div>';
-        updateBossOnIndicator();
-        if (window.scrollY !== scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
-        return;
-    }
-
-    // 🔥 sort — เรียงตามเวลา (time mode เท่านั้นที่เข้ามาถึงตรงนี้)
-    list.sort((a, b) => {
-        // dead ลงล่างสุด
-        if (a.Status === 'dead' && b.Status !== 'dead') return 1;
-        if (a.Status !== 'dead' && b.Status === 'dead') return -1;
-        return new Date(a.TimeMer) - new Date(b.TimeMer);
+        // fill empty columns
+        for(let i=ep.maps.length;i<5;i++) html+='<div></div>';
+        html += `</div></div>`;
     });
-
-    const tbody = document.querySelector('#tableContent tbody');
-    const newOrderIds = list.map(i => `row-${i.MapNumber}-${i.Channel}`);
-
-    // ถ้ายังไม่มีตาราง หรือ time mode → สร้างใหม่ทั้งหมด (เพื่อให้เส้นเวลาถูกต้อง)
-    if (!tbody || sortMode === 'time') {
-        if (sortMode === 'time') document.getElementById('tableContent').innerHTML = '';
-        let html = `
-        <div style="overflow-x: auto;">
-        <table>
-        <thead>
-        <tr>
-            <th>แมพ / ช่อง</th>
-            <th>เวลา / สถานะ</th>
-            <th class="col-bosson">บอสเกิด</th>
-            <th class="col-dead">บอสตาย → เวลาใหม่</th>
-            <th class="col-delete">ลบ</th>
-        </tr>
-        </thead>
-        <tbody>
-        `;
-        if (list.length === 0) {
-            html += `<tr><td colspan="5"><div class="empty-state"><span>🎮</span>ยังไม่มีบอส — พิมพ์คำสั่งด้านบนเพื่อเริ่มต้น</div></td></tr>`;
-        } else {
-            let timeDivider30Inserted = false;
-            let timeDivider20Inserted = false;
-            let lastMap = null;
-            let mapCount = {};
-            list.forEach(i => { const m = String(i.MapNumber); mapCount[m] = (mapCount[m] || 0) + 1; });
-            let mapSeen = {};
-
-            list.forEach(i => {
-                // แทรกเส้นเวลาตาม threshold
-                if (i.Status !== 'boss_on' && i.Status !== 'dead') {
-                    const bossTime = new Date(i.TimeMer);
-                    const elapsed = now - bossTime;
-                    if (!timeDivider30Inserted && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
-                        html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td></tr>`;
-                        timeDivider30Inserted = true;
-                    }
-                    if (!timeDivider20Inserted && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
-                        html += `<tr class="time-divider"><td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td></tr>`;
-                        timeDivider20Inserted = true;
-                    }
-                }
-                const m = String(i.MapNumber);
-                mapSeen[m] = (mapSeen[m] || 0) + 1;
-                const isSubCh = (m === lastMap);
-                const isLastCh = mapSeen[m] === mapCount[m];
-                const hasSub = !isSubCh && mapCount[m] > 1;
-                html += buildRowHTML(i, now, '', isSubCh, isLastCh, hasSub);
-                lastMap = m;
-            });
-        }
-        document.getElementById('tableContent').innerHTML = html + '</tbody></table></div>';
-        updateBossOnIndicator();
-        if (window.scrollY !== scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
-        return;
-    }
-
-    // === FLIP Animation ===
-
-    // 1) FIRST: จำตำแหน่งเดิมของแต่ละแถว
-    const oldPositions = {};
-    tbody.querySelectorAll('tr[id]').forEach(tr => {
-        oldPositions[tr.id] = tr.getBoundingClientRect();
+    el.innerHTML = html;
+}
+function renderTime(el, now) {
+    const list = bossList.filter(b => {
+        const epIdx = config.findIndex(ep => ep.maps.some(m => m.num == b.MapNumber));
+        return isEPVisible(epIdx);
+    }).sort((a,b) => {
+        if(a.Status==='dead'&&b.Status!=='dead') return 1;
+        if(a.Status!=='dead'&&b.Status==='dead') return -1;
+        return new Date(a.TimeMer)-new Date(b.TimeMer);
     });
-
-    // 2) สร้าง map ของ id ที่มีอยู่แล้ว
-    const existingIds = new Set(Object.keys(oldPositions));
-    const newIds = new Set(newOrderIds);
-
-    // 3) ลบแถวที่ไม่อยู่ใน list ใหม่ (fade-out)
-    existingIds.forEach(id => {
-        if (!newIds.has(id)) {
-            const tr = document.getElementById(id);
-            if (tr) {
-                tr.classList.add('row-removing');
-                tr.addEventListener('transitionend', () => tr.remove(), { once: true });
-            }
+    if(list.length===0){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-faint);">ยังไม่มีข้อมูล</div>';return;}
+    
+    const tl1 = parseInt(localStorage.getItem('timeLine1') || '20');
+    const tl2 = parseInt(localStorage.getItem('timeLine2') || '30');
+    let div2Done=false, div1Done=false;
+    
+    let html='<div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;font-size:11px;color:var(--text-muted);">⏱ เส้นเวลา: <input type="number" value="'+tl1+'" min="1" max="120" style="width:40px;padding:2px 4px;border:1px solid var(--border);border-radius:6px;background:var(--card-alt);color:var(--text);font-size:12px;text-align:center;" onchange="localStorage.setItem(\'timeLine1\',this.value);render()"> และ <input type="number" value="'+tl2+'" min="1" max="120" style="width:40px;padding:2px 4px;border:1px solid var(--border);border-radius:6px;background:var(--card-alt);color:var(--text);font-size:12px;text-align:center;" onchange="localStorage.setItem(\'timeLine2\',this.value);render()"> นาที</div>';
+    html+='<table style="width:100%;border-collapse:separate;border-spacing:0 4px;"><tbody>';
+    list.forEach(b=>{
+        const st=b.Status||'waiting'; const bt=new Date(b.TimeMer); const elapsed=now-bt;
+        // เส้นแบ่งเวลา
+        if(st!=='boss_on'&&st!=='dead'&&elapsed>=0) {
+            if(!div2Done && elapsed < tl2*60000) { html+=`<tr><td colspan="2" style="padding:10px 0;text-align:center;"><div style="display:flex;align-items:center;gap:10px;color:var(--accent);font-size:12px;font-weight:700;"><span style="flex:1;height:1px;background:var(--accent);"></span>⏱ เกิดมาแล้ว ${tl2} นาที<span style="flex:1;height:1px;background:var(--accent);"></span></div></td></tr>`; div2Done=true; }
+            if(!div1Done && elapsed < tl1*60000) { html+=`<tr><td colspan="2" style="padding:10px 0;text-align:center;"><div style="display:flex;align-items:center;gap:10px;color:var(--accent);font-size:12px;font-weight:700;"><span style="flex:1;height:1px;background:var(--accent);"></span>⏱ เกิดมาแล้ว ${tl1} นาที<span style="flex:1;height:1px;background:var(--accent);"></span></div></td></tr>`; div1Done=true; }
         }
+        const rc=st==='dead'?'gc-dead':st==='boss_on'?'gc-bosson':(st==='active'||bt<=now)?'gc-active':'gc-waiting';
+        const timeStr=st!=='dead'&&st!=='boss_on'?formatElapsed(elapsed):(st==='boss_on'?'💀':'☠️');
+        const epIdx=config.findIndex(ep=>ep.maps.some(m=>m.num==b.MapNumber));
+        const epName=epIdx>=0?config[epIdx].name:'';
+        html+=`<tr class="${rc}" onclick="openBS(${b.MapNumber},${b.Channel})" style="cursor:pointer;">`;
+        html+=`<td style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;"><strong>${b.MapNumber}-${b.Channel}</strong><br><span style="font-size:9px;color:var(--text-faint);">${epName}</span></td>`;
+        html+=`<td style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center;"><span style="font-size:11px;">${fadeStars(b.Fade||0)}</span><br><span id="gt-${b.MapNumber}-${b.Channel}" style="font-size:12px;color:var(--accent);font-weight:600;">${timeStr}</span></td>`;
+        html+=`</tr>`;
     });
-
-    // 4) อัปเดตเนื้อหาแถวที่มีอยู่ + เพิ่มแถวใหม่
-    // สร้าง map ของ sub-channel info
-    const subChInfo = {};
-    let prevMap = null;
-    const mapCountAll = {};
-    list.forEach(i => { const m = String(i.MapNumber); mapCountAll[m] = (mapCountAll[m] || 0) + 1; });
-    const mapSeenAll = {};
-    list.forEach(i => {
-        const m = String(i.MapNumber);
-        mapSeenAll[m] = (mapSeenAll[m] || 0) + 1;
-        const key = `${i.MapNumber}-${i.Channel}`;
-        const isSubCh = (m === prevMap);
-        subChInfo[key] = {
-            isSubCh,
-            isLastCh: mapSeenAll[m] === mapCountAll[m],
-            hasSub: !isSubCh && mapCountAll[m] > 1
-        };
-        prevMap = m;
-    });
-
-    list.forEach(i => {
-        const rowId = `row-${i.MapNumber}-${i.Channel}`;
-        const info = subChInfo[`${i.MapNumber}-${i.Channel}`] || { isSubCh: false, isLastCh: true, hasSub: false };
-        let tr = document.getElementById(rowId);
-
-        if (tr) {
-            // อัปเดต in-place แทน outerHTML เพื่อไม่ให้กระพริบ
-            const newHtml = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh, info.hasSub);
-            const temp = document.createElement('tbody');
-            temp.innerHTML = newHtml;
-            const newTr = temp.firstElementChild;
-            // เก็บ class ที่ animate ไว้ก่อน
-            const keepClasses = ['row-highlight', 'row-entering', 'row-removing'];
-            keepClasses.forEach(c => { if (tr.classList.contains(c)) newTr.classList.add(c); });
-            tr.replaceWith(newTr);
-        } else {
-            const temp = document.createElement('tbody');
-            temp.innerHTML = buildRowHTML(i, now, '', info.isSubCh, info.isLastCh, info.hasSub);
-            const newTr = temp.firstElementChild;
-            newTr.classList.add('row-entering');
-            tbody.appendChild(newTr);
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    newTr.classList.remove('row-entering');
-                });
-            });
-        }
-    });
-
-    // 5) จัดลำดับแถวตาม sort ใหม่ + แทรก time divider
-    tbody.querySelectorAll('.time-divider').forEach(tr => tr.remove());
-
-    let timeDivDone30 = false;
-    let timeDivDone20 = false;
-    newOrderIds.forEach(id => {
-        const tr = document.getElementById(id);
-        if (tr) {
-            const parts = id.split('-');
-            const item = cachedBossList.find(i => i.MapNumber == parts[1] && i.Channel == parts[2]);
-            if (item && item.Status !== 'boss_on' && item.Status !== 'dead') {
-                const elapsed = now - new Date(item.TimeMer);
-                if (!timeDivDone30 && elapsed >= 0 && elapsed < timeLine2 * 60 * 1000) {
-                    const div30 = document.createElement('tr');
-                    div30.className = 'time-divider';
-                    div30.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine2} นาที —</div></td>`;
-                    tbody.appendChild(div30);
-                    timeDivDone30 = true;
-                }
-                if (!timeDivDone20 && elapsed >= 0 && elapsed < timeLine1 * 60 * 1000) {
-                    const div20 = document.createElement('tr');
-                    div20.className = 'time-divider';
-                    div20.innerHTML = `<td colspan="5"><div class="time-divider-label">⏱ — เกิดมาแล้ว ${timeLine1} นาที —</div></td>`;
-                    tbody.appendChild(div20);
-                    timeDivDone20 = true;
-                }
-            }
-            tbody.appendChild(tr);
-        }
-    });
-
-    // 6) LAST + INVERT + PLAY: animate แถวไปตำแหน่งใหม่
-    newOrderIds.forEach(id => {
-        const tr = document.getElementById(id);
-        if (!tr || !oldPositions[id]) return;
-
-        const newRect = tr.getBoundingClientRect();
-        const deltaY = oldPositions[id].top - newRect.top;
-
-        if (Math.abs(deltaY) < 1) return; // ไม่ขยับ ไม่ต้อง animate
-
-        // INVERT: ย้ายกลับไปตำแหน่งเดิม
-        tr.style.transition = 'none';
-        tr.style.transform = `translateY(${deltaY}px)`;
-
-        // PLAY: animate ไปตำแหน่งใหม่
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                tr.style.transition = 'transform 0.4s ease';
-                tr.style.transform = '';
-                tr.addEventListener('transitionend', () => {
-                    tr.style.transition = '';
-                }, { once: true });
-            });
-        });
-    });
-    updateBossOnIndicator();
-    // restore scroll position หลัง DOM เปลี่ยน
-    if (window.scrollY !== scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
+    html+='</tbody></table>';
+    el.innerHTML=html;
 }
 
-function buildRowHTML(i, now, extraClass, isSubCh, isLastCh, hasSub = false) {
-    const status = i.Status || 'waiting';
-    const bossTime = new Date(i.TimeMer);
-    const isArrived = status === 'active' || status === 'boss_on' || status === 'dead' || bossTime <= now;
-
-    // row CSS class
-    const rowClassMap = { waiting: 'row-waiting', active: 'row-active', boss_on: 'row-active', dead: 'row-dead' };
-    const rowClass = rowClassMap[status] || 'row-waiting';
-
-    const timeStr = bossTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-    let statusIcon = '⏳';
-    if (status === 'boss_on') statusIcon = '💀';
-    else if (status === 'dead')   statusIcon = '☠️';
-    else if (status === 'active') statusIcon = '🔥';
-
-    let mapLabel;
-    if (isSubCh) {
-        mapLabel = `<div class="ch-badge">CH ${i.Channel}</div>`;
-    } else {
-        const bossName = BOSS_NAMES[parseInt(i.MapNumber)] || '';
-        mapLabel = `<div class="map-number"><strong>${i.MapNumber} - ${i.Channel}</strong></div>${bossName ? `<div class="boss-name">${bossName}</div>` : ''}`;
-    }
-
-    const isDead   = status === 'dead';
-    const isBossOn = status === 'boss_on';
-    const deadBadge = isDead ? `<div class="dead-waiting-badge">☠️ รอเวลาเกิดใหม่</div>` : '';
-    const epName = getGroupName(parseInt(i.MapNumber));
-    const epWatermark = !isSubCh ? `<span class="ep-watermark">${epName}</span>` : '';
-
-    return `
-<tr class="${rowClass}${isSubCh ? ' row-sub' + (isLastCh ? ' row-sub-last' : '') : (hasSub ? ' row-has-sub' : '')}${extraClass || ''}" id="row-${i.MapNumber}-${i.Channel}">
-    <td style="text-align:center; position:relative;">
-        ${epWatermark}
-        ${isBossOn ? `<span class="boss-icon boss-active">💀</span>` : ''}
-        ${mapLabel}
-        ${deadBadge}
-        ${(status !== 'boss_on' && status !== 'dead' && i.Fade < 4) ? `<div class="timer map-timer" id="timer-${i.MapNumber}-${i.Channel}">0:00 นาที</div>` : ''}
-        ${isBossOn ? `<div id="countdown-${i.MapNumber}-${i.Channel}" style="font-size:12px; color:#f44336; font-weight:bold;">${getCountdown(i.BossStartTime)}</div>` : ''}
-    </td>
-    <td>
-        <div class="time-display" style="font-size:12px; margin-bottom:4px; text-align:center;">${isDead ? '☠️ ตายแล้ว' : timeStr + ' น. ' + statusIcon}</div>
-        ${createFadeBar(i.Fade, i.MapNumber, i.Channel, isBossOn, isDead)}
-        <div class="updated-ago" id="upd-${i.MapNumber}-${i.Channel}">${getUpdatedAgo(i.UpdatedAt)}</div>
-        <div class="row-action-bar">
-            <button onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')" style="${isBossOn ? 'border-color:#ff4444;color:#ff4444;' : ''}">${isBossOn ? '⚔️ ON' : '⚔️ Boss ON'}</button>
-            ${isBossOn ? `<button onclick="markDeadFromOn('${i.MapNumber}', '${i.Channel}')" style="border-color:#9b59b6;color:#c39bd3;">☠️ ตาย</button>` : ''}
-            <input class="dead-input" type="text" placeholder="☠️ เวลาบอส" title="กรอกเวลาบอสใหม่แล้วกด Enter"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();inlineConfirmDead('${i.MapNumber}','${i.Channel}',this.value);this.value='';}"
-                style="width:100px;padding:5px 8px;border-radius:20px;border:1.5px solid #6a9fd8;background:#1e2028;color:#6a9fd8;font-size:13px;text-align:center;outline:none;"
-            />
-            <button onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')">🗑️ ลบ</button>
-        </div>
-    </td>
-    <td class="col-bosson" style="text-align:center;">
-        <button class="btn-action ${isBossOn ? 'btn-on' : ''}" onclick="toggleBossOn('${i.MapNumber}', '${i.Channel}')">
-            ${isBossOn ? '⚔️ ON' : '⚔️ Boss ON'}
-        </button>
-        ${isBossOn ? `<button class="btn-action" onclick="markDeadFromOn('${i.MapNumber}', '${i.Channel}')" style="margin-top:4px;border-color:#9b59b6;color:#c39bd3;">☠️ ตาย</button>` : ''}
-    </td>
-    <td class="col-dead" style="text-align:center;">
-        <div class="dead-input-wrap">
-            <span class="dead-input-label">${isDead ? '⚠️ ใส่เวลาเกิดใหม่' : '⏱ กรอกเวลาใหม่ แล้วกด Enter'}</span>
-            <input class="dead-input" type="text" placeholder="1.20 หรือ 10" title="กรอกเวลาบอสใหม่แล้วกด Enter"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();inlineConfirmDead('${i.MapNumber}','${i.Channel}',this.value);this.value='';}"
-                style="width:90px;padding:5px 8px;border-radius:8px;border:1.5px solid ${isDead ? '#9b59b6' : '#6a9fd8'};background:#1e2028;color:${isDead ? '#c39bd3' : '#6a9fd8'};font-size:13px;text-align:center;outline:none;"
-                onfocus="this.style.borderColor='${isDead ? '#d7bde2' : '#8bbfe8'}';this.style.boxShadow='0 0 0 2px rgba(${isDead ? '155,89,182' : '106,159,216'},0.2)'"
-                onblur="this.style.borderColor='${isDead ? '#9b59b6' : '#6a9fd8'}';this.style.boxShadow='none'"
-            />
-        </div>
-    </td>
-    <td class="col-delete" style="text-align:center;">
-        <button class="btn-action btn-delete" onclick="deleteBoss('${i.MapNumber}', '${i.Channel}')">
-            🗑️ ลบ
-        </button>
-    </td>
-</tr>`;
+// ===== Create / Add =====
+function createBoss(mapNum, ch) {
+    const now = new Date().toISOString();
+    bossList.push({ id:getNextId(), MapNumber:mapNum, Channel:ch, TimeMer:now, Fade:0, Status:'active', BossStartTime:null, UpdatedAt:now });
+    saveBossList(); render();
 }
-
-async function processCommand() {
-    const input = document.getElementById('cmd').value.trim();
-    if (!input) return;
-
-    // 🧹 เคส clear: ลบข้อมูลทั้งหมด
-    if (input.toLowerCase() === 'clear') {
-        if (!confirm('ลบบอสทั้งหมด?')) return;
-        cachedBossList = [];
-        renderTable();
-        document.getElementById('cmd').value = "";
-        await _db.from('BossList').delete().neq('id', 0);
-        return;
-    }
-
-    // 🔥 เคสพิเศษ: ถ้ามี 'on' แสดงว่า boss เกิดแล้ว
-    if (input.toLowerCase().includes('on')) {
-        // ลบ 'on' ออกแล้ว parse map
-        const cleanInput = input.toLowerCase().replace(/\bon\b/, '').trim();
-
-        // รองรับทั้ง "105.2", "105-2" และ "105 2"
-        let map, ch;
-        const spaceParts = cleanInput.split(/\s+/);
-        if (spaceParts.length >= 2 && !isNaN(parseInt(spaceParts[1]))) {
-            map = parseInt(spaceParts[0]);
-            ch  = parseInt(spaceParts[1]);
-        } else {
-            ({ map, ch } = parseMapInput(cleanInput));
-        }
-
-        if (!map || isNaN(map)) {
-            alert("รูปแบบไม่ถูกต้อง");
-            return;
-        }
-
-        // 🔍 หา record เดิม
-        const { data: old, error } = await _db
-            .from('BossList')
-            .select('*')
-            .eq('MapNumber', map)
-            .eq('Channel', ch)
-            .maybeSingle();
-
-        if (error) {
-            console.error(error);
-            return;
-        }
-
-        const nowTime = new Date().toLocaleString('sv-SE', {
-            timeZone: 'Asia/Bangkok'
-        }).replace(' ', 'T');
-
-        if (old) {
-            // update
-            await _db.from('BossList')
-                .update({
-                    Status: 'boss_on',
-                    Fade: 4,
-                    BossStartTime: nowTime
-                })
-                .eq('id', old.id);
-        } else {
-            // insert ใหม่
-            await _db.from('BossList')
-                .insert([{
-                    MapNumber: map,
-                    Channel: ch,
-                    TimeMer: nowTime,
-                    Fade: 4,
-                    Status: 'boss_on',
-                    BossStartTime: nowTime
-                }]);
-        }
-
-        // 🔄 reset input + refresh
-        suppressNextToast = true;
-        document.getElementById('cmd').value = "";
-        showTable();
-        showToast(`⚔️ แมพ ${map} CH${ch} — Boss ON แล้ว`, 'bosson');
-        return;
-    }
-
-    let rawMap = "", val = "";
-    const isPlus = input.includes('+');
-    const isSlash = input.includes('/');
-
-    // 🆕 รูปแบบ space ต้องเช็คก่อน isPlus/isSlash เพราะอาจมี + อยู่ใน part สุดท้าย
-    // เช่น "120 4 +1.42" — ถ้าปล่อยให้ isPlus จับก่อนจะ parse ch ผิด
-    {
-        const spaceParts = input.trim().split(/\s+/);
-        if (spaceParts.length >= 2) {
-            const lastPart = spaceParts[spaceParts.length - 1];
-            const isTimePart = lastPart.startsWith('+');
-            const isFadePart = !isTimePart && !isNaN(parseFloat(lastPart));
-
-            // space pattern: ต้องมีอย่างน้อย 2 parts และ part แรกเป็นตัวเลข (map)
-            // และ part ที่ 2 (ถ้ามี 3 parts) ต้องเป็นตัวเลขล้วน (ch)
-            const isSpacePattern = (isTimePart || isFadePart) &&
-                !isNaN(parseInt(spaceParts[0])) &&
-                (spaceParts.length === 2 || !isNaN(parseInt(spaceParts[1])));
-
-            if (isSpacePattern) {
-                let map, ch;
-                if (spaceParts.length === 2) {
-                    // part แรกอาจเป็น "130.2" หรือ "130"
-                    ({ map, ch } = parseMapInput(spaceParts[0]));
-                } else {
-                    map = parseInt(spaceParts[0]); ch = parseInt(spaceParts[1]);
-                }
-                if (!map || isNaN(map)) { alert("รูปแบบไม่ถูกต้อง"); return; }
-
-                const { data: old } = await _db.from('BossList').select('*').eq('MapNumber', map).eq('Channel', ch).maybeSingle();
-
-                if (isTimePart) {
-                    const timeVal = lastPart.slice(1);
-                    const newTime = calcTime(timeVal);
-                    if (old) {
-                        await _db.from('BossList').update({ TimeMer: newTime, Fade: 0, Status: 'waiting' }).eq('id', old.id);
-                    } else {
-                        await _db.from('BossList').insert([{ MapNumber: map, Channel: ch, TimeMer: newTime, Fade: 0, Status: 'waiting' }]);
-                    }
-                    suppressNextToast = true;
-                    document.getElementById('cmd').value = "";
-                    showTable();
-                    showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว (${calcTimeLabel(timeVal)})`);
-                } else {
-                    const fadeVal = parseFloat(lastPart);
-                    const nowTimeFade = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T');
-                    if (old) {
-                        const oldTime = new Date(old.TimeMer);
-                        const updatedTime = oldTime > getNowBangkok() ? nowTimeFade : old.TimeMer;
-                        await _db.from('BossList').update({ TimeMer: updatedTime, Fade: fadeVal, Status: 'active' }).eq('id', old.id);
-                    } else {
-                        await _db.from('BossList').insert([{ MapNumber: map, Channel: ch, TimeMer: nowTimeFade, Fade: fadeVal, Status: 'active' }]);
-                    }
-                    suppressNextToast = true;
-                    document.getElementById('cmd').value = "";
-                    showTable();
-                    showToast(`🔥 แมพ ${map} CH${ch} — Fade ${fadeVal}`, fadeVal >= 4 ? 'fade4' : 'info');
-                }
-                return;
-            }
-        }
-    }
-
-    if (isPlus) [rawMap, val] = input.split('+');
-    else if (isSlash) [rawMap, val] = input.split('/');
-    else {
-        return;
-    }
-
-    // 🔥 parse map + channel
-    const { map, ch } = parseMapInput(rawMap.trim());
-
-    if (!map || isNaN(map)) {
-        alert("รูปแบบไม่ถูกต้อง");
-        return;
-    }
-
-    // 🔍 หา record เดิม
-    const { data: old, error } = await _db
-        .from('BossList')
-        .select('*')
-        .eq('MapNumber', map)
-        .eq('Channel', ch)
-        .maybeSingle();
-
-    if (error) {
-        console.error(error);
-        return;
-    }
-
-    // =========================
-    // ✅ เคส +
-    // =========================
-    if (isPlus) {
-        const newTime = calcTime(val);
-
-        if (old) {
-            await _db.from('BossList')
-                .update({ TimeMer: newTime, Fade: 0, Status: 'waiting' })
-                .eq('id', old.id);
-        } else {
-            await _db.from('BossList')
-                .insert([{ MapNumber: map, Channel: ch, TimeMer: newTime, Fade: 0, Status: 'waiting' }]);
-        }
-    }
-
-    // =========================
-    // ✅ เคส /
-    // =========================
-    if (isSlash) {
-        const fadeVal = parseFloat(val);
-        const nowTimeFade = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T');
-
-        if (old) {
-            const oldTime = new Date(old.TimeMer);
-            const nowBangkok = getNowBangkok();
-            const updatedTime = oldTime > nowBangkok ? nowTimeFade : old.TimeMer;
-            await _db.from('BossList')
-                .update({ TimeMer: updatedTime, Fade: fadeVal, Status: 'active' })
-                .eq('id', old.id);
-        } else {
-            await _db.from('BossList')
-                .insert([{ MapNumber: map, Channel: ch, TimeMer: nowTimeFade, Fade: fadeVal, Status: 'active' }]);
-        }
-    }
-
-    // 🔄 reset input + refresh
-    suppressNextToast = true;
-    document.getElementById('cmd').value = "";
-    showTable();
-
-    // toast แจ้งผล
-    if (isPlus) {
-        showToast(`✅ แมพ ${map} CH${ch} — ตั้งเวลาแล้ว (${calcTimeLabel(val)})`);
-    } else {
-        showToast(`🔥 แมพ ${map} CH${ch} — Fade ${parseFloat(val)}`, parseFloat(val) >= 4 ? 'fade4' : 'info');
-    }
+function addCH(mapNum) {
+    const maxCh = Math.max(...bossList.filter(b=>b.MapNumber==mapNum).map(b=>b.Channel), 0);
+    createBoss(mapNum, maxCh+1);
 }
-
- function calcTime(v) {
-    const d = new Date();
-
-    if (v.includes('.')) {
-        const [h, m] = v.split('.');
-        d.setHours(d.getHours() + parseInt(h));
-        d.setMinutes(d.getMinutes() + parseInt(m || 0));
-    } else {
-        d.setMinutes(d.getMinutes() + parseInt(v));
-    }
-
-    // ✅ เก็บเป็นเวลาไทย string
-    return d.toLocaleString('sv-SE', {
-        timeZone: 'Asia/Bangkok'
-    }).replace(' ', 'T'); // format: YYYY-MM-DDTHH:mm:ss
-}
-
-// คำนวณ label เวลาที่อ่านง่าย เช่น "อีก 1 ชั่วโมง 20 นาที"
-function calcTimeLabel(v) {
-    let totalMin = 0;
-    if (v.includes('.')) {
-        const [h, m] = v.split('.');
-        totalMin = parseInt(h) * 60 + parseInt(m || 0);
-    } else {
-        totalMin = parseInt(v);
-    }
-    if (isNaN(totalMin) || totalMin <= 0) return 'ทันที';
-    if (totalMin < 60) return `อีก ${totalMin} นาที`;
-    const h = Math.floor(totalMin / 60);
-    const m = totalMin % 60;
-    return m > 0 ? `อีก ${h} ชั่วโมง ${m} นาที` : `อีก ${h} ชั่วโมง`;
-}
-
-    // ===== Realtime — แจ้งเตือนทุกคนเมื่อ DB เปลี่ยน (เฉพาะ online) =====
-    let suppressNextToast = false;
-
-    if (!isOfflineMode) {
-    _onlineDb.channel('bossList-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'BossList' }, (payload) => {
-            markRealtimeEvent();
-            showTable();
-            if (suppressNextToast) {
-                suppressNextToast = false;
-                return;
-            }
-
-            const rec = payload.new || payload.old || {};
-            const mapNum = rec.MapNumber ?? '?';
-            const ch = rec.Channel ?? '?';
-            const label = `แมพ ${mapNum} CH${ch}`;
-
-            // highlight แถวที่เปลี่ยน
-            const rowId = `row-${mapNum}-${ch}`;
-            const highlightRow = () => {
-                const tr = document.getElementById(rowId);
-                if (!tr) return;
-                tr.classList.remove('row-highlight');
-                void tr.offsetWidth; // reflow เพื่อ restart animation
-                tr.classList.add('row-highlight');
-                setTimeout(() => tr.classList.remove('row-highlight'), 1300);
-            };
-            setTimeout(highlightRow, 100); // รอ renderTable เสร็จก่อน
-
-            if (payload.eventType === 'INSERT') {
-                showToast(`🆕 ${label} — เพิ่มบอสใหม่`);
-            } else if (payload.eventType === 'DELETE') {
-                showToast(`🗑️ ${label} — ถูกลบแล้ว`, 'error');
-            } else if (payload.eventType === 'UPDATE') {
-                const n = payload.new;
-                if (n.Status === 'boss_on') {
-                    showToast(`⚔️ ${label} — Boss ON!`, 'bosson');
-                } else if (n.Status === 'dead') {
-                    showToast(`☠️ ${label} — บอสตาย รอเวลาเกิดใหม่`, 'info');
-                } else if (n.Status === 'active' && n.Fade > 0) {
-                    showToast(`🔥 ${label} — Fade ${n.Fade}`, n.Fade >= 4 ? 'fade4' : 'info');
-                } else {
-                    showToast(`☠️ ${label} — ตั้งเวลาใหม่แล้ว`);
-                }
-            }
-        })
-        .subscribe();
-    } // end if (!isOfflineMode)
-
-    let intervalCounter = 0;
-    let lastRealtimeEvent = Date.now();
-
-    // บันทึกเวลาที่ได้รับ realtime event ล่าสุด
-    function markRealtimeEvent() { lastRealtimeEvent = Date.now(); }
-
-    setInterval(() => {
-        updateTimers();
-        intervalCounter++;
-        // fetch DB ใหม่เฉพาะเมื่อไม่มี realtime event นานกว่า 5 นาที (fallback)
-        if (intervalCounter >= 30) {
-            intervalCounter = 0;
-            if (Date.now() - lastRealtimeEvent > 5 * 60 * 1000) {
-                showTable();
-            }
-        }
-    }, 1000);
-
-    // โหลด config จาก DB ก่อน แล้วค่อย showTable
-    loadConfig().then(() => {
-        renderEPFilter();
-        showTable();
-    });
-
-    document.getElementById("cmd").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            processCommand();
-        }
-    });
-
-    document.addEventListener("keydown", function(event) {
-        if (event.key === "Escape") {
-            if (document.getElementById('deadModal').style.display !== 'none') closeDeadModal();
-            if (document.getElementById('deleteModal').style.display !== 'none') closeDeleteModal();
-        }
-    });
-
-
-async function setFade(mapNumber, channel, fadeLevel) {
-    const map = parseInt(mapNumber, 10);
-    const ch = parseInt(channel, 10);
-
-    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
-    if (!item) return;
-
-    const nowTimeFade = getNowISO();
-    const wasDead = item.Status === 'dead';
-
-    item.Fade = fadeLevel;
-    item.Status = 'active';
-    item.UpdatedAt = nowTimeFade;
-    if (wasDead) item.TimeMer = nowTimeFade;
-    renderTable();
-
-    suppressNextToast = true;
-    await _db.from('BossList')
-        .update({ Fade: fadeLevel, Status: 'active', UpdatedAt: nowTimeFade, ...(wasDead ? { TimeMer: nowTimeFade } : {}) })
-        .eq('MapNumber', map)
-        .eq('Channel', ch);
-    showToast(`🔥 แมพ ${map} CH${ch} — Fade ${fadeLevel}`, fadeLevel >= 4 ? 'fade4' : 'info');
-}
-
-// แยกปุ่ม "บอสตาย" ออกจาก toggle — กด ON แล้วกดปุ่มนี้เพื่อแจ้งตาย
-async function markDeadFromOn(mapNumber, channel) {
-    const map = parseInt(mapNumber, 10);
-    const ch = parseInt(channel, 10);
-
-    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
-    if (!item) return;
-
-    item.Status = 'dead';
-    item.BossStartTime = null;
-    item.UpdatedAt = getNowISO();
-    renderTable();
-
-    suppressNextToast = true;
-    await _db.from('BossList')
-        .update({ Status: 'dead', BossStartTime: null, UpdatedAt: getNowISO() })
-        .eq('MapNumber', map).eq('Channel', ch);
-    showToast(`☠️ แมพ ${map} CH${ch} — บอสตาย รอกรอกเวลาเกิดใหม่`, 'info');
-}
-
-
-
-
-async function toggleBossOn(mapNumber, channel) {
-    const map = parseInt(mapNumber, 10);
-    const ch = parseInt(channel, 10);
-
-    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
-    if (!item) return;
-
-    // ปุ่มนี้ทำหน้าที่ "Boss ON" เท่านั้น — ถ้า ON อยู่แล้วไม่ทำอะไร
-    if (item.Status === 'boss_on') return;
-
-    const nowTime = getNowISO();
-
-    item.Status = 'boss_on';
-    item.Fade = 4;
-    item.BossStartTime = nowTime;
-    item.UpdatedAt = nowTime;
-    renderTable();
-
-    suppressNextToast = true;
-    await _db.from('BossList')
-        .update({ Status: 'boss_on', Fade: 4, BossStartTime: nowTime, UpdatedAt: nowTime })
-        .eq('MapNumber', map).eq('Channel', ch);
-    showToast(`⚔️ แมพ ${map} CH${ch} — Boss ON!`, 'bosson');
-}
-
-let pendingDeadMap = null;
-let pendingDeadChannel = null;
-
-let pendingDeleteMap = null;
-let pendingDeleteChannel = null;
-
-async function inlineConfirmDead(mapNumber, channel, inputValue) {
-    inputValue = (inputValue || '').trim();
-    if (!inputValue) return;
-
-    let newTime;
-    try {
-        newTime = calcTime(inputValue);
-        if (!newTime) throw new Error('invalid');
-    } catch (err) {
-        alert('รูปแบบเวลาไม่ถูกต้อง');
-        return;
-    }
-
-    const map = parseInt(mapNumber, 10);
-    const ch = parseInt(channel, 10);
-
-    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
-    if (item) {
-        item.TimeMer = newTime;
-        item.Status = 'waiting';
-        item.BossStartTime = null;
-        item.Fade = 0;
-        item.UpdatedAt = getNowISO();
-    }
-    renderTable();
-
-    suppressNextToast = true;
-    await _db.from('BossList')
-        .update({ TimeMer: newTime, Status: 'waiting', BossStartTime: null, Fade: 0, UpdatedAt: getNowISO() })
-        .eq('MapNumber', map)
-        .eq('Channel', ch);
-    showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว (${calcTimeLabel(inputValue)})`);
-}
-
-async function markBossDead(mapNumber, channel) {
-    const map = parseInt(mapNumber, 10);
-    const ch = parseInt(channel, 10);
-
-    // เก็บสถานะไว้ก่อน แล้วเปิด modal
-    pendingDeadMap = map;
-    pendingDeadChannel = ch;
-
-    document.getElementById('deadModalInput').value = '';
-    document.getElementById('deadModal').style.display = 'flex';
-    setTimeout(() => document.getElementById('deadModalInput').focus(), 100);
-}
-
-function closeDeadModal() {
-    pendingDeadMap = null;
-    pendingDeadChannel = null;
-    document.getElementById('deadModal').style.display = 'none';
-}
-
-async function confirmBossDead() {
-    const inputValue = document.getElementById('deadModalInput').value.trim();
-    if (!inputValue) {
-        alert('กรุณากรอกเวลา');
-        return;
-    }
-
-    let newTime;
-    try {
-        newTime = calcTime(inputValue);
-        if (!newTime) throw new Error('invalid');
-    } catch (err) {
-        alert('รูปแบบเวลาไม่ถูกต้อง');
-        return;
-    }
-
-    if (pendingDeadMap === null || pendingDeadChannel === null) {
-        closeDeadModal();
-        return;
-    }
-
-    const map = pendingDeadMap;
-    const ch = pendingDeadChannel;
-
-    // Optimistic: อัปเดต cache + render ทันที
-    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
-    if (item) {
-        item.TimeMer = newTime;
-        item.Status = 'waiting';
-        item.BossStartTime = null;
-        item.Fade = 0;
-    }
-    closeDeadModal();
-    renderTable();
-
-    // ส่ง DB ทีหลัง
-    await _db.from('BossList')
-        .update({ TimeMer: newTime, Status: 'waiting', BossStartTime: null, Fade: 0 })
-        .eq('MapNumber', map)
-        .eq('Channel', ch);
-    showToast(`☠️ แมพ ${map} CH${ch} — ตั้งเวลาใหม่แล้ว (${calcTimeLabel(inputValue)})`);
-}
-
-async function deleteBoss(mapNumber, channel) {
-    const map = parseInt(mapNumber, 10);
-    const ch = parseInt(channel, 10);
-
-    // CH 1 ลบไม่ได้
-    if (ch === 1) {
-        showToast(`⚠️ แมพ ${map} CH1 — ไม่สามารถลบได้`, 'error');
-        return;
-    }
-
-    // เก็บสถานะไว้ก่อน แล้วเปิด modal
-    pendingDeleteMap = map;
-    pendingDeleteChannel = ch;
-
-    document.getElementById('deleteModal').style.display = 'flex';
-}
-
-function closeDeleteModal() {
-    pendingDeleteMap = null;
-    pendingDeleteChannel = null;
-    document.getElementById('deleteModal').style.display = 'none';
-}
-
-async function confirmDeleteBoss() {
-    if (pendingDeleteMap === null || pendingDeleteChannel === null) {
-        closeDeleteModal();
-        return;
-    }
-
-    const map = pendingDeleteMap;
-    const ch = pendingDeleteChannel;
-
-    // Optimistic: ลบจาก cache + render ทันที
-    cachedBossList = cachedBossList.filter(i => !(i.MapNumber == map && i.Channel == ch));
-    closeDeleteModal();
-    renderTable();
-
-    // ส่ง DB ทีหลัง
-    suppressNextToast = true;
-    await _db.from('BossList')
-        .delete()
-        .eq('MapNumber', map)
-        .eq('Channel', ch);
-    showToast(`🗑️ แมพ ${map} CH${ch} — ลบแล้ว`, 'error');
-}
-
-function parseMapInput(input) {
-    let map = null;
-    let ch = 1;
-
-    if (input.includes('.') || input.includes('-')) {
-        const parts = input.split(/[.-]/);
-        map = parseInt(parts[0]);
-        ch = parseInt(parts[1] || 1);
-    } else {
-        map = parseInt(input);
-    }
-
-    return {
-        map,
-        ch
-    };
-}
-
-
-function getCountdown(startTime) {
-    if (!startTime) return "";
-
-    const start = new Date(startTime);
-    const end = new Date(start.getTime() + 30 * 60 * 1000);
-    const now = getNowBangkok();
-
-    const diff = end - now;
-
-    if (diff <= 0) return "00:00";
-
-    const m = String(Math.floor(diff / 60000)).padStart(2, '0');
-    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-
-    return `${m}:${s}`;
-}
-
-function getUpdatedAgo(updatedAt) {
-    if (!updatedAt) return '';
-    // รองรับทั้ง ISO string และ timestamp number
-    const updated = typeof updatedAt === 'number' ? updatedAt : new Date(updatedAt).getTime();
-    const nowMs = Date.now();
-    const diffMs = nowMs - updated;
-    if (diffMs < 0 || isNaN(diffMs)) return '🕐 0:00';
-    const totalSec = Math.floor(diffMs / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    if (h > 0) return `🕐 ${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    return `🕐 ${m}:${String(s).padStart(2,'0')}`;
-}
-
-function getNowISO() {
-    return new Date().toISOString();
-}
-
-function updateTimers() {
-    const now = getNowBangkok();
-    cachedBossList.forEach(i => {
-        const status = i.Status || 'waiting';
-
-        // นับเวลาที่บอสเกิดมาแล้ว — ทำงานทันทีที่ TimeMer ผ่านมา ไม่ว่า Status จะเป็นอะไร
-        // ยกเว้น boss_on (มี countdown แยก) และ dead (ไม่ต้องนับ)
-        if (status !== 'boss_on' && status !== 'dead' && i.Fade < 4) {
-            const bossTime = new Date(i.TimeMer);
-            const timerEl = document.getElementById(`timer-${i.MapNumber}-${i.Channel}`);
-            if (timerEl) {
-                if (bossTime > now) {
-                    // ยังไม่ถึงเวลา → นับถอยหลัง
-                    const diffMs = bossTime - now;
-                    const totalMin = Math.floor(diffMs / 60000);
-                    const diffSec = Math.floor((diffMs % 60000) / 1000);
-                    const h = Math.floor(totalMin / 60);
-                    const m = totalMin % 60;
-                    timerEl.textContent = h > 0 ? `-${h}:${String(m).padStart(2,'0')}:${String(diffSec).padStart(2,'0')}` : `-${m}:${String(diffSec).padStart(2,'0')}`;
-                    timerEl.style.color = '#6a9fd8';
-                } else {
-                    // เวลาผ่านแล้ว → นับเวลาที่เกิดมาแล้ว
-                    const diffMs = now - bossTime;
-                    const totalMin = Math.floor(diffMs / 60000);
-                    const diffSec = Math.floor((diffMs % 60000) / 1000);
-                    const h = Math.floor(totalMin / 60);
-                    const m = totalMin % 60;
-                    timerEl.textContent = h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(diffSec).padStart(2,'0')} ชม.` : `${m}:${String(diffSec).padStart(2,'0')} นาที`;
-                    timerEl.style.color = '';
-                    // sync Status ใน cache + DOM เมื่อเวลาถึง
-                    if (status === 'waiting') {
-                        i.Status = 'active';
-                        const rowEl = document.getElementById(`row-${i.MapNumber}-${i.Channel}`);
-                        if (rowEl) rowEl.className = 'row-active';
-                    }
-                }
-            } else if (bossTime <= now && status === 'waiting') {
-                i.Status = 'active';
-                const rowEl = document.getElementById(`row-${i.MapNumber}-${i.Channel}`);
-                if (rowEl) rowEl.className = 'row-active';
-            }
-        }
-
-        // อัปเดต countdown ของ boss_on (30 นาที)
-        if (status === 'boss_on') {
-            const countdownEl = document.getElementById(`countdown-${i.MapNumber}-${i.Channel}`);
-            if (countdownEl) countdownEl.textContent = getCountdown(i.BossStartTime);
-            const indCd = document.getElementById(`ind-cd-${i.MapNumber}-${i.Channel}`);
-            if (indCd) indCd.textContent = getCountdown(i.BossStartTime) || '00:00';
-        }
-
-        // อัปเดต "อัปเดต X นาทีที่แล้ว"
-        const updEl = document.getElementById(`upd-${i.MapNumber}-${i.Channel}`);
-        if (updEl) updEl.textContent = getUpdatedAgo(i.UpdatedAt);
-
-        // อัปเดต grid timer
-        const gcTimer = document.getElementById(`gc-timer-${i.MapNumber}-${i.Channel}`);
-        if (gcTimer && status !== 'boss_on' && status !== 'dead') {
-            const bossTime2 = new Date(i.TimeMer);
-            const diff2 = now - bossTime2;
-            if (diff2 >= 0) {
-                const totalSec = Math.floor(diff2 / 1000);
-                const h = Math.floor(totalSec / 3600);
-                const m = Math.floor((totalSec % 3600) / 60);
-                const s = totalSec % 60;
-                gcTimer.textContent = h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
-                gcTimer.style.color = '';
-            } else {
-                const absDiff = -diff2;
-                const totalSec = Math.floor(absDiff / 1000);
-                const h = Math.floor(totalSec / 3600);
-                const m = Math.floor((totalSec % 3600) / 60);
-                const s = totalSec % 60;
-                gcTimer.textContent = h > 0 ? `-${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `-${m}:${String(s).padStart(2,'0')}`;
-                gcTimer.style.color = '#6a9fd8';
-            }
-        }
-    });
-
-    // time mode: re-render ทุก 30 วินาทีเพื่อให้เส้นเวลาขยับตำแหน่ง
-    if (sortMode === 'time') {
-        if (!updateTimers._lastReorder) updateTimers._lastReorder = 0;
-        const nowMs = Date.now();
-        if (nowMs - updateTimers._lastReorder > 30000) {
-            updateTimers._lastReorder = nowMs;
-            renderTable();
-        }
-    }
-}
-
 // ===== Bottom Sheet =====
-let bsMap = null, bsCh = null;
-
-const FADE_PRESETS = [1, 1.3, 1.5, 1.7, 1.9, 2, 2.3, 2.5, 2.7, 2.9, 3, 3.3, 3.5, 3.7, 3.9, 4, 4.5];
-const TIME_PRESETS = [
-    { label: '+10น.', min: 10 },
-    { label: '+20น.', min: 20 },
-    { label: '+30น.', min: 30 },
-    { label: '+45น.', min: 45 },
-    { label: '+1ชม.', min: 60 },
-    { label: '+1.30', min: 90 },
-    { label: '+2ชม.', min: 120 },
-];
-
-function openBottomSheet(mapNumber, channel) {
-    bsMap = parseInt(mapNumber);
-    bsCh  = parseInt(channel);
-    const item = cachedBossList.find(i => i.MapNumber == bsMap && i.Channel == bsCh);
-    if (!item) return;
-
-    const bossName = BOSS_NAMES[bsMap] || '';
-    document.getElementById('bsTitle').textContent = `แมพ ${bsMap} CH${bsCh}${bossName ? ' — ' + bossName : ''}`;
-
-    // Status buttons — 2 กลุ่ม: ซ้าย (action) | ขวา (utility)
-    const isBossOn = item.Status === 'boss_on';
-    const isFav = isFavorite(bsMap, bsCh);
-    let statusHtml = `<div class="bs-status-wrap">`;
-    statusHtml += `<div class="bs-status-group">`;
-    if (!isBossOn) statusHtml += `<button class="bs-btn bs-on" onclick="bsBossOn()">⚔️ Boss ON</button>`;
-    statusHtml += `<button class="bs-btn bs-dead" onclick="bsMarkDead()">☠️ ตาย</button>`;
-    statusHtml += `</div><div class="bs-status-group">`;
-    statusHtml += `<button class="bs-btn" onclick="bsResetNow()" style="border-color:var(--success);color:var(--success);">🔄</button>`;
-    statusHtml += `<button class="bs-btn" onclick="bsToggleFav()" style="border-color:${isFav ? '#ff6b8a' : 'var(--border)'};color:${isFav ? '#ff6b8a' : 'var(--text-muted)'};">${isFav ? '❤️' : '♡'}</button>`;
-    statusHtml += `</div></div>`;
-    document.getElementById('bsStatusBtns').innerHTML = statusHtml;
-
-    // Star Fade Selector — ดาวใหญ่สลับเล็ก: 1, 1.5, 2, 2.5, 3, 3.5, 4
-    const currentFade = item.Fade || 0;
-    const fadeValues = [1, 1.5, 2, 2.5, 3, 3.5, 4];
-    document.getElementById('bsStarFade').innerHTML = fadeValues.map(f => {
-        const isBig = Number.isInteger(f);
-        const isActive = currentFade >= f;
-        return `<div class="bs-star" onclick="bsSetFade(${f})">
-            <span class="star-icon ${isBig ? 'big' : 'small'} ${isActive ? 'active' : ''}">★</span>
-            <span class="star-label">${f}</span>
-        </div>`;
+let bsMap=null, bsCh=null;
+function openBS(map,ch) {
+    bsMap=map; bsCh=ch;
+    const item=bossList.find(b=>b.MapNumber==map&&b.Channel==ch);
+    if(!item)return;
+    const mapInfo=config.flatMap(e=>e.maps).find(m=>m.num==map);
+    document.getElementById('bsTitle').textContent=`แมพ ${map} CH${ch}${mapInfo&&mapInfo.name?' — '+mapInfo.name:''}`;
+    // Status
+    const isBossOn=item.Status==='boss_on'; const fav=isFav(map,ch);
+    let sh=`<div class="bs-status-wrap"><div class="bs-status-group">`;
+    if(!isBossOn) sh+=`<button class="bs-btn bs-on" onclick="bsBossOn()">⚔️ Boss ON</button>`;
+    sh+=`<button class="bs-btn bs-dead" onclick="bsDead()">☠️ ตาย</button>`;
+    sh+=`</div><div class="bs-status-group">`;
+    sh+=`<button class="bs-btn" onclick="bsReset()" style="border-color:var(--success);color:var(--success);">🔄</button>`;
+    sh+=`<button class="bs-btn" onclick="bsFav()" style="border-color:${fav?'#ff6b8a':'var(--border)'};color:${fav?'#ff6b8a':'var(--text-muted)'};">${fav?'❤️':'♡'}</button>`;
+    sh+=`</div></div>`;
+    document.getElementById('bsStatus').innerHTML=sh;
+    // Stars
+    const fadeValues=[1,1.5,2,2.5,3,3.5,4];
+    document.getElementById('bsStars').innerHTML=fadeValues.map(f=>{
+        const big=Number.isInteger(f); const active=(item.Fade||0)>=f;
+        return `<div class="bs-star" onclick="bsSetFade(${f})"><span class="star-icon ${big?'big':'small'} ${active?'active':''}">★</span><span class="star-label">${f}</span></div>`;
     }).join('');
-
-    // ซ่อนปุ่มลบถ้าเป็น CH1
-    document.getElementById('bsDeleteSection').style.display = (bsCh === 1) ? 'none' : 'block';
-
-    // เคลียร์ input ตั้งเวลา
-    document.getElementById('bsTimeInput').value = '';
-
+    // Time input
+    document.getElementById('bsTimeInput').value='';
+    // Delete
+    document.getElementById('bsDeleteWrap').style.display=ch===1?'none':'block';
     // Open
-    document.getElementById('bottomSheet-overlay').classList.add('open');
+    document.getElementById('bsOverlay').classList.add('open');
     document.getElementById('bottomSheet').classList.add('open');
-    // โฟกัสช่องกรอกเวลา
-    setTimeout(() => document.getElementById('bsTimeInput').focus(), 300);
+    setTimeout(()=>document.getElementById('bsTimeInput').focus(),300);
 }
+function closeBS() { document.getElementById('bsOverlay').classList.remove('open'); document.getElementById('bottomSheet').classList.remove('open'); bsMap=null;bsCh=null; }
 
-function closeBottomSheet() {
-    document.getElementById('bottomSheet-overlay').classList.remove('open');
-    document.getElementById('bottomSheet').classList.remove('open');
-    bsMap = null; bsCh = null;
-}
-
-function bsBossOn() {
-    if (bsMap === null) return;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-    toggleBossOn(map, ch);
-}
-
-function bsMarkDead() {
-    if (bsMap === null) return;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-    markDeadFromOn(map, ch);
-}
-
-function bsSetFade(fadeLevel) {
-    if (bsMap === null) return;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-    setFade(map, ch, fadeLevel);
-}
-
-// Wheel Picker — อ่านค่าจาก scroll position
-function getWheelValue(scrollEl, values) {
-    const scrollTop = scrollEl.scrollTop;
-    const idx = Math.round(scrollTop / 40);
-    return values[Math.min(idx, values.length - 1)] || 0;
-}
-
-function bsWheelConfirm() {
-    if (bsMap === null) return;
-    const hours = [0,1,2,3,4,5];
-    const mins = [0,5,10,15,20,25,30,35,40,45,50,55];
-    const h = getWheelValue(document.getElementById('wheelHour'), hours);
-    const m = getWheelValue(document.getElementById('wheelMin'), mins);
-    const totalMin = h * 60 + m;
-    if (totalMin <= 0) return;
-    const val = h > 0 ? `${h}.${String(m).padStart(2,'0')}` : `${m}`;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-    inlineConfirmDead(map, ch, val);
-}
-
-function bsSetTime(val) {
-    if (bsMap === null) return;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-    inlineConfirmDead(map, ch, val);
-}
-
-// สะสมเวลาจากปุ่ม preset
-let bsAccumulatedMin = 0;
-
-function bsAddTime(minutes) {
-    bsAccumulatedMin += minutes;
-    // แสดงผลในช่อง display
-    const h = Math.floor(bsAccumulatedMin / 60);
-    const m = bsAccumulatedMin % 60;
-    let label = '';
-    if (h > 0 && m > 0) label = `${h} ชั่วโมง ${m} นาที`;
-    else if (h > 0) label = `${h} ชั่วโมง`;
-    else label = `${m} นาที`;
-    document.getElementById('bsTimeDisplay').textContent = label;
-    // อัปเดต input ด้วย format ที่ calcTime เข้าใจ
-    if (h > 0) {
-        document.getElementById('bsTimeInput').value = `${h}.${String(m).padStart(2, '0')}`;
-    } else {
-        document.getElementById('bsTimeInput').value = `${m}`;
-    }
-}
-
-function bsResetTime() {
-    bsAccumulatedMin = 0;
-    document.getElementById('bsTimeDisplay').textContent = '0 นาที';
-    document.getElementById('bsTimeInput').value = '';
-}
-
-function bsConfirmTime() {
-    const val = document.getElementById('bsTimeInput').value.trim();
-    if (!val || bsMap === null) return;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-    bsAccumulatedMin = 0;
-    inlineConfirmDead(map, ch, val);
-}
-
-function bsDelete() {
-    if (bsMap === null) return;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-    deleteBoss(map, ch);
-}
-
-function bsToggleFav() {
-    if (bsMap === null) return;
-    toggleFavorite(bsMap, bsCh);
-    // อัปเดตปุ่มใน bottom sheet ทันที
-    const isFav = isFavorite(bsMap, bsCh);
-    const btns = document.querySelectorAll('#bsStatusBtns .bs-btn');
-    btns.forEach(btn => {
-        if (btn.textContent.includes('❤') || btn.textContent.includes('♡')) {
-            btn.textContent = isFav ? '❤️' : '♡';
-            btn.style.borderColor = isFav ? '#ff6b8a' : 'var(--border)';
-            btn.style.color = isFav ? '#ff6b8a' : 'var(--text-muted)';
-        }
+function bsBossOn() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.Status='boss_on';item.Fade=4;item.BossStartTime=new Date().toISOString();item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsDead() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.Status='dead';item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsReset() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.TimeMer=new Date().toISOString();item.Status='active';item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsFav() { if(!bsMap)return; toggleFav(bsMap,bsCh); openBS(bsMap,bsCh); }
+function bsSetFade(f) { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; const wasDead=item.Status==='dead'; item.Fade=f;item.Status='active';item.UpdatedAt=new Date().toISOString(); if(wasDead)item.TimeMer=new Date().toISOString(); saveBossList();render(); }
+function bsSetTime() { const v=document.getElementById('bsTimeInput').value.trim(); if(!v||!bsMap)return; const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.TimeMer=calcTime(v);item.Status='waiting';item.Fade=0;item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsDelete() { const m=bsMap,c=bsCh; closeBS(); bossList=bossList.filter(b=>!(b.MapNumber==m&&b.Channel==c)); saveBossList();render(); }
+// ===== Setup Modal =====
+function openSetup() {
+    const el = document.getElementById('setupList');
+    let html = '';
+    config.forEach((ep, epIdx) => {
+        html += `<div class="setup-ep"><div class="setup-ep-header"><input value="${ep.name}" onchange="config[${epIdx}].name=this.value"><button class="setup-btn" onclick="removeEP(${epIdx})" style="color:var(--danger);border-color:var(--danger);">ลบ EP</button></div>`;
+        ep.maps.forEach((m, mIdx) => {
+            html += `<div class="setup-map-row"><input class="map-num" type="number" value="${m.num}" onchange="config[${epIdx}].maps[${mIdx}].num=parseInt(this.value)"><input class="map-name" value="${m.name||''}" placeholder="ชื่อบอส" onchange="config[${epIdx}].maps[${mIdx}].name=this.value"><button class="setup-btn" onclick="removeMap(${epIdx},${mIdx})" style="color:var(--danger);">✕</button></div>`;
+        });
+        html += `<button class="setup-btn" onclick="addMap(${epIdx})">+ เพิ่มแมพ</button></div>`;
     });
+    el.innerHTML = html;
+    document.getElementById('setupModal').classList.add('open');
+}
+function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
+function addEP() { config.push({name:`EP ${config.length+1}`,maps:[]}); openSetup(); }
+function removeEP(idx) { if(confirm('ลบ EP นี้?')){config.splice(idx,1); openSetup();} }
+function addMap(epIdx) { config[epIdx].maps.push({num:0,name:''}); openSetup(); }
+function removeMap(epIdx,mIdx) { config[epIdx].maps.splice(mIdx,1); openSetup(); }
+function saveSetup() { 
+    // เรียง EP ตามเลขแมพแรกของแต่ละ EP
+    config.sort((a,b) => {
+        const aMin = a.maps.length ? Math.min(...a.maps.map(m=>m.num)) : 999;
+        const bMin = b.maps.length ? Math.min(...b.maps.map(m=>m.num)) : 999;
+        return aMin - bMin;
+    });
+    save(KEYS.config, config); closeSetup(); renderEPFilter(); render(); 
 }
 
-// เพิ่ม CH ใหม่ให้แมพ
-async function addChannel(mapNumber, newCh) {
-    const nowTime = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
-    await _db.from('BossList').insert([{
-        MapNumber: mapNumber,
-        Channel: newCh,
-        TimeMer: nowTime,
-        Fade: 0,
-        Status: 'active',
-        UpdatedAt: new Date().toISOString()
-    }]);
-    suppressNextToast = true;
-    showTable();
-    showToast(`➕ แมพ ${mapNumber} CH${newCh} — เพิ่มแล้ว`, 'info');
-}
-
-// เริ่มนับเวลาใหม่จากตอนนี้ (reset TimeMer เป็นปัจจุบัน)
-async function bsResetNow() {
-    if (bsMap === null) return;
-    const map = bsMap, ch = bsCh;
-    closeBottomSheet();
-
-    const nowTime = new Date().toLocaleString('sv-SE', {timeZone: 'Asia/Bangkok'}).replace(' ', 'T');
-    const item = cachedBossList.find(i => i.MapNumber == map && i.Channel == ch);
-    if (item) {
-        item.TimeMer = nowTime;
-        item.Status = 'active';
-        item.BossStartTime = null;
-        item.Fade = item.Fade || 0;
-    }
-    renderTable();
-
-    suppressNextToast = true;
-    await _db.from('BossList')
-        .update({ TimeMer: nowTime, Status: 'active', BossStartTime: null })
-        .eq('MapNumber', map).eq('Channel', ch);
-    showToast(`🔄 แมพ ${map} CH${ch} — เริ่มนับเวลาใหม่`, 'info');
-}
-
-// กดแถวเปิด bottom sheet (ทุกขนาดจอ)
-document.addEventListener('click', (e) => {
-    const tr = e.target.closest('tr[id^="row-"]');
-    if (!tr) return;
-    // ไม่เปิดถ้ากดปุ่ม fade box
-    if (e.target.closest('.fade-box')) return;
-    const parts = tr.id.split('-');
-    if (parts.length >= 3) openBottomSheet(parts[1], parts[2]);
-});
-
-// ===== Placeholder สลับตัวอย่างคำสั่ง =====
-const placeholderExamples = [
-    '80.1+1.20 → ตั้งเวลา',
-    '95 2 3.7 → เฟด 3.7',
-    '100on → Boss ON',
-    '90 +30 → อีก 30 นาที',
-    '80.1/4 → เฟด 4',
-    '105 2 on → Boss ON CH2',
-];
-let phIdx = 0;
-const cmdInput = document.getElementById('cmd');
+// ===== Timer Update =====
 setInterval(() => {
-    if (document.activeElement === cmdInput) return; // ไม่เปลี่ยนถ้ากำลังพิมพ์
-    phIdx = (phIdx + 1) % placeholderExamples.length;
-    cmdInput.placeholder = placeholderExamples[phIdx];
-}, 4000);
+    const now = getNow();
+    bossList.forEach(b => {
+        const el = document.getElementById(`gt-${b.MapNumber}-${b.Channel}`);
+        if (!el) return;
+        const st = b.Status||'waiting';
+        if (st==='dead'||st==='boss_on') return;
+        const elapsed = now - new Date(b.TimeMer);
+        el.textContent = formatElapsed(elapsed);
+        // auto activate
+        if (st==='waiting' && elapsed>=0) b.Status='active';
+    });
+}, 1000);
 
-
+// ===== Init =====
+renderEPFilter();
+render();
 </script>
 </body>
 </html>
