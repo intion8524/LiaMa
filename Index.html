@@ -1015,6 +1015,43 @@ tbody tr[id^="row-"] { cursor: pointer; }
 #bottomSheet .bs-btn.bs-delete { border-color: #c0564e; color: #c0564e; }
 #bottomSheet .bs-btn.bs-fade { border-color: #8b6914; color: #d4a84b; }
 #bottomSheet .bs-btn.bs-fade.active { background: #8b6914; color: #fff; }
+
+/* Star Fade Selector */
+.bs-star-row { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 14px 0; }
+.bs-star {
+    cursor: pointer; transition: all 0.15s; user-select: none;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.bs-star .star-icon { transition: transform 0.15s, color 0.15s, filter 0.15s; }
+.bs-star .star-icon.big { font-size: 42px; color: var(--border); }
+.bs-star .star-icon.small { font-size: 28px; color: var(--border); }
+.bs-star .star-icon.active.big { color: #f5c842; filter: drop-shadow(0 0 6px rgba(245,200,66,0.6)); animation: starPulse 2s ease infinite; }
+.bs-star .star-icon.active.small { color: #f5c842; opacity: 0.75; filter: drop-shadow(0 0 4px rgba(245,200,66,0.4)); }
+@keyframes starPulse {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(245,200,66,0.5)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 10px rgba(245,200,66,0.8)); transform: scale(1.05); }
+}
+.bs-star .star-label { font-size: 10px; color: var(--text-faint); }
+.bs-star:hover .star-icon { transform: scale(1.2); }
+
+/* Status buttons layout — 2 กลุ่มซ้าย-ขวา */
+.bs-status-wrap {
+    display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+}
+.bs-status-group { display: flex; gap: 6px; }
+
+/* Wheel Picker */
+.wheel-picker-wrap { display: flex; gap: 8px; align-items: center; justify-content: center; margin: 10px 0; }
+.wheel-col { position: relative; width: 80px; height: 120px; overflow: hidden; border: 1.5px solid var(--border); border-radius: 12px; background: var(--card-alt); }
+.wheel-col::before, .wheel-col::after { content: ''; position: absolute; left: 0; right: 0; height: 40px; z-index: 1; pointer-events: none; }
+.wheel-col::before { top: 0; background: linear-gradient(to bottom, var(--card-alt), transparent); }
+.wheel-col::after { bottom: 0; background: linear-gradient(to top, var(--card-alt), transparent); }
+.wheel-highlight { position: absolute; top: 40px; left: 4px; right: 4px; height: 40px; border: 1.5px solid var(--accent); border-radius: 8px; pointer-events: none; z-index: 2; }
+.wheel-scroll { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.wheel-scroll::-webkit-scrollbar { display: none; }
+.wheel-item { height: 40px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; font-size: 18px; font-weight: 700; color: var(--text-muted); transition: color 0.15s; }
+.wheel-item.selected { color: var(--text); }
+.wheel-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
 #bottomSheet .bs-btn.bs-time { border-color: #6a9fd8; color: #6a9fd8; }
 #bottomSheet .bs-input-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 #bottomSheet .bs-input-row input { flex: 1; padding: 8px 12px; border: 1.5px solid #6a9fd8; border-radius: 10px; background: #1e2028; color: #6a9fd8; font-size: 14px; outline: none; }
@@ -1224,18 +1261,12 @@ tbody tr[id^="row-"] { cursor: pointer; }
     </div>
     <div class="bs-section">
         <div class="bs-section-title">เฟด</div>
-        <div class="bs-btn-row" id="bsFadeBtns"></div>
+        <div class="bs-star-row" id="bsStarFade"></div>
     </div>
     <div class="bs-section">
         <div class="bs-section-title">ตั้งเวลาเกิดใหม่</div>
-        <div class="bs-btn-row" id="bsTimeBtns"></div>
-        <div style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:8px 12px; background:#1e2028; border-radius:10px; border:1px solid #3a3d48;">
-            <span style="font-size:13px; color:#8b7a5e;">⏱</span>
-            <span id="bsTimeDisplay" style="flex:1; font-size:14px; font-weight:700; color:#6a9fd8;">0 นาที</span>
-            <button class="bs-btn" onclick="bsResetTime()" style="padding:4px 10px; font-size:11px; border-color:#c0564e; color:#c0564e;">รีเซ็ต</button>
-        </div>
         <div class="bs-input-row">
-            <input type="text" id="bsTimeInput" placeholder="หรือกรอกเอง เช่น 1.20" onkeydown="if(event.key==='Enter'){event.preventDefault();bsConfirmTime();}" />
+            <input type="text" id="bsTimeInput" placeholder="เช่น 1.20 = 1ชม.20นาที หรือ 30 = 30นาที" style="border-color:var(--accent);" onkeydown="if(event.key==='Enter'){event.preventDefault();bsConfirmTime();}" />
             <button onclick="bsConfirmTime()">ตั้งเวลา</button>
         </div>
     </div>
@@ -1255,9 +1286,9 @@ tbody tr[id^="row-"] { cursor: pointer; }
     <div class="fade4-list" id="fade4List"></div>
 </div>
 
-<!-- Favorite Popup (แมพที่ติดดาว + active/boss_on) -->
+<!-- Favorite Popup (แมพที่ถูกใจ + active/boss_on) -->
 <div id="favPopup">
-    <h4>⭐ แมพที่สนใจ</h4>
+    <h4>❤️ แมพที่สนใจ</h4>
     <div class="fav-popup-list" id="favPopupList"></div>
 </div>
 
@@ -1462,7 +1493,7 @@ tbody tr[id^="row-"] { cursor: pointer; }
                 const statusLabel = i.Status === 'boss_on' ? '💀 ON' : `F${i.Fade}`;
                 return `
                 <div class="fav-row" onclick="scrollToMap('${i.MapNumber}','${i.Channel}')">
-                    <span class="map-label">⭐ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
+                    <span class="map-label">❤️ ${i.MapNumber} CH${i.Channel}${bossName ? `<br><span style="font-size:9px;font-weight:400;color:#a09060">${bossName}</span>` : ''}</span>
                     <span class="fav-info">${statusLabel}</span>
                 </div>`;
             }).join('');
@@ -1733,9 +1764,9 @@ function renderTable() {
             const hasHalf = (fade - full) >= 0.3;
             let stars = '';
             for (let i = 1; i <= 4; i++) {
-                if (i <= full) stars += '★';
-                else if (i === full + 1 && hasHalf) stars += '☆';
-                else stars += '<span style="opacity:0.2">★</span>';
+                if (i <= full) stars += '<span style="color:#f5c842;filter:drop-shadow(0 0 4px rgba(245,200,66,0.6));">★</span>';
+                else if (i === full + 1 && hasHalf) stars += '<span style="color:#f5c842;opacity:0.6;">☆</span>';
+                else stars += '<span style="opacity:0.2;">★</span>';
             }
             return stars;
         }
@@ -1767,7 +1798,7 @@ function renderTable() {
                     else { const absDiff = -diff; const m = Math.floor(absDiff/60000); const s = Math.floor((absDiff%60000)/1000); timeLabel = `-${m}:${String(s).padStart(2,'0')}`; }
                 }
                 if (status === 'boss_on') timeLabel = '💀';
-                const star = isFavorite(item.MapNumber, item.Channel) ? '⭐' : '';
+                const star = isFavorite(item.MapNumber, item.Channel) ? '❤️' : '';
 
                 // หา sub-channels ของแมพนี้
                 const subs = groupItems.filter(i => parseInt(i.MapNumber) === mapNum && parseInt(i.Channel) > 1);
@@ -2829,48 +2860,36 @@ function openBottomSheet(mapNumber, channel) {
     const bossName = BOSS_NAMES[bsMap] || '';
     document.getElementById('bsTitle').textContent = `แมพ ${bsMap} CH${bsCh}${bossName ? ' — ' + bossName : ''}`;
 
-    // Status buttons
+    // Status buttons — 2 กลุ่ม: ซ้าย (action) | ขวา (utility)
     const isBossOn = item.Status === 'boss_on';
     const isFav = isFavorite(bsMap, bsCh);
-    let statusHtml = '';
+    let statusHtml = `<div class="bs-status-wrap">`;
+    statusHtml += `<div class="bs-status-group">`;
     if (!isBossOn) statusHtml += `<button class="bs-btn bs-on" onclick="bsBossOn()">⚔️ Boss ON</button>`;
-    if (isBossOn) statusHtml += `<button class="bs-btn bs-dead" onclick="bsMarkDead()">☠️ บอสตาย</button>`;
-    statusHtml += `<button class="bs-btn" onclick="bsResetNow()" style="border-color:#4caf7a;color:#4caf7a;">🔄 เริ่มนับใหม่</button>`;
-    statusHtml += `<button class="bs-btn" onclick="bsToggleFav()" style="border-color:${isFav ? '#d4a84b' : '#3a3d48'};color:${isFav ? '#d4a84b' : '#8b7a5e'};">${isFav ? '⭐ ติดดาวแล้ว' : '☆ ติดดาว'}</button>`;
+    statusHtml += `<button class="bs-btn bs-dead" onclick="bsMarkDead()">☠️ ตาย</button>`;
+    statusHtml += `</div><div class="bs-status-group">`;
+    statusHtml += `<button class="bs-btn" onclick="bsResetNow()" style="border-color:var(--success);color:var(--success);">🔄</button>`;
+    statusHtml += `<button class="bs-btn" onclick="bsToggleFav()" style="border-color:${isFav ? '#ff6b8a' : 'var(--border)'};color:${isFav ? '#ff6b8a' : 'var(--text-muted)'};">${isFav ? '❤️' : '♡'}</button>`;
+    statusHtml += `</div></div>`;
     document.getElementById('bsStatusBtns').innerHTML = statusHtml;
 
-    // Fade buttons — แบ่งเป็นแถวตามเลขหลัก
+    // Star Fade Selector — ดาวใหญ่สลับเล็ก: 1, 1.5, 2, 2.5, 3, 3.5, 4
     const currentFade = item.Fade || 0;
-    const fadeGroups = [[1, 1.3, 1.5, 1.7, 1.9], [2, 2.3, 2.5, 2.7, 2.9], [3, 3.3, 3.5, 3.7, 3.9], [4, 4.3, 4.5, 4.7, 4.9]];
-    document.getElementById('bsFadeBtns').innerHTML = fadeGroups.map(group =>
-        `<div class="bs-btn-row" style="margin-bottom:4px;">${group.map(f =>
-            `<button class="bs-btn bs-fade${f === currentFade ? ' active' : ''}" onclick="bsSetFade(${f})">${f}</button>`
-        ).join('')}</div>`
-    ).join('');
-
-    // Time preset buttons — แถวแรก: ชั่วโมง, แถวสอง: นาที
-    document.getElementById('bsTimeBtns').innerHTML = `
-        <div class="bs-btn-row" style="margin-bottom:4px;">
-            <button class="bs-btn bs-time" onclick="bsAddTime(60)">+1ชม.</button>
-            <button class="bs-btn bs-time" onclick="bsAddTime(120)">+2ชม.</button>
-            <button class="bs-btn bs-time" onclick="bsAddTime(180)">+3ชม.</button>
-        </div>
-        <div class="bs-btn-row">
-            <button class="bs-btn bs-time" onclick="bsAddTime(5)">+5น.</button>
-            <button class="bs-btn bs-time" onclick="bsAddTime(10)">+10น.</button>
-            <button class="bs-btn bs-time" onclick="bsAddTime(15)">+15น.</button>
-            <button class="bs-btn bs-time" onclick="bsAddTime(20)">+20น.</button>
-            <button class="bs-btn bs-time" onclick="bsAddTime(30)">+30น.</button>
-            <button class="bs-btn bs-time" onclick="bsAddTime(45)">+45น.</button>
-        </div>
-    `;
-
-    document.getElementById('bsTimeInput').value = '';
-    document.getElementById('bsTimeDisplay').textContent = '0 นาที';
-    bsAccumulatedMin = 0;
+    const fadeValues = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+    document.getElementById('bsStarFade').innerHTML = fadeValues.map(f => {
+        const isBig = Number.isInteger(f);
+        const isActive = currentFade >= f;
+        return `<div class="bs-star" onclick="bsSetFade(${f})">
+            <span class="star-icon ${isBig ? 'big' : 'small'} ${isActive ? 'active' : ''}">★</span>
+            <span class="star-label">${f}</span>
+        </div>`;
+    }).join('');
 
     // ซ่อนปุ่มลบถ้าเป็น CH1
     document.getElementById('bsDeleteSection').style.display = (bsCh === 1) ? 'none' : 'block';
+
+    // เคลียร์ input ตั้งเวลา
+    document.getElementById('bsTimeInput').value = '';
 
     // Open
     document.getElementById('bottomSheet-overlay').classList.add('open');
@@ -2904,6 +2923,27 @@ function bsSetFade(fadeLevel) {
     const map = bsMap, ch = bsCh;
     closeBottomSheet();
     setFade(map, ch, fadeLevel);
+}
+
+// Wheel Picker — อ่านค่าจาก scroll position
+function getWheelValue(scrollEl, values) {
+    const scrollTop = scrollEl.scrollTop;
+    const idx = Math.round(scrollTop / 40);
+    return values[Math.min(idx, values.length - 1)] || 0;
+}
+
+function bsWheelConfirm() {
+    if (bsMap === null) return;
+    const hours = [0,1,2,3,4,5];
+    const mins = [0,5,10,15,20,25,30,35,40,45,50,55];
+    const h = getWheelValue(document.getElementById('wheelHour'), hours);
+    const m = getWheelValue(document.getElementById('wheelMin'), mins);
+    const totalMin = h * 60 + m;
+    if (totalMin <= 0) return;
+    const val = h > 0 ? `${h}.${String(m).padStart(2,'0')}` : `${m}`;
+    const map = bsMap, ch = bsCh;
+    closeBottomSheet();
+    inlineConfirmDead(map, ch, val);
 }
 
 function bsSetTime(val) {
@@ -2963,10 +3003,10 @@ function bsToggleFav() {
     const isFav = isFavorite(bsMap, bsCh);
     const btns = document.querySelectorAll('#bsStatusBtns .bs-btn');
     btns.forEach(btn => {
-        if (btn.textContent.includes('ดาว')) {
-            btn.textContent = isFav ? '⭐ ติดดาวแล้ว' : '☆ ติดดาว';
-            btn.style.borderColor = isFav ? '#d4a84b' : '#3a3d48';
-            btn.style.color = isFav ? '#d4a84b' : '#8b7a5e';
+        if (btn.textContent.includes('❤') || btn.textContent.includes('♡')) {
+            btn.textContent = isFav ? '❤️' : '♡';
+            btn.style.borderColor = isFav ? '#ff6b8a' : 'var(--border)';
+            btn.style.color = isFav ? '#ff6b8a' : 'var(--text-muted)';
         }
     });
 }
