@@ -292,11 +292,11 @@ function renderGrid(el, now) {
     let html = '';
     config.forEach((ep, epIdx) => {
         if (!isEPVisible(epIdx)) return;
-        const items = bossList.filter(b => ep.maps.some(m => m.num == b.MapNumber));
+        const items = bossList.filter(b => ep.maps.some(m => String(m.num) == String(b.MapNumber)));
         html += `<div class="grid-section"><div class="grid-header">☸ ${ep.name}</div><div class="grid-row">`;
         ep.maps.forEach(m => {
-            const ch1 = items.find(b => b.MapNumber == m.num && b.Channel == 1);
-            const item = ch1 || items.find(b => b.MapNumber == m.num);
+            const ch1 = items.find(b => String(b.MapNumber) == String(m.num) && b.Channel == 1);
+            const item = ch1 || items.find(b => String(b.MapNumber) == String(m.num));
             if (!item) {
                 // แมพว่าง — แสดงเลขจางๆ
                 html += `<div style="min-width:0;"><div class="grid-cell gc-waiting" onclick="createBoss(${m.num},1)"><div class="gc-map">${m.num}</div><div class="gc-fade" style="font-size:9px;">กดเพื่อเริ่ม</div></div></div>`;
@@ -307,7 +307,7 @@ function renderGrid(el, now) {
             const elapsed = now - bt;
             const timeStr = st!=='dead'&&st!=='boss_on' ? formatElapsed(elapsed) : (st==='boss_on'?'💀':'');
             const heart = isFav(item.MapNumber,item.Channel)?'❤️':'';
-            const subs = items.filter(b => b.MapNumber==m.num && b.Channel>1);
+            const subs = items.filter(b => String(b.MapNumber)==String(m.num) && b.Channel>1);
 
             html += `<div style="min-width:0;">`;
             html += `<div class="grid-cell ${sc}" onclick="openBS(${item.MapNumber},${item.Channel})">`;
@@ -361,11 +361,16 @@ function renderTime(el, now) {
         }
         const rc=st==='dead'?'gc-dead':st==='boss_on'?'gc-bosson':(st==='active'||bt<=now)?'gc-active':'gc-waiting';
         const timeStr=st!=='dead'&&st!=='boss_on'?formatElapsed(elapsed):(st==='boss_on'?'💀':'☠️');
-        const epIdx=config.findIndex(ep=>ep.maps.some(m=>m.num==b.MapNumber));
+        const epIdx=config.findIndex(ep=>ep.maps.some(m=>String(m.num)==String(b.MapNumber)));
         const epName=epIdx>=0?config[epIdx].name:'';
-        html+=`<tr class="${rc}" onclick="openBS(${b.MapNumber},${b.Channel})" style="cursor:pointer;">`;
-        html+=`<td style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;"><strong>${b.MapNumber}-${b.Channel}</strong><br><span style="font-size:9px;color:var(--text-faint);">${epName}</span></td>`;
-        html+=`<td style="padding:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center;"><span style="font-size:11px;">${fadeStars(b.Fade||0)}</span><br><span id="gt-${b.MapNumber}-${b.Channel}" style="font-size:12px;color:var(--accent);font-weight:600;">${timeStr}</span></td>`;
+        // สีขอบซ้ายตาม status
+        const borderLeft = st==='boss_on'?'3px solid var(--danger)':st==='dead'?'3px solid var(--purple)':(st==='active'||bt<=now)?'3px solid var(--accent)':'3px solid var(--border)';
+        const rowOpacity = (st==='waiting'&&bt>now)?'opacity:0.4;':'';
+        const bgColor = st==='boss_on'?'var(--danger-bg)':st==='dead'?'var(--purple-bg)':'var(--card)';
+        const timeColor = elapsed<0?'var(--accent)':elapsed>20*60000?'var(--danger)':'var(--success)';
+        html+=`<tr onclick="openBS('${b.MapNumber}',${b.Channel})" style="cursor:pointer;${rowOpacity}">`;
+        html+=`<td style="padding:8px 12px;background:${bgColor};border:1px solid var(--border);border-left:${borderLeft};border-radius:10px 0 0 10px;"><strong style="font-size:15px;">${b.MapNumber}-${b.Channel}</strong><br><span style="font-size:9px;color:var(--text-faint);">${epName}</span></td>`;
+        html+=`<td style="padding:8px 12px;background:${bgColor};border:1px solid var(--border);border-left:none;border-radius:0 10px 10px 0;text-align:center;"><span style="font-size:12px;">${fadeStars(b.Fade||0)}</span> <span style="font-size:10px;color:var(--text-muted);">${b.Fade||0}</span><br><span id="gt-${b.MapNumber}-${b.Channel}" style="font-size:13px;color:${timeColor};font-weight:700;">${timeStr}</span></td>`;
         html+=`</tr>`;
     });
     html+='</tbody></table>';
@@ -375,11 +380,11 @@ function renderTime(el, now) {
 // ===== Create / Add =====
 function createBoss(mapNum, ch) {
     const now = new Date().toISOString();
-    bossList.push({ id:getNextId(), MapNumber:mapNum, Channel:ch, TimeMer:now, Fade:0, Status:'active', BossStartTime:null, UpdatedAt:now });
+    bossList.push({ id:getNextId(), MapNumber:String(mapNum), Channel:ch, TimeMer:now, Fade:0, Status:'active', BossStartTime:null, UpdatedAt:now });
     saveBossList(); render();
 }
 function addCH(mapNum) {
-    const maxCh = Math.max(...bossList.filter(b=>b.MapNumber==mapNum).map(b=>b.Channel), 0);
+    const maxCh = Math.max(...bossList.filter(b=>String(b.MapNumber)==String(mapNum)).map(b=>b.Channel), 0);
     createBoss(mapNum, maxCh+1);
 }
 // ===== Bottom Sheet =====
@@ -393,11 +398,11 @@ function openBS(map,ch) {
     // Status
     const isBossOn=item.Status==='boss_on'; const fav=isFav(map,ch);
     let sh=`<div class="bs-status-wrap"><div class="bs-status-group">`;
-    if(!isBossOn) sh+=`<button class="bs-btn bs-on" onclick="bsBossOn()">⚔️ Boss ON</button>`;
-    sh+=`<button class="bs-btn bs-dead" onclick="bsDead()">☠️ ตาย</button>`;
+    if(!isBossOn) sh+=`<button class="bs-btn bs-on" onclick="bsBossOn()" title="แจ้งบอสเกิดแล้ว">⚔️ Boss ON</button>`;
+    sh+=`<button class="bs-btn bs-dead" onclick="bsDead()" title="แจ้งบอสตายแล้ว">☠️ ตาย</button>`;
     sh+=`</div><div class="bs-status-group">`;
-    sh+=`<button class="bs-btn" onclick="bsReset()" style="border-color:var(--success);color:var(--success);">🔄</button>`;
-    sh+=`<button class="bs-btn" onclick="bsFav()" style="border-color:${fav?'#ff6b8a':'var(--border)'};color:${fav?'#ff6b8a':'var(--text-muted)'};">${fav?'❤️':'♡'}</button>`;
+    sh+=`<button class="bs-btn" onclick="bsReset()" title="เริ่มนับเวลาใหม่จากตอนนี้" style="border-color:var(--success);color:var(--success);">⏱️↺</button>`;
+    sh+=`<button class="bs-btn" onclick="bsFav()" title="${fav?'เอาออกจากรายการถูกใจ':'เพิ่มในรายการถูกใจ'}" style="border-color:${fav?'#ff6b8a':'var(--border)'};color:${fav?'#ff6b8a':'var(--text-muted)'};">${fav?'❤️':'♡'}</button>`;
     sh+=`</div></div>`;
     document.getElementById('bsStatus').innerHTML=sh;
     // Stars
@@ -431,7 +436,7 @@ function openSetup() {
     config.forEach((ep, epIdx) => {
         html += `<div class="setup-ep"><div class="setup-ep-header"><input value="${ep.name}" onchange="config[${epIdx}].name=this.value"><button class="setup-btn" onclick="removeEP(${epIdx})" style="color:var(--danger);border-color:var(--danger);">ลบ EP</button></div>`;
         ep.maps.forEach((m, mIdx) => {
-            html += `<div class="setup-map-row"><input class="map-num" type="number" value="${m.num}" onchange="config[${epIdx}].maps[${mIdx}].num=parseInt(this.value)"><input class="map-name" value="${m.name||''}" placeholder="ชื่อบอส" onchange="config[${epIdx}].maps[${mIdx}].name=this.value"><button class="setup-btn" onclick="removeMap(${epIdx},${mIdx})" style="color:var(--danger);">✕</button></div>`;
+            html += `<div class="setup-map-row"><input class="map-num" type="text" value="${m.num}" onchange="config[${epIdx}].maps[${mIdx}].num=this.value.trim()"><input class="map-name" value="${m.name||''}" placeholder="ชื่อบอส" onchange="config[${epIdx}].maps[${mIdx}].name=this.value"><button class="setup-btn" onclick="removeMap(${epIdx},${mIdx})" style="color:var(--danger);">✕</button></div>`;
         });
         html += `<button class="setup-btn" onclick="addMap(${epIdx})">+ เพิ่มแมพ</button></div>`;
     });
@@ -441,15 +446,31 @@ function openSetup() {
 function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
 function addEP() { config.push({name:`EP ${config.length+1}`,maps:[]}); openSetup(); }
 function removeEP(idx) { if(confirm('ลบ EP นี้?')){config.splice(idx,1); openSetup();} }
-function addMap(epIdx) { config[epIdx].maps.push({num:0,name:''}); openSetup(); }
+function addMap(epIdx) { config[epIdx].maps.push({num:'',name:''}); openSetup(); }
 function removeMap(epIdx,mIdx) { config[epIdx].maps.splice(mIdx,1); openSetup(); }
 function saveSetup() { 
+    // ตรวจเลขแมพซ้ำ
+    const allNums = config.flatMap(ep => ep.maps.map(m => String(m.num).trim()));
+    const dupes = allNums.filter((n, i) => n !== '' && allNums.indexOf(n) !== i);
+    if (dupes.length > 0) {
+        alert(`⚠️ เลขแมพซ้ำ: ${[...new Set(dupes)].join(', ')}\nกรุณาแก้ไขก่อนบันทึก`);
+        return;
+    }
+    // ลบแมพที่ยังไม่ได้กรอกเลข
+    config.forEach(ep => { ep.maps = ep.maps.filter(m => String(m.num).trim() !== ''); });
     // เรียง EP ตามเลขแมพแรกของแต่ละ EP
+    const numPart = (s) => parseInt(String(s).replace(/\D/g,'')) || 999;
     config.sort((a,b) => {
-        const aMin = a.maps.length ? Math.min(...a.maps.map(m=>m.num)) : 999;
-        const bMin = b.maps.length ? Math.min(...b.maps.map(m=>m.num)) : 999;
+        const aMin = a.maps.length ? Math.min(...a.maps.map(m=>numPart(m.num))) : 999;
+        const bMin = b.maps.length ? Math.min(...b.maps.map(m=>numPart(m.num))) : 999;
         return aMin - bMin;
     });
+    // เรียงแมพภายใน EP
+    config.forEach(ep => { ep.maps.sort((a,b) => {
+        const na = numPart(a.num), nb = numPart(b.num);
+        if (na !== nb) return na - nb;
+        return String(a.num).localeCompare(String(b.num));
+    }); });
     save(KEYS.config, config); closeSetup(); renderEPFilter(); render(); 
 }
 
