@@ -75,6 +75,9 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background: v
 .grid-cell .gc-time { font-size: 11px; color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .grid-cell .gc-heart { position: absolute; top: 2px; right: 4px; font-size: 10px; }
 .grid-cell.gc-active { border-color: var(--accent); background: var(--card); }
+.grid-cell.gc-fade4 { border-color: #f5c842; background: rgba(245,200,66,0.08); box-shadow: 0 0 12px rgba(245,200,66,0.3), inset 0 0 8px rgba(245,200,66,0.05); }
+.grid-cell.gc-fade4 .gc-map { color: #f5c842; }
+.grid-cell.gc-fade4 .gc-time { color: #f5c842; }
 .grid-cell.gc-bosson { border-color: var(--danger); background: var(--danger-bg); }
 .grid-cell.gc-bosson .gc-map { color: var(--danger); }
 .grid-cell.gc-dead { border-color: var(--purple); background: var(--purple-bg); }
@@ -299,18 +302,18 @@ function renderGrid(el, now) {
             const item = ch1 || items.find(b => String(b.MapNumber) == String(m.num));
             if (!item) {
                 // แมพว่าง — แสดงเลขจางๆ
-                html += `<div style="min-width:0;"><div class="grid-cell gc-waiting" onclick="createBoss(${m.num},1)"><div class="gc-map">${m.num}</div><div class="gc-fade" style="font-size:9px;">กดเพื่อเริ่ม</div></div></div>`;
+                html += `<div style="min-width:0;"><div class="grid-cell gc-waiting" onclick="createBoss('${m.num}',1)"><div class="gc-map">${m.num}</div><div class="gc-fade" style="font-size:9px;">กดเพื่อเริ่ม</div></div></div>`;
                 return;
             }
             const st = item.Status||'waiting'; const bt = new Date(item.TimeMer);
-            const sc = st==='boss_on'?'gc-bosson':st==='dead'?'gc-dead':(st==='active'||bt<=now)?'gc-active':'gc-waiting';
+            const sc = st==='boss_on'?'gc-bosson':st==='dead'?'gc-dead':(item.Fade>=4)?'gc-fade4':(st==='active'||bt<=now)?'gc-active':'gc-waiting';
             const elapsed = now - bt;
             const timeStr = st!=='dead'&&st!=='boss_on' ? formatElapsed(elapsed) : (st==='boss_on'?'💀':'');
             const heart = isFav(item.MapNumber,item.Channel)?'❤️':'';
             const subs = items.filter(b => String(b.MapNumber)==String(m.num) && b.Channel>1);
 
             html += `<div style="min-width:0;">`;
-            html += `<div class="grid-cell ${sc}" onclick="openBS(${item.MapNumber},${item.Channel})">`;
+            html += `<div class="grid-cell ${sc}" onclick="openBS('${item.MapNumber}',${item.Channel})">`;
             html += `${heart?`<span class="gc-heart">${heart}</span>`:''}`;
             html += `<div class="gc-map">${m.num}</div>`;
             html += `<div class="gc-stars">${fadeStars(item.Fade||0)}</div>`;
@@ -321,12 +324,12 @@ function renderGrid(el, now) {
             subs.forEach(sub => {
                 const sst=sub.Status||'waiting'; const ssc=sst==='boss_on'?'gc-bosson':sst==='dead'?'gc-dead':sst==='active'?'gc-active':'gc-waiting';
                 const se=now-new Date(sub.TimeMer); const st2=sst!=='dead'&&sst!=='boss_on'?formatElapsed(se):(sst==='boss_on'?'💀':'');
-                html+=`<div class="grid-cell ${ssc}" onclick="openBS(${sub.MapNumber},${sub.Channel})" style="margin-top:4px;min-height:55px;padding:4px 3px;">`;
+                html+=`<div class="grid-cell ${ssc}" onclick="openBS('${sub.MapNumber}',${sub.Channel})" style="margin-top:4px;min-height:55px;padding:4px 3px;">`;
                 html+=`<div class="gc-map" style="font-size:11px;"><span style="opacity:0.4;font-size:8px;">CH</span> ${sub.Channel}</div>`;
                 html+=`<div class="gc-stars" style="font-size:9px;">${fadeStars(sub.Fade||0)}</div>`;
                 html+=`<div class="gc-time" id="gt-${sub.MapNumber}-${sub.Channel}" style="font-size:10px;">${st2}</div></div>`;
             });
-            html += `<div class="grid-add" onclick="addCH(${m.num})">+</div>`;
+            html += `<div class="grid-add" onclick="addCH('${m.num}')">+</div>`;
             html += `</div>`;
         });
         // fill empty columns
@@ -390,8 +393,8 @@ function addCH(mapNum) {
 // ===== Bottom Sheet =====
 let bsMap=null, bsCh=null;
 function openBS(map,ch) {
-    bsMap=map; bsCh=ch;
-    const item=bossList.find(b=>b.MapNumber==map&&b.Channel==ch);
+    bsMap=String(map); bsCh=ch;
+    const item=bossList.find(b=>String(b.MapNumber)==bsMap&&b.Channel==ch);
     if(!item)return;
     const mapInfo=config.flatMap(e=>e.maps).find(m=>m.num==map);
     document.getElementById('bsTitle').textContent=`แมพ ${map} CH${ch}${mapInfo&&mapInfo.name?' — '+mapInfo.name:''}`;
@@ -422,13 +425,13 @@ function openBS(map,ch) {
 }
 function closeBS() { document.getElementById('bsOverlay').classList.remove('open'); document.getElementById('bottomSheet').classList.remove('open'); bsMap=null;bsCh=null; }
 
-function bsBossOn() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.Status='boss_on';item.Fade=4;item.BossStartTime=new Date().toISOString();item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
-function bsDead() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.Status='dead';item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
-function bsReset() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.TimeMer=new Date().toISOString();item.Status='active';item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsBossOn() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>String(b.MapNumber)==m&&b.Channel==c); if(!item)return; item.Status='boss_on';item.Fade=4;item.BossStartTime=new Date().toISOString();item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsDead() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>String(b.MapNumber)==m&&b.Channel==c); if(!item)return; item.Status='dead';item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsReset() { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>String(b.MapNumber)==m&&b.Channel==c); if(!item)return; item.TimeMer=new Date().toISOString();item.Status='active';item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
 function bsFav() { if(!bsMap)return; toggleFav(bsMap,bsCh); openBS(bsMap,bsCh); }
-function bsSetFade(f) { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; const wasDead=item.Status==='dead'; item.Fade=f;item.Status='active';item.UpdatedAt=new Date().toISOString(); if(wasDead)item.TimeMer=new Date().toISOString(); saveBossList();render(); }
-function bsSetTime() { const v=document.getElementById('bsTimeInput').value.trim(); if(!v||!bsMap)return; const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>b.MapNumber==m&&b.Channel==c); if(!item)return; item.TimeMer=calcTime(v);item.Status='waiting';item.Fade=0;item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
-function bsDelete() { const m=bsMap,c=bsCh; closeBS(); bossList=bossList.filter(b=>!(b.MapNumber==m&&b.Channel==c)); saveBossList();render(); }
+function bsSetFade(f) { const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>String(b.MapNumber)==m&&b.Channel==c); if(!item)return; const wasDead=item.Status==='dead'; item.Fade=f;item.Status='active';item.UpdatedAt=new Date().toISOString(); if(wasDead)item.TimeMer=new Date().toISOString(); saveBossList();render(); }
+function bsSetTime() { const v=document.getElementById('bsTimeInput').value.trim(); if(!v||!bsMap)return; const m=bsMap,c=bsCh; closeBS(); const item=bossList.find(b=>String(b.MapNumber)==m&&b.Channel==c); if(!item)return; item.TimeMer=calcTime(v);item.Status='waiting';item.Fade=0;item.BossStartTime=null;item.UpdatedAt=new Date().toISOString(); saveBossList();render(); }
+function bsDelete() { const m=bsMap,c=bsCh; closeBS(); bossList=bossList.filter(b=>!(String(b.MapNumber)==m&&b.Channel==c)); saveBossList();render(); }
 // ===== Setup Modal =====
 function openSetup() {
     const el = document.getElementById('setupList');
