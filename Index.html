@@ -14,6 +14,9 @@
     --danger: #e74c3c; --danger-bg: #fff5f5;
     --purple: #9b59b6; --purple-bg: #faf5ff;
     --success: #4caf7a; --shadow: rgba(0,0,0,0.08);
+    --star-inactive: #ddd;
+    --star-active: #333;
+    --star-glow: rgba(0,0,0,0.2);
 }
 body.theme-kiro {
     --bg: #1b1e2b; --card: #232738; --card-alt: #2a2e42;
@@ -23,6 +26,9 @@ body.theme-kiro {
     --danger: #ff6b6b; --danger-bg: #2e1a1a;
     --purple: #a78bfa; --purple-bg: #1e1a2e;
     --success: #4ade80; --shadow: rgba(0,0,0,0.3);
+    --star-inactive: #4a4f65;
+    --star-active: #f5c842;
+    --star-glow: rgba(245,200,66,0.6);
 }
 body.theme-gold {
     --bg: #1a1c24; --card: #1e2028; --card-alt: #2a2d35;
@@ -32,6 +38,9 @@ body.theme-gold {
     --danger: #ff4444; --danger-bg: #2e1515;
     --purple: #9b59b6; --purple-bg: #1e1a2a;
     --success: #4caf7a; --shadow: rgba(0,0,0,0.4);
+    --star-inactive: #4a4535;
+    --star-active: #f5c842;
+    --star-glow: rgba(245,200,66,0.6);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
@@ -112,9 +121,9 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background: v
 .bs-star-row { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 12px 0; }
 .bs-star { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .bs-star .star-icon { transition: all 0.15s; }
-.bs-star .star-icon.big { font-size: 56px; color: var(--border); }
-.bs-star .star-icon.small { font-size: 36px; color: var(--border); }
-.bs-star .star-icon.active { color: #f5c842; filter: drop-shadow(0 0 4px rgba(245,200,66,0.6)); }
+.bs-star .star-icon.big { font-size: 56px; color: var(--star-inactive); }
+.bs-star .star-icon.small { font-size: 36px; color: var(--star-inactive); }
+.bs-star .star-icon.active { color: var(--star-active); filter: drop-shadow(0 0 4px var(--star-glow)); }
 .bs-star .star-label { font-size: 9px; color: var(--text-faint); }
 .bs-star:hover .star-icon { transform: scale(1.2); }
 .bs-input-row { display: flex; gap: 8px; margin-top: 8px; }
@@ -280,7 +289,7 @@ function formatElapsed(ms) {
 }
 function fadeStars(fade) {
     let s=''; const full=Math.floor(fade); const half=(fade-full)>=0.3;
-    for(let i=1;i<=4;i++){if(i<=full)s+='<span style="color:#f5c842;filter:drop-shadow(0 0 4px rgba(245,200,66,0.6))">★</span>';else if(i===full+1&&half)s+='<span style="color:#f5c842;opacity:0.6">☆</span>';else s+='<span style="opacity:0.2">★</span>';}
+    for(let i=1;i<=4;i++){if(i<=full)s+='<span style="color:var(--star-active);filter:drop-shadow(0 0 4px var(--star-glow))">★</span>';else if(i===full+1&&half)s+='<span style="color:var(--star-active);opacity:0.6">☆</span>';else s+='<span style="color:var(--star-inactive)">★</span>';}
     return s;
 }
 function isFav(map,ch) { return favs.includes(`${map}-${ch}`); }
