@@ -102,7 +102,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background: v
 .bs-section { margin-bottom: 14px; }
 .bs-section-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
 .bs-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
-.bs-btn { padding: 6px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: none; color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.bs-btn { padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 10px; background: none; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
 .bs-btn:active { transform: scale(0.95); }
 .bs-btn.bs-on { border-color: var(--danger); color: var(--danger); }
 .bs-btn.bs-dead { border-color: var(--purple); color: var(--purple); }
@@ -112,8 +112,8 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background: v
 .bs-star-row { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 12px 0; }
 .bs-star { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .bs-star .star-icon { transition: all 0.15s; }
-.bs-star .star-icon.big { font-size: 38px; color: var(--border); }
-.bs-star .star-icon.small { font-size: 24px; color: var(--border); }
+.bs-star .star-icon.big { font-size: 56px; color: var(--border); }
+.bs-star .star-icon.small { font-size: 36px; color: var(--border); }
 .bs-star .star-icon.active { color: #f5c842; filter: drop-shadow(0 0 4px rgba(245,200,66,0.6)); }
 .bs-star .star-label { font-size: 9px; color: var(--text-faint); }
 .bs-star:hover .star-icon { transform: scale(1.2); }
@@ -405,18 +405,18 @@ function openBS(map,ch) {
     if(!isBossOn) sh+=`<button class="bs-btn bs-on" onclick="bsBossOn()" title="แจ้งบอสเกิดแล้ว">⚔️ Boss ON</button>`;
     sh+=`<button class="bs-btn bs-dead" onclick="bsDead()" title="แจ้งบอสตายแล้ว">☠️ ตาย</button>`;
     sh+=`</div><div class="bs-status-group">`;
-    sh+=`<button class="bs-btn" onclick="bsReset()" title="เริ่มนับเวลาใหม่จากตอนนี้" style="border-color:var(--success);color:var(--success);">⏱️↺</button>`;
+    sh+=`<button class="bs-btn" onclick="bsReset()" title="เริ่มนับเวลาใหม่จากตอนนี้" style="border-color:var(--success);color:var(--success);">↺</button>`;
     sh+=`<button class="bs-btn" onclick="bsFav()" title="${fav?'เอาออกจากรายการถูกใจ':'เพิ่มในรายการถูกใจ'}" style="border-color:${fav?'#ff6b8a':'var(--border)'};color:${fav?'#ff6b8a':'var(--text-muted)'};">${fav?'❤️':'♡'}</button>`;
     sh+=`</div></div>`;
     document.getElementById('bsStatus').innerHTML=sh;
     // Stars — แบบฟันปลา: ดาวใหญ่สลับดาวเล็ก
     const curFade = item.Fade || 0;
     const allFades = [1, 1.5, 2, 2.5, 3, 3.5, 4];
-    let starsHtml = '<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:10px 0;">';
+    let starsHtml = '<div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:16px 0;">';
     allFades.forEach(f => {
         const big = Number.isInteger(f);
         const active = curFade >= f;
-        const shift = big ? 'translateY(-8px)' : 'translateY(8px)';
+        const shift = big ? 'translateY(-14px)' : 'translateY(14px)';
         starsHtml += `<div class="bs-star" onclick="bsSetFade(${f})" style="transform:${shift};">
             <span class="star-icon ${big?'big':'small'} ${active?'active':''}">★</span>
             <span class="star-label">${f}</span>
