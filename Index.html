@@ -332,7 +332,7 @@ function renderGrid(el, now) {
             html += `</div>`;
             // Sub channels
             subs.forEach(sub => {
-                const sst=sub.Status||'waiting'; const ssc=sst==='boss_on'?'gc-bosson':sst==='dead'?'gc-dead':sst==='active'?'gc-active':'gc-waiting';
+                const sst=sub.Status||'waiting'; const ssc=sst==='boss_on'?'gc-bosson':sst==='dead'?'gc-dead':(sub.Fade>=4)?'gc-fade4':sst==='active'?'gc-active':'gc-waiting';
                 const se=now-new Date(sub.TimeMer); const st2=sst!=='dead'&&sst!=='boss_on'?formatElapsed(se):(sst==='boss_on'?'💀':'');
                 html+=`<div class="grid-cell ${ssc}" onclick="openBS('${sub.MapNumber}',${sub.Channel})" style="margin-top:4px;min-height:55px;padding:4px 3px;">`;
                 html+=`<div class="gc-map" style="font-size:11px;"><span style="opacity:0.4;font-size:8px;">CH</span> ${sub.Channel}</div>`;
