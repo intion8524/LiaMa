@@ -89,12 +89,13 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 12px; background: v
 #bsOverlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.5); display: none; }
 #bsOverlay.open { display: block; }
 #bottomSheet {
-    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-    z-index: 10000; background: var(--card); border-top: 2px solid var(--accent);
-    border-radius: 18px 18px 0 0; padding: 16px; width: 100%; max-width: 420px;
-    max-height: 70vh; overflow-y: auto; transition: transform 0.3s; box-shadow: 0 -4px 20px var(--shadow);
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
+    z-index: 10000; background: var(--card); border: 2px solid var(--accent);
+    border-radius: 18px; padding: 16px; width: 90%; max-width: 420px;
+    max-height: 80vh; overflow-y: auto; transition: transform 0.25s, opacity 0.25s;
+    box-shadow: 0 8px 40px var(--shadow); opacity: 0; pointer-events: none;
 }
-#bottomSheet.open { transform: translateX(-50%) translateY(0); }
+#bottomSheet.open { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
 .bs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 .bs-title { font-size: 15px; font-weight: 700; }
 .bs-close { font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; }
@@ -408,12 +409,21 @@ function openBS(map,ch) {
     sh+=`<button class="bs-btn" onclick="bsFav()" title="${fav?'เอาออกจากรายการถูกใจ':'เพิ่มในรายการถูกใจ'}" style="border-color:${fav?'#ff6b8a':'var(--border)'};color:${fav?'#ff6b8a':'var(--text-muted)'};">${fav?'❤️':'♡'}</button>`;
     sh+=`</div></div>`;
     document.getElementById('bsStatus').innerHTML=sh;
-    // Stars
-    const fadeValues=[1,1.5,2,2.5,3,3.5,4];
-    document.getElementById('bsStars').innerHTML=fadeValues.map(f=>{
-        const big=Number.isInteger(f); const active=(item.Fade||0)>=f;
-        return `<div class="bs-star" onclick="bsSetFade(${f})"><span class="star-icon ${big?'big':'small'} ${active?'active':''}">★</span><span class="star-label">${f}</span></div>`;
-    }).join('');
+    // Stars — แบบฟันปลา: ดาวใหญ่สลับดาวเล็ก
+    const curFade = item.Fade || 0;
+    const allFades = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+    let starsHtml = '<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:10px 0;">';
+    allFades.forEach(f => {
+        const big = Number.isInteger(f);
+        const active = curFade >= f;
+        const shift = big ? 'translateY(-8px)' : 'translateY(8px)';
+        starsHtml += `<div class="bs-star" onclick="bsSetFade(${f})" style="transform:${shift};">
+            <span class="star-icon ${big?'big':'small'} ${active?'active':''}">★</span>
+            <span class="star-label">${f}</span>
+        </div>`;
+    });
+    starsHtml += '</div>';
+    document.getElementById('bsStars').innerHTML = starsHtml;
     // Time input
     document.getElementById('bsTimeInput').value='';
     // Delete
